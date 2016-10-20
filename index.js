@@ -4,7 +4,7 @@ function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
-function convert(swagger) {
+function convert(swagger, options) {
     var openapi = clone(swagger);
 
     return openapi;

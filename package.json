@@ -1,0 +1,16 @@
+{
+  "name": "swagger2openapi",
+  "version": "1.0.0",
+  "description": "Convert Swagger 2.0 specifications to OpenApi 3.0",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/Mermade/swagger2openapi.git",
+    "type": "git"
+  },
+  "author": "Mike Ralphson <mike.ralphson@gmail.com>",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "js-yaml": "^3.6.1",
+    "yargs": "^6.2.0"
+  }
+}

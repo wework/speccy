@@ -55,7 +55,13 @@ function check(file) {
 			resultStr = resultStr.split('undefined in which').join('x');
 			resultStr = resultStr.split('undefined how many').join('x');
 			resultStr = resultStr.split('": "undefined"').join('x'); // trello 'default's
-			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0)) {
+
+			var sanity = true;
+			if (!result.openapi.startsWith('3.0.')) sanity = false;
+			if (result.swagger) sanity = false;
+			if (result.definitions) sanity = false;
+
+			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0) && sanity) {
 				// TODO validate using ajv
 		    	console.log(green+'  %s %s',src.info.title,src.info.version);
 		    	console.log('  %s',src.host);

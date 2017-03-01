@@ -62,7 +62,7 @@ function convert(swagger, options) {
     if (swagger.host) {
     	for (var s of swagger.schemes) {
        		server = {};
-			server.url = s+'://'+swagger.host+swagger.basePath;
+			server.url = s+'://'+swagger.host+(swagger.basePath ? swagger.basePath : '/');
 			server.url = server.url.split('{{').join('{');
 			server.url = server.url.split('}}').join('}');
 			// TODO if we have non-standard path variables here expand them using a regex
@@ -80,8 +80,8 @@ function convert(swagger, options) {
 
     openapi.components = {};
 	openapi.components.schemas = openapi.definitions;
-	openapi.components.responses = openapi.responses;
-	openapi.components.parameters = openapi.parameters|[];
+	openapi.components.responses = openapi.responses||{};
+	openapi.components.parameters = openapi.parameters||[];
 	openapi.components.examples = {};
 	openapi.components.requestBodies = {};
 	openapi.components.securitySchemes = openapi.securityDefinitions;

@@ -4,11 +4,27 @@ function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
+function recurse(object,parent,callback) {
+	for (var key in object) {
+		callback(object,key,parent);
+		if (typeof object[key] == 'object') {
+			recurse(object[key],object,callback);
+		}
+	}
+}
+
 function processParameter(param){
 	if (param["$ref"]) {
 		param["$ref"] = param["$ref"].replace('#/parameters/','#/components/parameters/');
 	}
 	else {
+		if (param.schema) {
+			recurse(param.schema,{},function(object,key,parent){
+				if (key == '$ref') {
+					object[key] = object[key].replace('#/definitions/','#/components/schemas/');
+				}
+			});
+		}
 		if (param.collectionFormat) {
 			if (param.collectionFormat = 'csv') {
 				param.style = 'form';
@@ -59,12 +75,11 @@ function convert(swagger, options) {
 	openapi.components.requestBodies = {};
 	openapi.components.securitySchemes = openapi.securityDefinitions;
 	openapi.components.headers = {};
-    openapi.components.definitions = openapi.definitions;
     delete openapi.definitions;
 	delete openapi.responses;
 	delete openapi.parameters;
 	delete openapi.securityDefinitions;
-    // new are [ callbacks, links]
+    // new are [ callbacks, links ]
 
 	for (var p in openapi.components.parameters) {
 		var param = openapi.components.parameters[p];
@@ -93,12 +108,12 @@ function convert(swagger, options) {
 					// responses
 					for (var r in op.responses) {
 						var response = op.responses[r];
-						if (response.content) {
-							for (var mimetype of response.content) {
-								if ((mimetype.schema) && (mimetype.schema["$ref"])) {
-									mimetype.schema["$ref"] = mimetype.schema["$ref"].replace('#/definitions/','#/components/schemas/');
+						if (response.schema) {
+							recurse(response.schema,{},function(obj,key,parent){
+								if (key == '$ref') {
+									obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
 								}
-							}
+							});
 						}
 					}
 
@@ -118,6 +133,13 @@ function convert(swagger, options) {
 	}
 
 	// security changes (oAuth)
+
+	// recurse through components.schemas fixing #/definitions $refs
+	recurse(openapi.components.schemas,{},function(obj,key,parent){
+		if (key == '$ref') {
+			obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
+		}
+	});
 
 	delete openapi.consumes;
 	delete openapi.produces;

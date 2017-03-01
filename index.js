@@ -23,6 +23,14 @@ function processParameter(param){
 				if (key == '$ref') {
 					object[key] = object[key].replace('#/definitions/','#/components/schemas/');
 				}
+				if (key == 'x-anyOf') {
+					obj.anyOf = obj[key];
+					delete obj[key];
+				}
+				if (key == 'x-oneOf') {
+					obj.oneOf = obj[key];
+					delete obj[key];
+				}
 			});
 		}
 		if (param.collectionFormat) {
@@ -55,6 +63,9 @@ function convert(swagger, options) {
     	for (var s of swagger.schemes) {
        		server = {};
 			server.url = s+'://'+swagger.host+swagger.basePath;
+			server.url = server.url.split('{{').join('{');
+			server.url = server.url.split('}}').join('}');
+			// TODO if we have non-standard path variables here expand them using a regex
         	openapi.servers.push(server);
     	}
 	}
@@ -113,7 +124,19 @@ function convert(swagger, options) {
 								if (key == '$ref') {
 									obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
 								}
+								if (key == 'x-anyOf') {
+									obj.anyOf = obj[key];
+									delete obj[key];
+								}	
+								if (key == 'x-oneOf') {
+									obj.oneOf = obj[key];
+									delete obj[key];
+								}
 							});
+							response.content = {};
+							response.content["*"] = {};
+							response.content["*"].schema = response.schema;
+							delete response.schema;
 						}
 					}
 
@@ -134,10 +157,17 @@ function convert(swagger, options) {
 
 	// security changes (oAuth)
 
-	// recurse through components.schemas fixing #/definitions $refs
 	recurse(openapi.components.schemas,{},function(obj,key,parent){
 		if (key == '$ref') {
 			obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
+		}
+		if (key == 'x-anyOf') {
+			obj.anyOf = obj[key];
+			delete obj[key];
+		}
+		if (key == 'x-oneOf') {
+			obj.oneOf = obj[key];
+			delete obj[key];
 		}
 	});
 

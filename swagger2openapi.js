@@ -1,10 +1,12 @@
 'use strict';
 
+var fs = require('fs');
+
 var yaml = require('js-yaml');
 var converter = require('./index.js');
 
 var argv = require('yargs')
-    .help('h')
+    .help('help')
     .alias('h','help')
     .string('outfile')
     .alias('o','outfile')
@@ -14,7 +16,7 @@ var argv = require('yargs')
     .describe('yaml', 'read and write YAML, default JSON')
     .require(1)
     .strict()
-    .argv();
+    .argv;
 
 var s = fs.readFileSync(argv._[0],'utf8');
 var swagger;
@@ -34,8 +36,8 @@ else {
     s = JSON.stringify(openapi, null, 2);
 }
 
-if (argv._.length > 1) {
-    fs.writeFileSync(argv._[1], s, 'utf8');
+if (argv.outfile) {
+    fs.writeFileSync(argv.outfile, s, 'utf8');
 }
 else {
     console.log(s);

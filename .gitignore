@@ -1,3 +1,6 @@
+*.json
+*.yaml
+
 # Logs
 logs
 *.log

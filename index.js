@@ -84,7 +84,7 @@ function processParameter(param,op,path,openapi) {
 	}
 	if (param.in == 'body') {
 		result.content = {};
-		var consumes = (op.consumes||[]).concat(openapi.consumes||[]);
+		var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
 		consumes = consumes.filter(uniqueOnly);
 
 		for (var mimetype of consumes) {
@@ -106,7 +106,8 @@ function processParameter(param,op,path,openapi) {
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody);
-				if (op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"]) {
+				if ((op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"]) 
+					&& (result.content["application/x-www-form-urlencoded"])) {
 					op.requestBody.content["application/x-www-form-urlencoded"].properties =
 						Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].properties,result.content["application/x-www-form-urlencoded"].properties);
 				}

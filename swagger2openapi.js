@@ -29,9 +29,13 @@ else {
 
 var openapi = converter.convert(swagger, {});
 
+if (argv.outfile && argv.outfile.indexOf('.json') > 0) {
+	argv.yaml = false;
+}
+
 if (argv.yaml) {
-    //s = yaml.safeDump(openapi);
-    s = yaml.dump(openapi);
+    s = yaml.safeDump(openapi);
+    //s = yaml.dump(openapi);
 }
 else {
     s = JSON.stringify(openapi, null, 2);

@@ -54,6 +54,7 @@ function check(file) {
 			resultStr = resultStr.split('field undefined').join('x');
 			resultStr = resultStr.split('undefined in which').join('x');
 			resultStr = resultStr.split('undefined how many').join('x');
+			resultStr = resultStr.split('": "undefined"').join('x'); // trello 'default's
 			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0)) {
 				// TODO validate using ajv
 		    	console.log(green+'  %s %s',src.info.title,src.info.version);

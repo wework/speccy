@@ -4,6 +4,10 @@ function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
+function uniqueOnly(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
 function recurse(object,parent,callback) {
 	for (var key in object) {
 		callback(object,key,parent);
@@ -13,7 +17,15 @@ function recurse(object,parent,callback) {
 	}
 }
 
-function processParameter(param){
+function forceFailure(openapi,message) {
+	openapi.openapi = 'error';
+	openapi["x-s2o-error"] = message;
+}
+
+function processParameter(param,op,path,openapi) {
+	var result = {};
+	var singularRequestBody = true;
+
 	if (param["$ref"]) {
 		param["$ref"] = param["$ref"].replace('#/parameters/','#/components/parameters/');
 	}
@@ -46,6 +58,78 @@ function processParameter(param){
 			delete param.collectionFormat;
 		}
 	}
+	if (param.in == 'formData') {
+		// convert to requestBody
+		singularRequestBody = false;
+		result.content = {};
+		result.content["application/x-www-form-urlencoded"] = {};
+		if (param.schema) {
+			result.content["application/x-www-form-urlencoded"].schema = param.schema;
+		}
+		else {
+			result.content["application/x-www-form-urlencoded"].properties = {};
+			result.content["application/x-www-form-urlencoded"].properties[param.name] = {};
+			result.content["application/x-www-form-urlencoded"].properties[param.name].description = param.description;
+			result.content["application/x-www-form-urlencoded"].properties[param.name].type = param.type;
+			// TODO handle items for arrays?
+		}
+	}
+	if (param.type == 'file') {
+		// convert to requestBody
+		result.content = {};
+		result.content["application/octet-stream"] = {};
+		result.content["application/octet-stream"].schema = {};
+		result.content["application/octet-stream"].schema.type = 'string';
+		result.content["application/octet-stream"].schema.format = 'binary';
+	}
+	if (param.in == 'body') {
+		result.content = {};
+		var consumes = (op.consumes||[]).concat(openapi.consumes||[]);
+		consumes = consumes.filter(uniqueOnly);
+
+		for (var mimetype of consumes) {
+			result.content[mimetype] = {};
+			result.content[mimetype].description = param.description;
+			result.content[mimetype].schema = param.schema||{};
+		}
+		//if (consumes.length>1) {
+		//	forceFailure(openapi,'Body mimetype may not be correct. '+consumes.length);
+		//}
+	}
+
+	if (Object.keys(result).length > 0) {
+		param["x-s2o-delete"] = true;
+		// work out where to attach the requestBody
+		if (op) {
+			if (op.requestBody && singularRequestBody) {
+				forceFailure(openapi,'Operation has >1 requestBodies');
+			}
+			else {
+				op.requestBody = Object.assign({},op.requestBody);
+				if (op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"]) {
+					op.requestBody.content["application/x-www-form-urlencoded"].properties =
+						Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].properties,result.content["application/x-www-form-urlencoded"].properties);
+				}
+				else {
+					op.requestBody = Object.assign(op.requestBody,result);
+				}
+			}
+		}
+		else if (path) {
+			if (path.requestBody && singularRequestBody) {
+				forceFailure(openapi,'Path has >1 requestBodies');
+			}
+			else {
+				path.requestBody = Object.assign({},op.requestBody,result);
+			}
+		}
+		else {
+			var uniqueName = 'TODO';
+			openapi.components.requestBodies[uniqueName] = result;
+		}
+	}
+
+	return result;
 }
 
 function convert(swagger, options) {
@@ -94,7 +178,7 @@ function convert(swagger, options) {
 
 	for (var p in openapi.components.parameters) {
 		var param = openapi.components.parameters[p];
-		processParameter(param);
+		processParameter(param,null,null,openapi);
 	}
 
 	for (var p in openapi.paths) {
@@ -109,14 +193,16 @@ function convert(swagger, options) {
 					(method == 'head') || (method == 'trace')) {
 					var op = path[method];
 
-					op.requestBody = {};
-					// remove requestBody for non-supported ops?
-
 					if (op.parameters) {
 						for (var param of op.parameters) {
-							processParameter(param);
+							processParameter(param,op,path,openapi);
 						}
 					}
+
+					// remove requestBody for non-supported ops? SHALL be ignored
+					//if (op.requestBody && method != 'put' && method != 'post') {
+					//	forceFailure(openapi,'requestBody on get style operation');
+					//}
 
 					// responses
 					for (var r in op.responses) {
@@ -151,7 +237,7 @@ function convert(swagger, options) {
 			if (path.parameters) {
 				for (var p in path.parameters) {
 					var param = path.parameters[p];
-					processParameter(param);
+					processParameter(param,null,path,openapi);
 				}
 			}
 		}
@@ -173,7 +259,9 @@ function convert(swagger, options) {
 		}
 	});
 
+	openapi["x-s2o-consumes"] = openapi.consumes;
 	delete openapi.consumes;
+	openapi["x-s2o-produces"] = openapi.produces;
 	delete openapi.produces;
 
     return openapi;

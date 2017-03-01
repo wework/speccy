@@ -60,6 +60,11 @@ function check(file) {
 			if (!result.openapi.startsWith('3.0.')) sanity = false;
 			if (result.swagger) sanity = false;
 			if (result.definitions) sanity = false;
+			if (result.parameters) sanity = false;
+			if (result.responses) sanity = false;
+			if (result.securityDefinitions) sanity = false;
+			if (result.consumes) sanity = false;
+			if (result.produces) sanity = false;
 
 			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0) && sanity) {
 				// TODO validate using ajv

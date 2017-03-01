@@ -30,7 +30,8 @@ else {
 var openapi = converter.convert(swagger, {});
 
 if (argv.yaml) {
-    s = yaml.safeDump(openapi);
+    //s = yaml.safeDump(openapi);
+    s = yaml.dump(openapi);
 }
 else {
     s = JSON.stringify(openapi, null, 2);

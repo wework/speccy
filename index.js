@@ -56,7 +56,7 @@ function convert(swagger, options) {
     openapi = Object.assign(openapi,clone(swagger));
     delete openapi.swagger;
 
-	if ((!swagger.swagger) || (swagger.swagger != "2.0")) return null; // handle 1.2 later?
+	if ((!swagger.swagger) || (swagger.swagger != "2.0")) return {}; // handle 1.2 later?
 
 	var server;
     if (swagger.host) {
@@ -112,8 +112,10 @@ function convert(swagger, options) {
 					op.requestBody = {};
 					// remove requestBody for non-supported ops?
 
-					for (var param of op.parameters) {
-						processParameter(param);
+					if (op.parameters) {
+						for (var param of op.parameters) {
+							processParameter(param);
+						}
 					}
 
 					// responses

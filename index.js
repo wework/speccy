@@ -102,6 +102,7 @@ function processParameter(param,op,path,openapi) {
 		// work out where to attach the requestBody
 		if (op) {
 			if (op.requestBody && singularRequestBody) {
+				op.requestBody["x-s2o-overloaded"] = true;
 				forceFailure(openapi,'Operation has >1 requestBodies');
 			}
 			else {
@@ -118,6 +119,7 @@ function processParameter(param,op,path,openapi) {
 		}
 		else if (path) {
 			if (path.requestBody && singularRequestBody) {
+				path.requestBody["x-s2o-overloaded"] = true;
 				forceFailure(openapi,'Path has >1 requestBodies');
 			}
 			else {

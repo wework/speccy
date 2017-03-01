@@ -6,6 +6,9 @@ var yaml = require('js-yaml');
 var converter = require('./index.js');
 
 var argv = require('yargs')
+	.boolean('debug')
+	.alias('d','debug')
+	.describe('enable debug mode, adds specification-extensions')
     .help('help')
     .alias('h','help')
     .string('outfile')
@@ -27,7 +30,7 @@ else {
     swagger = JSON.parse(s);
 }
 
-var openapi = converter.convert(swagger, {});
+var openapi = converter.convert(swagger, argv);
 
 if (argv.outfile && argv.outfile.indexOf('.json') > 0) {
 	argv.yaml = false;
@@ -35,7 +38,6 @@ if (argv.outfile && argv.outfile.indexOf('.json') > 0) {
 
 if (argv.yaml) {
     s = yaml.safeDump(openapi);
-    //s = yaml.dump(openapi);
 }
 else {
     s = JSON.stringify(openapi, null, 2);

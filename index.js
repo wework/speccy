@@ -8,6 +8,10 @@ function uniqueOnly(value, index, self) {
     return self.indexOf(value) === index;
 }
 
+function deleteParameters(value, index, self) {
+	return !value["x-s2o-delete"];
+}
+
 function recurse(object,parent,callback) {
 	for (var key in object) {
 		callback(object,key,parent);
@@ -22,12 +26,43 @@ function forceFailure(openapi,message) {
 	openapi["x-s2o-error"] = message;
 }
 
-function processParameter(param,op,path,openapi) {
+function processParameter(param,op,path,index,openapi) {
 	var result = {};
 	var singularRequestBody = true;
 
 	if (param["$ref"]) {
 		param["$ref"] = param["$ref"].replace('#/parameters/','#/components/parameters/');
+		var ptr = param["$ref"].replace('#/components/parameters/','');
+		var target = openapi.components.parameters[ptr];
+		if ((!target) || (target["x-s2o-delete"])) {
+			// it's gone, chances are it's a requestBody now unless spec was broken
+			param["x-s2o-delete"] = true;
+		}
+
+		// shared formData parameters could be used in any combination. We could sort and
+		// hash them into unique combinations, or alternatively lump them all into one bucket
+		// and ensure they're not required:true if they shouldn't be TODO
+
+		if (op) {
+			if (!op.requestBodies) op.requestBodies = {};
+			if (ptr) {
+				op.requestBodies[ptr] = {};
+				op.requestBodies[ptr]["$ref"] = '#/components/requestBodies/'+ptr;
+			}
+			else {
+				forceFailure(openapi,'Have lost a shared parameter now requestBody');
+			}
+		}
+		else if (path) {
+			if (!path.requestBodies) path.requestBodies = {};
+			if (ptr) {
+				path.requestBodies[ptr] = {};
+				path.requestBodies[ptr]["$ref"] = '#/components/requestBodies/'+ptr;
+			}
+			else {
+				forceFailure(openapi,'Have lost a shared parameter now requestBody');
+			}
+		}
 	}
 	else {
 		if (param.schema) {
@@ -69,9 +104,14 @@ function processParameter(param,op,path,openapi) {
 		else {
 			result.content["application/x-www-form-urlencoded"].properties = {};
 			result.content["application/x-www-form-urlencoded"].properties[param.name] = {};
-			result.content["application/x-www-form-urlencoded"].properties[param.name].description = param.description;
-			result.content["application/x-www-form-urlencoded"].properties[param.name].type = param.type;
-			// TODO handle items for arrays?
+			var target = result.content["application/x-www-form-urlencoded"].properties[param.name];
+			target.description = param.description;
+			target.type = param.type;
+			if (param.format) target.format = param.format;
+			// TODO min/max/exclusive/minItems etc etc
+			if ((param.type == 'array') && (param.items)) {
+				target.items = param.items;
+			}
 		}
 	}
 	if (param.type == 'file') {
@@ -127,7 +167,11 @@ function processParameter(param,op,path,openapi) {
 			}
 		}
 		else {
-			var uniqueName = 'TODO';
+			var uniqueName = index;
+			if (!index) {
+				forceFailure(openapi,'Named requestBody needs name');
+				uniqueName = param.name;
+			}
 			openapi.components.requestBodies[uniqueName] = result;
 		}
 	}
@@ -181,7 +225,7 @@ function convert(swagger, options) {
 
 	for (var p in openapi.components.parameters) {
 		var param = openapi.components.parameters[p];
-		processParameter(param,null,null,openapi);
+		processParameter(param,null,null,p,openapi);
 	}
 
 	for (var p in openapi.paths) {
@@ -198,7 +242,10 @@ function convert(swagger, options) {
 
 					if (op.parameters) {
 						for (var param of op.parameters) {
-							processParameter(param,op,path,openapi);
+							processParameter(param,op,path,null,openapi);
+						}
+						if (!options.debug) {
+							op.parameters = op.parameters.filter(deleteParameters);
 						}
 					}
 
@@ -240,7 +287,10 @@ function convert(swagger, options) {
 			if (path.parameters) {
 				for (var p in path.parameters) {
 					var param = path.parameters[p];
-					processParameter(param,null,path,openapi);
+					processParameter(param,null,path,null,openapi);
+				}
+				if (!options.debug) {
+					path.parameters = path.parameters.filter(deleteParameters);
 				}
 			}
 		}
@@ -262,9 +312,9 @@ function convert(swagger, options) {
 		}
 	});
 
-	openapi["x-s2o-consumes"] = openapi.consumes;
+	if (options.debug) openapi["x-s2o-consumes"] = openapi.consumes;
 	delete openapi.consumes;
-	openapi["x-s2o-produces"] = openapi.produces;
+	if (options.debug) openapi["x-s2o-produces"] = openapi.produces;
 	delete openapi.produces;
 
     return openapi;

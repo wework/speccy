@@ -19,9 +19,9 @@ function processParameter(param){
 	}
 	else {
 		if (param.schema) {
-			recurse(param.schema,{},function(object,key,parent){
-				if (key == '$ref') {
-					object[key] = object[key].replace('#/definitions/','#/components/schemas/');
+			recurse(param.schema,{},function(obj,key,parent){
+				if ((key == '$ref') && (typeof obj[key] === 'string')) {
+					obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
 				}
 				if (key == 'x-anyOf') {
 					obj.anyOf = obj[key];
@@ -123,7 +123,7 @@ function convert(swagger, options) {
 						var response = op.responses[r];
 						if (response.schema) {
 							recurse(response.schema,{},function(obj,key,parent){
-								if (key == '$ref') {
+								if ((key == '$ref') && (typeof obj[key] === 'string')) {
 									obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
 								}
 								if (key == 'x-anyOf') {
@@ -160,7 +160,7 @@ function convert(swagger, options) {
 	// security changes (oAuth)
 
 	recurse(openapi.components.schemas,{},function(obj,key,parent){
-		if (key == '$ref') {
+		if ((key == '$ref') && (typeof obj[key] === 'string')) {
 			obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
 		}
 		if (key == 'x-anyOf') {

@@ -50,6 +50,7 @@ function check(file) {
 		try {
 	        result = swagger2openapi.convert(src, options);
 			var resultStr = JSON.stringify(result,null,2).split('is undefined').join('x');
+			resultStr = resultStr.split('be undefined').join('x');
 			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0)) {
 				// TODO validate using ajv
 		    	console.log(green+'  %s %s',src.info.title,src.info.version);

@@ -11,6 +11,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "ajv": "^4.11.3",
+    "jgexml": "^0.3.6",
     "js-yaml": "^3.6.1",
     "yargs": "^6.2.0"
   }

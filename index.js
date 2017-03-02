@@ -284,7 +284,7 @@ function convert(swagger, options) {
 						if (response.schema) {
 							recurse(response.schema,{},function(obj,key,parent){
 								if ((key == '$ref') && (typeof obj[key] === 'string')) {
-									obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
+									obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
 								}
 								if (key == 'x-anyOf') {
 									obj.anyOf = obj[key];
@@ -320,11 +320,20 @@ function convert(swagger, options) {
 		}
 	}
 
+	if (!options.debug) {
+		for (var p in openapi.components.parameters) {
+			param = openapi.components.parameters[p];
+			if (param["x-s2o-delete"]) {
+				delete openapi.components.parameters[p];
+			}
+		}
+	}
+
 	// TODO security changes (oAuth)
 
 	recurse(openapi.components.schemas,{},function(obj,key,parent){
 		if ((key == '$ref') && (typeof obj[key] === 'string')) {
-			obj[key] = obj[key].replace('#/definitions/','#/components/schemas');
+			obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
 		}
 		if (key == 'x-anyOf') {
 			obj.anyOf = obj[key];
@@ -336,9 +345,11 @@ function convert(swagger, options) {
 		}
 	});
 
-	if (options.debug) openapi["x-s2o-consumes"] = openapi.consumes;
+	if (options.debug) {
+		openapi["x-s2o-consumes"] = openapi.consumes;
+		openapi["x-s2o-produces"] = openapi.produces;
+	}
 	delete openapi.consumes;
-	if (options.debug) openapi["x-s2o-produces"] = openapi.produces;
 	delete openapi.produces;
 
     return openapi;

@@ -102,6 +102,10 @@ is-utf8@^0.2.0:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/is-utf8/-/is-utf8-0.2.1.tgz#4b0da1442104d1b336340e80797e865cf39f7d72"
 
+jgexml@^0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/jgexml/-/jgexml-0.3.6.tgz#d73318ed72f136d27cd6f65469b23a3cd9e89696"
+
 js-yaml:
   version "3.6.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.6.1.tgz#6e5fe67d8b205ce4d22fad05b7781e8dadcc4b30"

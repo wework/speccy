@@ -2,9 +2,9 @@
 
 var crypto = require('crypto');
 
-// TODO split out into common, params, security etc
+var jptr = require('jgexml/jpath.js');
 
-var formDataCache = {};
+// TODO split out into common, params, security etc
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -58,38 +58,25 @@ function processParameter(param,op,path,index,openapi) {
 	if (param["$ref"]) {
 		param["$ref"] = param["$ref"].replace('#/parameters/','#/components/parameters/');
 		var ptr = param["$ref"].replace('#/components/parameters/','');
+		var rbody = false;
 		var target = openapi.components.parameters[ptr];
 		if ((!target) || (target["x-s2o-delete"])) {
 			// it's gone, chances are it's a requestBody now unless spec was broken
+			// OR external ref - not supported yet
 			param["x-s2o-delete"] = true;
+			rbody = true;
 		}
 
-		// shared formData parameters could be used in any combination. We could sort and
-		// hash them into unique combinations, or alternatively lump them all into one bucket
-		// and ensure they're not required:true if they shouldn't be TODO
+		// shared formData parameters from swagger or path level could be used in any combination. 
+		// probably best is to make all op.requestBody's unique then hash them and pull out
+		// any common ones afterwards // TODO
 
-		if (op) {
-			if (!op.requestBodies) op.requestBodies = {};
-			if (ptr) {
-				op.requestBodies[ptr] = {};
-				op.requestBodies[ptr]["$ref"] = '#/components/requestBodies/'+ptr;
-			}
-			else {
-				forceFailure(openapi,'Have lost a shared parameter now requestBody');
-			}
-		}
-		else if (path) {
-			if (!path.requestBodies) path.requestBodies = {};
-			if (ptr) {
-				path.requestBodies[ptr] = {};
-				path.requestBodies[ptr]["$ref"] = '#/components/requestBodies/'+ptr;
-			}
-			else {
-				forceFailure(openapi,'Have lost a shared parameter now requestBody');
-			}
+		if (rbody) {
+			param = jptr.jptr(openapi,param["$ref"]);
 		}
 	}
-	else {
+
+	if (param.type || param.in) { // if it's a real parameter OR we've dereferenced it
 		if (param.schema) {
 			recurse(param.schema,{},function(obj,key,parent){
 				if ((key == '$ref') && (typeof obj[key] === 'string')) {
@@ -174,6 +161,10 @@ function processParameter(param,op,path,index,openapi) {
 		var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
 		consumes = consumes.filter(uniqueOnly);
 
+		if (consumes.length == 0) {
+			consumes.push('application/json'); // default as per section xxx
+		}
+
 		for (var mimetype of consumes) {
 			result.content[mimetype] = {};
 			result.content[mimetype].description = param.description;
@@ -229,6 +220,8 @@ function processParameter(param,op,path,index,openapi) {
 }
 
 function convert(swagger, options) {
+	var requestBodyCache = {};
+
 	var openapi = {};
 	openapi.openapi = '3.0.0-RC0'; // semver
 	openapi.servers = [];
@@ -279,6 +272,16 @@ function convert(swagger, options) {
 		var param = openapi.components.parameters[p];
 		processParameter(param,null,null,p,openapi);
 	}
+	for (var r in openapi.components.requestBodies) { // converted ones
+		var rb = openapi.components.requestBodies[r];
+		var rbStr = JSON.stringify(rb);
+		var rbSha1 = sha1(rbStr);
+		var entry = {};
+		entry.name = r;
+		entry.body = rb;
+		entry.refs = [];
+		requestBodyCache[rbSha1] = entry;
+	}
 
 	for (var p in openapi.paths) {
 		var path = openapi.paths[p];
@@ -327,9 +330,27 @@ function convert(swagger, options) {
 						}
 					}
 
-					// examples
+					if (options.debug) {
+						op["x-s2o-consumes"] = op.consumes;
+						op["x-s2o-produces"] = op.produces;
+					}
+					delete op.consumes;
+					delete op.produces;
 
-					// file types
+					// TODO examples
+
+					if (op.requestBody) {
+						var rbStr = JSON.stringify(op.requestBody);
+						var rbSha1 = sha1(rbStr);
+						if (!requestBodyCache[rbSha1]) {
+							var entry = {};
+							entry.name = '';
+							entry.body = op.requestBody;
+							entry.refs = [];
+							requestBodyCache[rbSha1] = entry;
+						}
+						requestBodyCache[rbSha1].refs.push(method+'@'+p);
+					}
 
 				}
 			}
@@ -374,6 +395,11 @@ function convert(swagger, options) {
 	}
 	delete openapi.consumes;
 	delete openapi.produces;
+
+	openapi.components.requestBodies = {}; // for now as we've dereffed them
+	if (options.debug) {
+		console.log(JSON.stringify(requestBodyCache,null,2));
+	}
 
     return openapi;
 }

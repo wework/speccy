@@ -11,6 +11,7 @@ Usage:
 
 ````
 Options:
+  -d, --debug    enable debug mode, adds specification-extensions      [boolean]
   -h, --help     Show help                                             [boolean]
   -o, --outfile  the output file to write to                            [string]
   -y, --yaml     read and write YAML, default JSON                     [boolean]

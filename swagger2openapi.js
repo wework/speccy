@@ -10,7 +10,7 @@ var converter = require('./index.js');
 var argv = require('yargs')
 	.boolean('debug')
 	.alias('d','debug')
-	.describe('enable debug mode, adds specification-extensions')
+	.describe('debug','enable debug mode, adds specification-extensions')
     .help('help')
     .alias('h','help')
     .string('outfile')

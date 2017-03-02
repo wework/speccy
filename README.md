@@ -20,5 +20,6 @@ or use the API:
 
 ````
 var options = {};
+//options.debug = true; // sets various x-s2o- properties for debugging
 var openapi = converter.convert(swagger, options);
 ````

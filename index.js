@@ -20,6 +20,12 @@ function sha1(s) {
 	return shasum.digest('hex');
 }
 
+String.prototype.toCamelCase = function camelize() {
+    return this.toLowerCase().replace(/[-_ \/\.](.)/g, function(match, group1) {
+        return group1.toUpperCase();
+    });
+}
+
 function deleteParameters(value, index, self) {
 	return !value["x-s2o-delete"];
 }
@@ -97,6 +103,10 @@ function processParameter(param,op,path,index,openapi) {
 					obj.oneOf = obj[key];
 					delete obj[key];
 				}
+				if (key == 'x-not') {
+					obj.not = obj[key];
+					delete obj[key];
+				}
 			});
 		}
 		if (param.collectionFormat) {
@@ -113,7 +123,7 @@ function processParameter(param,op,path,index,openapi) {
 		}
 	}
 	if (param.in == 'formData') {
-		// convert to requestBody
+		// convert to requestBody component
 		singularRequestBody = false;
 		result.content = {};
 		result.content["application/x-www-form-urlencoded"] = {};
@@ -126,8 +136,26 @@ function processParameter(param,op,path,index,openapi) {
 			var target = result.content["application/x-www-form-urlencoded"].properties[param.name];
 			target.description = param.description;
 			target.type = param.type;
-			if (param.format) target.format = param.format;
-			// TODO min/max/exclusive/minItems etc etc
+			target.required = param.required;
+			target.default = param.default;
+			target.format = param.format;
+			target.minimum = param.minimum;
+			target.maximum = param.maximum;
+			target.exclusiveMinimum = param.exclusiveMinimum;
+			target.exclusiveMaximum = param.exclusiveMaximum;
+			target.minItems = param.minItems;
+			target.maxItems = param.maxItems;
+			target.uniqueItems = param.uniqueItems;
+			target.pattern = param.pattern;
+			target.enum = param.enum;
+			target.multipleOf = param.multipleOf;
+			target.minLength = param.minLength;
+			target.maxLength = param.maxLength;
+			target.properties = param.properties;
+			target.minProperties = param.minProperties;
+			target.maxProperties = param.maxProperties;
+			target.additionalProperties = param.additionalProperties;
+			target.allOf = param.allOf; // new are anyOf, oneOf, not
 			if ((param.type == 'array') && (param.items)) {
 				target.items = param.items;
 			}
@@ -151,10 +179,9 @@ function processParameter(param,op,path,index,openapi) {
 			result.content[mimetype].description = param.description;
 			result.content[mimetype].schema = param.schema||{};
 		}
-		//if (consumes.length>1) {
-		//	forceFailure(openapi,'Body mimetype may not be correct. '+consumes.length);
-		//}
 	}
+
+	// TODO multipart/formData etc
 
 	if (Object.keys(result).length > 0) {
 		param["x-s2o-delete"] = true;
@@ -177,30 +204,19 @@ function processParameter(param,op,path,index,openapi) {
 			}
 		}
 		else if (path) {
-			if (path.requestBody && singularRequestBody) {
-				path.requestBody["x-s2o-overloaded"] = true;
-				forceFailure(openapi,'Path has >1 requestBodies');
-			}
-			else {
-				path.requestBody = Object.assign({},op.requestBody);
-				if (param.in == 'formData') {
-					path.requestBody["x-s2o-partial"] = true;
-				}
-                if ((path.requestBody.content && path.requestBody.content["application/x-www-form-urlencoded"])
-					 && (result.content["application/x-www-form-urlencoded"])) {
-				 	path.requestBody.content["application/x-www-form-urlencoded"].properties =
-					    Object.assign(path.requestBody.content["application/x-www-form-urlencoded"].properties,result.content["application/x-www-form-urlencoded"].properties);
-				}
-				else {
-					path.requestBody = Object.assign(path.requestBody,result);
-				}
-			}
-		}
-		else {
-			var uniqueName = index;
+			var uniqueName = index ? index.toCamelCase()+'RequestBodyBase' : param.name;
 			if (!index) {
 				forceFailure(openapi,'Named requestBody needs name');
-				uniqueName = param.name;
+			}
+			if (param.in == 'formData') {
+				result["x-s2o-partial"] = true;
+			}
+			openapi.components.requestBodies[uniqueName] = result;
+		}
+		else {
+			var uniqueName = index ? index : param.name;
+			if (!index) {
+				forceFailure(openapi,'Named requestBody needs name');
 			}
 			if (param.in == 'formData') {
 				result["x-s2o-partial"] = true;
@@ -229,7 +245,6 @@ function convert(swagger, options) {
 			server.url = s+'://'+swagger.host+(swagger.basePath ? swagger.basePath : '/');
 			server.url = server.url.split('{{').join('{');
 			server.url = server.url.split('}}').join('}');
-			// TODO if we have non-standard path variables here expand them using a regex?
         	openapi.servers.push(server);
     	}
 	}
@@ -286,10 +301,7 @@ function convert(swagger, options) {
 						}
 					}
 
-					// remove requestBody for non-supported ops? SHALL be ignored
-					//if (op.requestBody && method != 'put' && method != 'post') {
-					//	forceFailure(openapi,'requestBody on get style operation');
-					//}
+					//don't need to remove requestBody for non-supported ops "SHALL be ignored"
 
 					// responses
 					for (var r in op.responses) {
@@ -322,9 +334,9 @@ function convert(swagger, options) {
 				}
 			}
 			if (path.parameters) {
-				for (var p in path.parameters) {
-					var param = path.parameters[p];
-					processParameter(param,null,path,null,openapi);
+				for (var p2 in path.parameters) {
+					var param = path.parameters[p2];
+					processParameter(param,null,path,p,openapi); // index here is the path string
 				}
 				if (!options.debug) {
 					path.parameters = path.parameters.filter(deleteParameters);

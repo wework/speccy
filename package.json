@@ -3,6 +3,9 @@
   "version": "1.1.0",
   "description": "Convert Swagger 2.0 specifications to OpenApi 3.0",
   "main": "index.js",
+  "bin": {
+    "swagger2openapi": "./swagger2openapi.js"
+  },
   "repository": {
     "url": "https://github.com/Mermade/swagger2openapi.git",
     "type": "git"
@@ -13,6 +16,7 @@
     "ajv": "^4.11.3",
     "jgexml": "^0.3.6",
     "js-yaml": "^3.6.1",
+    "recursive-readdir": "^2.1.1",
     "yargs": "^6.2.0"
   }
 }

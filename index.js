@@ -1,11 +1,21 @@
 'use strict';
 
+var crypto = require('crypto');
+
+var formDataCache = {};
+
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
 function uniqueOnly(value, index, self) {
     return self.indexOf(value) === index;
+}
+
+function sha1(s) {
+	var shasum = crypto.createHash('sha1');
+	shasum.update(s);
+	return shasum.digest('hex');
 }
 
 function deleteParameters(value, index, self) {
@@ -163,7 +173,18 @@ function processParameter(param,op,path,index,openapi) {
 				forceFailure(openapi,'Path has >1 requestBodies');
 			}
 			else {
-				path.requestBody = Object.assign({},op.requestBody,result);
+				path.requestBody = Object.assign({},op.requestBody);
+				if (param.in == 'formData') {
+					path.requestBody["x-s2o-partial"] = true;
+				}
+                if ((path.requestBody.content && path.requestBody.content["application/x-www-form-urlencoded"])
+					 && (result.content["application/x-www-form-urlencoded"])) {
+				 	path.requestBody.content["application/x-www-form-urlencoded"].properties =
+					    Object.assign(path.requestBody.content["application/x-www-form-urlencoded"].properties,result.content["application/x-www-form-urlencoded"].properties);
+				}
+				else {
+					path.requestBody = Object.assign(path.requestBody,result);
+				}
 			}
 		}
 		else {
@@ -171,6 +192,9 @@ function processParameter(param,op,path,index,openapi) {
 			if (!index) {
 				forceFailure(openapi,'Named requestBody needs name');
 				uniqueName = param.name;
+			}
+			if (param.in == 'formData') {
+				result["x-s2o-partial"] = true;
 			}
 			openapi.components.requestBodies[uniqueName] = result;
 		}
@@ -196,7 +220,7 @@ function convert(swagger, options) {
 			server.url = s+'://'+swagger.host+(swagger.basePath ? swagger.basePath : '/');
 			server.url = server.url.split('{{').join('{');
 			server.url = server.url.split('}}').join('}');
-			// TODO if we have non-standard path variables here expand them using a regex
+			// TODO if we have non-standard path variables here expand them using a regex?
         	openapi.servers.push(server);
     	}
 	}
@@ -296,7 +320,7 @@ function convert(swagger, options) {
 		}
 	}
 
-	// security changes (oAuth)
+	// TODO security changes (oAuth)
 
 	recurse(openapi.components.schemas,{},function(obj,key,parent){
 		if ((key == '$ref') && (typeof obj[key] === 'string')) {

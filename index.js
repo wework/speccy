@@ -349,7 +349,7 @@ function convert(swagger, options) {
 							entry.refs = [];
 							requestBodyCache[rbSha1] = entry;
 						}
-						requestBodyCache[rbSha1].refs.push(method+'@'+p);
+						requestBodyCache[rbSha1].refs.push(method+' '+p);
 					}
 
 				}
@@ -397,8 +397,22 @@ function convert(swagger, options) {
 	delete openapi.produces;
 
 	openapi.components.requestBodies = {}; // for now as we've dereffed them
-	if (options.debug) {
-		console.log(JSON.stringify(requestBodyCache,null,2));
+	var counter = 0;
+	for (var e in requestBodyCache) {
+		var entry = requestBodyCache[e];
+		if (entry.refs.length>1) {
+			if (!entry.name) {
+				entry.name = 'requestBody'+counter++;
+			}
+			// we can reinstate
+			openapi.components.requestBodies[entry.name] = entry.body;
+			for (var r in entry.refs) {
+				var address = entry.refs[r].split(' ');
+				var ref = {};
+				ref["$ref"] = '#/components/requestBodies/'+entry.name;
+				openapi.paths[address[1]][address[0]].requestBody = ref;
+			}
+		}
 	}
 
     return openapi;

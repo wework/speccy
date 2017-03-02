@@ -2,6 +2,8 @@
 
 var crypto = require('crypto');
 
+// TODO split out into common, params, security etc
+
 var formDataCache = {};
 
 function clone(obj) {
@@ -34,6 +36,13 @@ function recurse(object,parent,callback) {
 function forceFailure(openapi,message) {
 	openapi.openapi = 'error';
 	openapi["x-s2o-error"] = message;
+}
+
+function processSecurityScheme(scheme) {
+	if (scheme.type == 'oauth2') {
+		if (scheme.flow == 'application') scheme.flow = 'clientCredentials';
+		if (scheme.flow == 'accessCode') scheme.flow = 'authorizationCode';
+	}
 }
 
 function processParameter(param,op,path,index,openapi) {
@@ -239,13 +248,17 @@ function convert(swagger, options) {
 	openapi.components.parameters = openapi.parameters||[];
 	openapi.components.examples = {};
 	openapi.components.requestBodies = {};
-	openapi.components.securitySchemes = openapi.securityDefinitions;
+	openapi.components.securitySchemes = openapi.securityDefinitions||{};
 	openapi.components.headers = {};
     delete openapi.definitions;
 	delete openapi.responses;
 	delete openapi.parameters;
 	delete openapi.securityDefinitions;
     // new are [ callbacks, links ]
+
+	for (var s in openapi.components.securitySchemes) {
+		processSecurityScheme(openapi.components.securitySchemes[s]);
+	}
 
 	for (var p in openapi.components.parameters) {
 		var param = openapi.components.parameters[p];
@@ -328,8 +341,6 @@ function convert(swagger, options) {
 			}
 		}
 	}
-
-	// TODO security changes (oAuth)
 
 	recurse(openapi.components.schemas,{},function(obj,key,parent){
 		if ((key == '$ref') && (typeof obj[key] === 'string')) {

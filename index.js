@@ -30,6 +30,11 @@ function deleteParameters(value, index, self) {
 	return !value["x-s2o-delete"];
 }
 
+function forceFailure(openapi,message) {
+	openapi.openapi = 'error';
+	openapi["x-s2o-error"] = message;
+}
+
 function recurse(object,parent,callback) {
 	for (var key in object) {
 		callback(object,key,parent);
@@ -39,9 +44,25 @@ function recurse(object,parent,callback) {
 	}
 }
 
-function forceFailure(openapi,message) {
-	openapi.openapi = 'error';
-	openapi["x-s2o-error"] = message;
+function fixupSchema(obj,key,parent){
+	if (key == 'x-anyOf') {
+		obj.anyOf = obj[key];
+		delete obj[key];
+	}
+	if (key == 'x-oneOf') {
+		obj.oneOf = obj[key];
+		delete obj[key];
+	}
+	if (key == 'x-not') {
+		obj.not = obj[key];
+		delete obj[key];
+	}
+	if ((key == '$ref') && (typeof obj[key] === 'string')) {
+		obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
+	}
+	if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
+		obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
+	}
 }
 
 function processSecurityScheme(scheme) {
@@ -61,15 +82,14 @@ function processParameter(param,op,path,index,openapi) {
 		var rbody = false;
 		var target = openapi.components.parameters[ptr];
 		if ((!target) || (target["x-s2o-delete"])) {
-			// it's gone, chances are it's a requestBody now unless spec was broken
+			// it's gone, chances are it's a requestBody component now unless spec was broken
 			// OR external ref - not supported yet
 			param["x-s2o-delete"] = true;
 			rbody = true;
 		}
 
 		// shared formData parameters from swagger or path level could be used in any combination. 
-		// probably best is to make all op.requestBody's unique then hash them and pull out
-		// any common ones afterwards // TODO
+		// we dereference all op.requestBody's then hash them and pull out common ones later
 
 		if (rbody) {
 			param = jptr.jptr(openapi,param["$ref"]);
@@ -78,23 +98,7 @@ function processParameter(param,op,path,index,openapi) {
 
 	if (param.type || param.in) { // if it's a real parameter OR we've dereferenced it
 		if (param.schema) {
-			recurse(param.schema,{},function(obj,key,parent){
-				if ((key == '$ref') && (typeof obj[key] === 'string')) {
-					obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
-				}
-				if (key == 'x-anyOf') {
-					obj.anyOf = obj[key];
-					delete obj[key];
-				}
-				if (key == 'x-oneOf') {
-					obj.oneOf = obj[key];
-					delete obj[key];
-				}
-				if (key == 'x-not') {
-					obj.not = obj[key];
-					delete obj[key];
-				}
-			});
+			recurse(param.schema,{},fixupSchema);
 		}
 		if (param.collectionFormat) {
 			if (param.collectionFormat = 'csv') {
@@ -310,21 +314,9 @@ function convert(swagger, options) {
 					for (var r in op.responses) {
 						var response = op.responses[r];
 						if (response.schema) {
-							recurse(response.schema,{},function(obj,key,parent){
-								if ((key == '$ref') && (typeof obj[key] === 'string')) {
-									obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
-								}
-								if (key == 'x-anyOf') {
-									obj.anyOf = obj[key];
-									delete obj[key];
-								}	
-								if (key == 'x-oneOf') {
-									obj.oneOf = obj[key];
-									delete obj[key];
-								}
-							});
+							recurse(response,{},fixupSchema);
 							response.content = {};
-							response.content["*"] = {};
+							response.content["*"] = {}; // TODO use produces here?
 							response.content["*"].schema = response.schema;
 							delete response.schema;
 						}
@@ -336,6 +328,8 @@ function convert(swagger, options) {
 					}
 					delete op.consumes;
 					delete op.produces;
+
+					recurse(op,{},fixupSchema); // for x-ms-odata etc
 
 					// TODO examples
 
@@ -375,19 +369,8 @@ function convert(swagger, options) {
 		}
 	}
 
-	recurse(openapi.components.schemas,{},function(obj,key,parent){
-		if ((key == '$ref') && (typeof obj[key] === 'string')) {
-			obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
-		}
-		if (key == 'x-anyOf') {
-			obj.anyOf = obj[key];
-			delete obj[key];
-		}
-		if (key == 'x-oneOf') {
-			obj.oneOf = obj[key];
-			delete obj[key];
-		}
-	});
+	recurse(openapi.components.schemas,{},fixupSchema);
+	recurse(openapi.components.schemas,{},fixupSchema); // second pass for fixed x-anyOf's etc
 
 	if (options.debug) {
 		openapi["x-s2o-consumes"] = openapi.consumes;
@@ -415,11 +398,15 @@ function convert(swagger, options) {
 		}
 	}
 
+	recurse(openapi.components.responses,{},fixupSchema);
+	recurse(openapi["x-ms-paths"],{},fixupSchema);
+
     return openapi;
 }
 
 module.exports = {
 
+	recurse : recurse,
     convert : convert
 
 };

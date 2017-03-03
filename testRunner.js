@@ -66,8 +66,19 @@ function check(file) {
 			if (result.consumes) sanity = false;
 			if (result.produces) sanity = false;
 
+			// TODO validate with ajv 
+
+			if (sanity) {
+				swagger2openapi.recurse(result,{},function(obj,key,parent){
+					if ((key === '$ref') && (typeof obj[key] === 'string')) {
+						if (obj[key].indexOf('#/definitions/') == 0) {
+							sanity = false;
+						}
+					}
+				});
+			}
+
 			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0) && sanity) {
-				// TODO validate using ajv
 		    	console.log(green+'  %s %s',src.info.title,src.info.version);
 		    	console.log('  %s',src.host);
 				result = true;
@@ -78,6 +89,7 @@ function check(file) {
 		}
 		catch (ex) {
 			console.log(ex.message);
+			result = false;
 		}
 		if (result) {
 			pass++;

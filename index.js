@@ -27,6 +27,10 @@ function fixupSchema(obj,key,parent){
 }
 
 function processSecurityScheme(scheme) {
+	if (scheme.type == 'basic') {
+		scheme.type = 'http';
+		scheme.scheme = 'basic';
+	}
 	if (scheme.type == 'oauth2') {
 		if (scheme.flow == 'application') scheme.flow = 'clientCredentials';
 		if (scheme.flow == 'accessCode') scheme.flow = 'authorizationCode';
@@ -364,7 +368,7 @@ function convert(swagger, options) {
 	delete openapi.produces;
 
 	openapi.components.requestBodies = {}; // for now as we've dereffed them
-	var counter = 0;
+	var counter = 1;
 	for (var e in requestBodyCache) {
 		var entry = requestBodyCache[e];
 		if (entry.refs.length>1) {

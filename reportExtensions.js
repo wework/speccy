@@ -29,6 +29,7 @@ var fail = 0;
 var failures = [];
 
 var extensions = {};
+var formats = {};
 
 var pathspec = argv._.length>0 ? argv._[0] : '../openapi-directory/APIs/';
 
@@ -50,6 +51,10 @@ function check(file) {
 			src = JSON.parse(srcStr);
 		}
 
+		if ((src.info["x-origin"]) && (src.info["x-origin"].format)) {
+			delete src.info["x-origin"].format; // contaminates format list below
+		}
+
 		try {
 			common.recurse(src,{},function(obj,key,parent){
 				if (key.startsWith('x-')) {
@@ -67,6 +72,21 @@ function check(file) {
 					}
 					if (extensions[key].type != typeof obj[key]) {
 						extensions[key].type = 'multiple';
+					}
+				}
+
+				if ((key == 'format') && (typeof obj[key] == 'string')) {
+					var fmt = obj[key];
+					if (!formats[fmt]) {
+						formats[fmt] = {};
+						formats[fmt].count = 0;
+						formats[fmt].specs = 0;
+						formats[fmt].lastSpec = '*';
+					}
+					formats[fmt].count++;
+					if (formats[fmt].lastSpec != file) {
+						formats[fmt].specs++;
+						formats[fmt].lastSpec = file;
 					}
 				}
 			});
@@ -122,6 +142,30 @@ process.on('exit', function(code) {
 	console.log('|---|---|---|---|---|');
 	for (var entry of ext) {
 		console.log(entry.key+'|'+entry.specs+'|'+entry.type+'|'+entry.count+'|'+entry.lastSpec);
+	}
+
+	var fmt = [];
+	for (var f in formats) {
+		formats[f].key = f;
+		fmt.push(formats[f]);
+	}
+
+	fmt = fmt.sort(function(a,b){
+		if (a.specs < b.specs) return +1;
+		if (a.specs > b.specs) return -1;
+		if (a.key < b.key) return -1;
+		if (a.key > b.key) return +1;
+		if (a.count < b.count) return +1;
+		if (a.count > b.count) return -1;
+		return 0;
+	});
+
+	console.log();
+	console.log('|format|specs|count|example|');
+	console.log('|---|---|---|---|');
+
+	for (var format of fmt) {
+		console.log(format.key+'|'+format.specs+'|'+format.count+'|'+format.lastSpec);
 	}
 
 	if (failures.length>0) {

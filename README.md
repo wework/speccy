@@ -25,4 +25,4 @@ var options = {};
 var openapi = converter.convert(swagger, options);
 ````
 
-Also included is a tool `reportExtensions` to gather a list of vendor (specification) extensions used in a definition or corpus of definitions. For examples of output, see the [wiki](https://github.com/mermade/swagger2openapi/wiki)
+Also included is a tool `reportExtensions` to gather a list of vendor (specification) extensions and formats used in a definition or corpus of definitions. For examples of output, see the [wiki](https://github.com/mermade/swagger2openapi/wiki)

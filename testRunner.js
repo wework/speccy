@@ -31,6 +31,12 @@ var pathspec = argv._.length>0 ? argv._[0] : '../openapi-directory/APIs/';
 
 var options = argv;
 
+function checkParam(param){
+	if (param.items) return false;
+	if (param.collectionFormat) return false;
+	return true;
+}
+
 function check(file) {
 	var result = false;
 	var components = file.split(path.sep);
@@ -76,6 +82,35 @@ function check(file) {
 						}
 					}
 				});
+			}
+
+			if (sanity && result.components.parameters) {
+				for (var p in result.components.parameters) {
+					sanity = checkParam(result.components.parameters[p]);
+					if (!sanity) break;
+				}
+			}
+			if (sanity) {
+				for (var p in result.paths) {
+					var pathItem = result.paths[p];
+					if (pathItem.parameters) {
+						for (var param of pathItem.parameters) {
+							sanity = checkParam(param);
+							if (!sanity) break;
+						}
+					}
+					if (sanity) {
+						for (var o in pathItem) {
+							var op = pathItem[o];
+							if (op.parameters) {
+								for (var param of op.parameters) {
+									sanity = checkParam(param);
+									if (!sanity) break;
+								}
+							}
+						}
+					}
+				}
 			}
 
 			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0) && sanity) {

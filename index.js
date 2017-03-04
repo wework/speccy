@@ -108,7 +108,7 @@ function processParameter(param,op,path,index,openapi) {
 				param.style = 'spaceDelimited';
 			}
 			if (param.collectionFormat = 'pipes') {
-				param.style = 'pipeDelimeted';
+				param.style = 'pipeDelimited';
 			}
 			delete param.collectionFormat;
 		}
@@ -165,8 +165,8 @@ function processParameter(param,op,path,index,openapi) {
 		var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
 		consumes = consumes.filter(uniqueOnly);
 
-		if (consumes.length == 0) {
-			consumes.push('application/json'); // default as per section xxx
+		if (!consumes.length) {
+			consumes.push('application/json'); // TODO verify default
 		}
 
 		for (var mimetype of consumes) {
@@ -315,9 +315,14 @@ function convert(swagger, options) {
 						var response = op.responses[r];
 						if (response.schema) {
 							recurse(response,{},fixupSchema);
-							response.content = {};
-							response.content["*"] = {}; // TODO use produces here?
-							response.content["*"].schema = response.schema;
+
+							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(uniqueOnly);
+							if (!produces.length) produces.push('*');
+							for (var mimetype of produces) {
+								response.content = {};
+								response.content[mimetype] = {};
+								response.content[mimetype].schema = response.schema;
+							}
 							delete response.schema;
 						}
 					}

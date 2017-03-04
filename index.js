@@ -271,7 +271,7 @@ function convert(swagger, options) {
     openapi.components = {};
 	openapi.components.schemas = openapi.definitions;
 	openapi.components.responses = openapi.responses||{};
-	openapi.components.parameters = openapi.parameters||[];
+	openapi.components.parameters = openapi.parameters||{};
 	openapi.components.examples = {};
 	openapi.components.requestBodies = {};
 	openapi.components.securitySchemes = openapi.securityDefinitions||{};
@@ -332,8 +332,8 @@ function convert(swagger, options) {
 
 							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(uniqueOnly);
 							if (!produces.length) produces.push('*');
+							response.content = {};
 							for (var mimetype of produces) {
-								response.content = {};
 								response.content[mimetype] = {};
 								response.content[mimetype].schema = response.schema;
 							}

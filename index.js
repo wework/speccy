@@ -97,6 +97,20 @@ function processParameter(param,op,path,index,openapi) {
 	}
 
 	if (param.type || param.in) { // if it's a real parameter OR we've dereferenced it
+
+		if ((param.type == 'array') && (param.items)) {
+			if (param.schema) {
+				forceFailure(openapi,'parameter has array,items and schema');
+			}
+			else {
+				param.schema = {};
+				param.schema.type = 'array';
+				param.schema.items = param.items;
+				delete param.type;
+				delete param.items;
+			}
+		}
+
 		if (param.schema) {
 			recurse(param.schema,{},fixupSchema);
 		}

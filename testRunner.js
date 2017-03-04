@@ -34,6 +34,8 @@ var options = argv;
 function checkParam(param){
 	if (param.items) return false;
 	if (param.collectionFormat) return false;
+	if (param.in == 'body') return false;
+	if (param.in == 'formData') return false;
 	return true;
 }
 

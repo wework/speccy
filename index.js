@@ -1,48 +1,9 @@
 'use strict';
 
-var crypto = require('crypto');
-
+var common = require('./common.js');
 var jptr = require('jgexml/jpath.js');
 
-// TODO split out into common, params, security etc
-
-function clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
-
-function uniqueOnly(value, index, self) {
-    return self.indexOf(value) === index;
-}
-
-function sha1(s) {
-	var shasum = crypto.createHash('sha1');
-	shasum.update(s);
-	return shasum.digest('hex');
-}
-
-String.prototype.toCamelCase = function camelize() {
-    return this.toLowerCase().replace(/[-_ \/\.](.)/g, function(match, group1) {
-        return group1.toUpperCase();
-    });
-}
-
-function deleteParameters(value, index, self) {
-	return !value["x-s2o-delete"];
-}
-
-function forceFailure(openapi,message) {
-	openapi.openapi = 'error';
-	openapi["x-s2o-error"] = message;
-}
-
-function recurse(object,parent,callback) {
-	for (var key in object) {
-		callback(object,key,parent);
-		if (typeof object[key] == 'object') {
-			recurse(object[key],object,callback);
-		}
-	}
-}
+// TODO split out into params, security etc
 
 function fixupSchema(obj,key,parent){
 	if (key == 'x-anyOf') {
@@ -70,6 +31,10 @@ function processSecurityScheme(scheme) {
 		if (scheme.flow == 'application') scheme.flow = 'clientCredentials';
 		if (scheme.flow == 'accessCode') scheme.flow = 'authorizationCode';
 	}
+}
+
+function deleteParameters(value, index, self) {
+	return !value["x-s2o-delete"];
 }
 
 function processParameter(param,op,path,index,openapi) {
@@ -112,7 +77,7 @@ function processParameter(param,op,path,index,openapi) {
 		}
 
 		if (param.schema) {
-			recurse(param.schema,{},fixupSchema);
+			common.recurse(param.schema,{},fixupSchema);
 		}
 		if (param.collectionFormat) {
 			if (param.collectionFormat = 'csv') {
@@ -177,7 +142,7 @@ function processParameter(param,op,path,index,openapi) {
 	if (param.in == 'body') {
 		result.content = {};
 		var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
-		consumes = consumes.filter(uniqueOnly);
+		consumes = consumes.filter(common.uniqueOnly);
 
 		if (!consumes.length) {
 			consumes.push('application/json'); // TODO verify default
@@ -244,7 +209,7 @@ function convert(swagger, options) {
 	openapi.openapi = '3.0.0-RC0'; // semver
 	openapi.servers = [];
 	// we want the new and existing properties to appear in a sensible order
-    openapi = Object.assign(openapi,clone(swagger));
+    openapi = Object.assign(openapi,common.clone(swagger));
     delete openapi.swagger;
 
 	if ((!swagger.swagger) || (swagger.swagger != "2.0")) return {}; // handle 1.2 later?
@@ -293,7 +258,7 @@ function convert(swagger, options) {
 	for (var r in openapi.components.requestBodies) { // converted ones
 		var rb = openapi.components.requestBodies[r];
 		var rbStr = JSON.stringify(rb);
-		var rbSha1 = sha1(rbStr);
+		var rbSha1 = common.sha1(rbStr);
 		var entry = {};
 		entry.name = r;
 		entry.body = rb;
@@ -328,9 +293,9 @@ function convert(swagger, options) {
 					for (var r in op.responses) {
 						var response = op.responses[r];
 						if (response.schema) {
-							recurse(response,{},fixupSchema);
+							common.recurse(response,{},fixupSchema);
 
-							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(uniqueOnly);
+							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
 							if (!produces.length) produces.push('*');
 							response.content = {};
 							for (var mimetype of produces) {
@@ -348,13 +313,13 @@ function convert(swagger, options) {
 					delete op.consumes;
 					delete op.produces;
 
-					recurse(op,{},fixupSchema); // for x-ms-odata etc
+					common.recurse(op,{},fixupSchema); // for x-ms-odata etc
 
 					// TODO examples
 
 					if (op.requestBody) {
 						var rbStr = JSON.stringify(op.requestBody);
-						var rbSha1 = sha1(rbStr);
+						var rbSha1 = common.sha1(rbStr);
 						if (!requestBodyCache[rbSha1]) {
 							var entry = {};
 							entry.name = '';
@@ -388,8 +353,8 @@ function convert(swagger, options) {
 		}
 	}
 
-	recurse(openapi.components.schemas,{},fixupSchema);
-	recurse(openapi.components.schemas,{},fixupSchema); // second pass for fixed x-anyOf's etc
+	common.recurse(openapi.components.schemas,{},fixupSchema);
+	common.recurse(openapi.components.schemas,{},fixupSchema); // second pass for fixed x-anyOf's etc
 
 	if (options.debug) {
 		openapi["x-s2o-consumes"] = openapi.consumes;
@@ -417,15 +382,14 @@ function convert(swagger, options) {
 		}
 	}
 
-	recurse(openapi.components.responses,{},fixupSchema);
-	recurse(openapi["x-ms-paths"],{},fixupSchema);
+	common.recurse(openapi.components.responses,{},fixupSchema);
+	common.recurse(openapi["x-ms-paths"],{},fixupSchema);
 
     return openapi;
 }
 
 module.exports = {
 
-	recurse : recurse,
     convert : convert
 
 };

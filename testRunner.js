@@ -4,6 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var rr = require('recursive-readdir');
 var yaml = require('js-yaml');
+var common = require('./common.js');
 var swagger2openapi = require('./index.js');
 
 var argv = require('yargs')
@@ -77,7 +78,7 @@ function check(file) {
 			// TODO validate with ajv 
 
 			if (sanity) {
-				swagger2openapi.recurse(result,{},function(obj,key,parent){
+				common.recurse(result,{},function(obj,key,parent){
 					if ((key === '$ref') && (typeof obj[key] === 'string')) {
 						if (obj[key].indexOf('#/definitions/') == 0) {
 							sanity = false;

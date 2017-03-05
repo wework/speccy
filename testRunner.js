@@ -49,11 +49,13 @@ function checkParam(param){
 	return true;
 }
 
-function check(file) {
+function check(file,force) {
 	var result = false;
 	var components = file.split(path.sep);
+	var name = components[components.length-1];
 
-	if ((components[components.length-1] == 'swagger.yaml') || (components[components.length-1] == 'swagger.json')) {
+	if ((name == 'swagger.yaml') || (name == 'swagger.json') || (name == 'openapi.yaml') 
+		|| (name == 'openapi.json') || force) {
 		console.log(normal+file);
 
 		var srcStr = fs.readFileSync(path.resolve(file),'utf8');
@@ -81,6 +83,13 @@ function check(file) {
 			result.should.not.have.key('securityDefinitions');
 			result.should.not.have.key('produces');
 			result.should.not.have.key('consumes');
+
+			if (result.components.securitySchemes) {
+				for (var s in result.components.securitySchemes) {
+					var scheme = result.components.securitySchemes[s];
+					scheme.type.should.not.be.exactly('basic');
+				}
+			}
 
 			result.openapi.startsWith('3.0.').should.be.ok();
 
@@ -142,13 +151,21 @@ function check(file) {
 
 process.exitCode = 1;
 pathspec = path.resolve(pathspec);
-rr(pathspec, function (err, files) {
-	for (var i in files) {
-		if (!check(files[i])) {
-			failures.push(files[i]);
-		}
+var stats = fs.statSync(pathspec);
+if (stats.isFile()) {
+	if (!check(pathspec,true)) {
+		failures.push(files[i]);
 	}
-});
+}
+else {
+	rr(pathspec, function (err, files) {
+		for (var i in files) {
+			if (!check(files[i])) {
+				failures.push(files[i]);
+			}
+		}
+	});
+}
 
 process.on('exit', function(code) {
 	if (failures.length>0) {

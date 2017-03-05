@@ -25,4 +25,21 @@ var options = {};
 var openapi = converter.convert(swagger, options);
 ````
 
+## Tests
+
+To run a test-suite:
+
+````
+node testRunner {path-to-APIs|single-file}
+````
+
+The test harness currently expects files named `swagger.yaml`, `swagger.json`, `openapi.yaml` or `openapi.json` or a single named file, and has been tested against
+
+* [APIs.guru](https://github.com/APIs-guru/openapi-directory)
+* [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)
+
+It can also be used as a simple validator if given an existing OpenAPI 3.x definition
+
+## Metadata reporting
+
 Also included is a tool `reportExtensions` to gather a list of vendor (specification) extensions and formats used in a definition or corpus of definitions. For examples of output, see the [wiki](https://github.com/mermade/swagger2openapi/wiki)

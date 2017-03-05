@@ -30,13 +30,19 @@ var openapi = converter.convert(swagger, options);
 swagger2openapi has support for a limited number of real-world vendor extensions which have a direct bearing on the conversion. All other vendor extensions are left untouched.
 
 Vendor Extension|Vendor|Conversion Performed
----|---|---
-x-ms-paths|Microsoft|Treated as an analogue of the `openapi.paths` object
-x-ms-skip-url-encoding|Microsoft|For query parameters, converted to `allowReserved:true`
-x-ms-odata|Microsoft|References to `#/definitions/` are updated to `#/components/schemas`
-x-anyOf|Open Nitro Project|Within schemas, converted to `anyOf`
-x-oneOf|Open Nitro Project|Within schemas, converted to `oneOf`
-x-not|Open Nitro Project|Within schemas, converted to `not`
+|---|---|---|
+x-ms-paths|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|Treated as an analogue of the `openapi.paths` object
+x-ms-skip-url-encoding|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|For query parameters, converted to `allowReserved:true`
+x-ms-odata|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|References to `#/definitions/` are updated to `#/components/schemas`
+x-ms-parameterized-host|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|**TODO**
+x-anyOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `anyOf`
+x-oneOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `oneOf`
+x-not|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `not`
+
+See also [Amazon API Gateway vendor extensions](http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html)
+
+It is expected to be able to configure the process of vendor-extension modification using options or a plugin 
+mechanism in a future release.
 
 ## Tests
 

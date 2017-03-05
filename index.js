@@ -270,15 +270,15 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 
 					if (op.requestBody) {
 						var rbStr = JSON.stringify(op.requestBody);
-						var rbSha1 = common.sha1(rbStr);
-						if (!requestBodyCache[rbSha1]) {
+						var rbSha256 = common.sha256(rbStr);
+						if (!requestBodyCache[rbSha256]) {
 							var entry = {};
 							entry.name = '';
 							entry.body = op.requestBody;
 							entry.refs = [];
-							requestBodyCache[rbSha1] = entry;
+							requestBodyCache[rbSha256] = entry;
 						}
-						requestBodyCache[rbSha1].refs.push(containerName+' '+method+' '+p);
+						requestBodyCache[rbSha256].refs.push(containerName+' '+method+' '+p);
 					}
 
 				}
@@ -354,12 +354,12 @@ function convert(swagger, options) {
 	for (var r in openapi.components.requestBodies) { // converted ones
 		var rb = openapi.components.requestBodies[r];
 		var rbStr = JSON.stringify(rb);
-		var rbSha1 = common.sha1(rbStr);
+		var rbSha256 = common.sha256(rbStr);
 		var entry = {};
 		entry.name = r;
 		entry.body = rb;
 		entry.refs = [];
-		requestBodyCache[rbSha1] = entry;
+		requestBodyCache[rbSha256] = entry;
 	}
 
 	processPaths(openapi.paths,'paths',options,requestBodyCache,openapi);

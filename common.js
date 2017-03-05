@@ -10,8 +10,8 @@ function uniqueOnly(value, index, self) {
     return self.indexOf(value) === index;
 }
 
-function sha1(s) {
-	var shasum = crypto.createHash('sha1');
+function sha256(s) {
+	var shasum = crypto.createHash('sha256');
 	shasum.update(s);
 	return shasum.digest('hex');
 }
@@ -41,7 +41,7 @@ module.exports = {
 	clone : clone,
 	uniqueOnly : uniqueOnly,
 	recurse : recurse,
-    sha1 : sha1,
+    sha256 : sha256,
 	forceFailure : forceFailure
 
 };

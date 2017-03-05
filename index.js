@@ -311,7 +311,7 @@ function convert(swagger, options) {
 
 
 	var server;
-    if (swagger.host) {
+    if (swagger.host && swagger.schemes) {
     	for (var s of swagger.schemes) {
        		server = {};
 			server.url = s+'://'+swagger.host+(swagger.basePath ? swagger.basePath : '/');

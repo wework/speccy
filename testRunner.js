@@ -68,18 +68,22 @@ function check(file,force) {
 	var components = file.split(path.sep);
 	var name = components[components.length-1];
 
-	if ((name == 'swagger.yaml') || (name == 'swagger.json') || (name == 'openapi.yaml') 
-		|| (name == 'openapi.json') || force) {
-		console.log(normal+file);
+	if ((name.indexOf('.yaml')>=0) || (name.indexOf('.json')>=0) || force) {
 
 		var srcStr = fs.readFileSync(path.resolve(file),'utf8');
 		var src;
-		if (components[components.length-1] == 'swagger.yaml') {
-			src = yaml.safeLoad(srcStr);
+		try {
+			if (components[components.length-1] == 'swagger.yaml') {
+				src = yaml.safeLoad(srcStr);
+			}
+			else {
+				src = JSON.parse(srcStr);
+			}
 		}
-		else {
-			src = JSON.parse(srcStr);
-		}
+		catch (ex) {}
+
+		if (!src || ((!src.swagger && !src.openapi))) return true;
+		console.log(normal+file);
 
 		try {
 	        result = swagger2openapi.convert(src, options);
@@ -160,7 +164,7 @@ pathspec = path.resolve(pathspec);
 var stats = fs.statSync(pathspec);
 if (stats.isFile()) {
 	if (!check(pathspec,true)) {
-		failures.push(files[i]);
+		failures.push(pathspec);
 	}
 }
 else {

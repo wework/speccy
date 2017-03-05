@@ -4,10 +4,9 @@ var fs = require('fs');
 var path = require('path');
 var rr = require('recursive-readdir');
 var yaml = require('js-yaml');
-var should = require('should');
 
-var common = require('./common.js');
 var swagger2openapi = require('./index.js');
+var validator = require('./validate.js');
 
 var argv = require('yargs')
 	.usage('testRunner [options] [{path-to-specs}]')
@@ -34,35 +33,6 @@ var pathspec = argv._.length>0 ? argv._[0] : '../openapi-directory/APIs/';
 
 var options = argv;
 
-function checkParam(param){
-	param.should.not.have.property('items');
-	param.should.not.have.property('collectionFormat');
-	if (param.type) param.type.should.not.be.exactly('file');
-	if (param.in) {
-		param.in.should.not.be.exactly('body');
-		param.in.should.not.be.exactly('formData');
-	}
-	return true;
-}
-
-function checkPathItem(pathItem) {
-	if (pathItem.parameters) {
-		for (var param of pathItem.parameters) {
-			checkParam(param);
-		}
-	}
-	for (var o in pathItem) {
-		var op = pathItem[o];
-		if (op.parameters) {
-			for (var param of op.parameters) {
-				checkParam(param);
-			}
-		}
-		op.should.not.have.property('consumes');
-		op.should.not.have.property('produces');
-	}
-}
-
 function check(file,force) {
 	var result = false;
 	var components = file.split(path.sep);
@@ -87,51 +57,14 @@ function check(file,force) {
 
 		try {
 	        result = swagger2openapi.convert(src, options);
-			var resultStr = JSON.stringify(result,null,2).split('is undefined').join('x');
+			var resultStr = JSON.stringify(result).split('is undefined').join('x');
 			resultStr = resultStr.split('be undefined').join('x');
 			resultStr = resultStr.split('field undefined').join('x');
 			resultStr = resultStr.split('undefined in which').join('x');
 			resultStr = resultStr.split('undefined how many').join('x');
-			resultStr = resultStr.split('": "undefined"').join('x'); // trello 'default's
+			resultStr = resultStr.split('":"undefined"').join('x'); // trello 'default's
 
-			result.should.not.have.key('swagger');
-			result.should.not.have.key('definitions');
-			result.should.not.have.key('parameters');
-			result.should.not.have.key('responses');
-			result.should.not.have.key('securityDefinitions');
-			result.should.not.have.key('produces');
-			result.should.not.have.key('consumes');
-
-			if (result.components.securitySchemes) {
-				for (var s in result.components.securitySchemes) {
-					var scheme = result.components.securitySchemes[s];
-					scheme.type.should.not.be.exactly('basic');
-				}
-			}
-
-			result.openapi.startsWith('3.0.').should.be.ok();
-
-			// TODO validate with ajv 
-
-			common.recurse(result,{},function(obj,key,parent){
-				if ((key === '$ref') && (typeof obj[key] === 'string')) {
-					should(obj[key].indexOf('#/definitions/')).be.exactly(-1);
-				}
-			});
-
-			if (result.components.parameters) {
-				for (var p in result.components.parameters) {
-					checkParam(result.components.parameters[p]);
-				}
-			}
-			for (var p in result.paths) {
-				checkPathItem(result.paths[p]);
-			}
-			if (result["x-ms-paths"]) {
-				for (var p in result["x-ms-paths"]) {
-					checkPathItem(result["x-ms-paths"]);
-				}
-			}
+			validator.validate(result);
 
 			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0)) {
 		    	console.log(green+'  %s %s',src.info.title,src.info.version);

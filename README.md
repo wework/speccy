@@ -17,12 +17,19 @@ Options:
   -y, --yaml     read and write YAML, default JSON                     [boolean]
 ````
 
-or use the API:
+or use the APIs:
 
 ````
+var converter = require('swagger2openapi');
 var options = {};
 //options.debug = true; // sets various x-s2o- properties for debugging
 var openapi = converter.convert(swagger, options);
+````
+
+````
+var validator = require('swagger2openapi/validate.js');
+var options = {};
+var result = validator.validate(openapi, options);
 ````
 
 ## Vendor extensions

@@ -297,6 +297,9 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 }
 
 function convert(swagger, options) {
+	if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) return swagger;
+	if ((!swagger.swagger) || (swagger.swagger != "2.0")) return {}; // handle 1.2 later?
+
 	var requestBodyCache = {};
 
 	var openapi = {};
@@ -306,7 +309,6 @@ function convert(swagger, options) {
     openapi = Object.assign(openapi,common.clone(swagger));
     delete openapi.swagger;
 
-	if ((!swagger.swagger) || (swagger.swagger != "2.0")) return {}; // handle 1.2 later?
 
 	var server;
     if (swagger.host) {

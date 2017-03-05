@@ -17,6 +17,7 @@
     "jgexml": "^0.3.6",
     "js-yaml": "^3.6.1",
     "recursive-readdir": "^2.1.1",
+    "should": "^11.2.0",
     "yargs": "^6.2.0"
   },
   "keywords": [

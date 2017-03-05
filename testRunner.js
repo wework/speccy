@@ -4,6 +4,8 @@ var fs = require('fs');
 var path = require('path');
 var rr = require('recursive-readdir');
 var yaml = require('js-yaml');
+var should = require('should');
+
 var common = require('./common.js');
 var swagger2openapi = require('./index.js');
 
@@ -32,11 +34,18 @@ var pathspec = argv._.length>0 ? argv._[0] : '../openapi-directory/APIs/';
 
 var options = argv;
 
+function expect(obj){
+	return obj.should;
+}
+
 function checkParam(param){
-	if (param.items) return false;
-	if (param.collectionFormat) return false;
-	if (param.in == 'body') return false;
-	if (param.in == 'formData') return false;
+	param.should.not.have.property('items');
+	param.should.not.have.property('collectionFormat');
+	if (param.type) param.type.should.not.be.exactly('file');
+	if (param.in) {
+		param.in.should.not.be.exactly('body');
+		param.in.should.not.be.exactly('formData');
+	}
 	return true;
 }
 
@@ -65,60 +74,49 @@ function check(file) {
 			resultStr = resultStr.split('undefined how many').join('x');
 			resultStr = resultStr.split('": "undefined"').join('x'); // trello 'default's
 
-			var sanity = true;
-			if (!result.openapi.startsWith('3.0.')) sanity = false;
-			if (result.swagger) sanity = false;
-			if (result.definitions) sanity = false;
-			if (result.parameters) sanity = false;
-			if (result.responses) sanity = false;
-			if (result.securityDefinitions) sanity = false;
-			if (result.consumes) sanity = false;
-			if (result.produces) sanity = false;
+			result.should.not.have.key('swagger');
+			result.should.not.have.key('definitions');
+			result.should.not.have.key('parameters');
+			result.should.not.have.key('responses');
+			result.should.not.have.key('securityDefinitions');
+			result.should.not.have.key('produces');
+			result.should.not.have.key('consumes');
+
+			result.openapi.startsWith('3.0.').should.be.ok();
 
 			// TODO validate with ajv 
 
-			if (sanity) {
-				common.recurse(result,{},function(obj,key,parent){
-					if ((key === '$ref') && (typeof obj[key] === 'string')) {
-						if (obj[key].indexOf('#/definitions/') == 0) {
-							sanity = false;
-						}
-					}
-				});
-			}
+			common.recurse(result,{},function(obj,key,parent){
+				if ((key === '$ref') && (typeof obj[key] === 'string')) {
+					should(obj[key].indexOf('#/definitions/')).be.exactly(-1);
+				}
+			});
 
-			if (sanity && result.components.parameters) {
+			if (result.components.parameters) {
 				for (var p in result.components.parameters) {
-					sanity = checkParam(result.components.parameters[p]);
-					if (!sanity) break;
+					checkParam(result.components.parameters[p]);
 				}
 			}
-			if (sanity) {
-				for (var p in result.paths) {
-					var pathItem = result.paths[p];
-					if (pathItem.parameters) {
-						for (var param of pathItem.parameters) {
-							sanity = checkParam(param);
-							if (!sanity) break;
-						}
+			for (var p in result.paths) {
+				var pathItem = result.paths[p];
+				if (pathItem.parameters) {
+					for (var param of pathItem.parameters) {
+						checkParam(param);
 					}
-					if (sanity) {
-						for (var o in pathItem) {
-							var op = pathItem[o];
-							if (op.parameters) {
-								for (var param of op.parameters) {
-									sanity = checkParam(param);
-									if (!sanity) break;
-								}
-							}
+				}
+				for (var o in pathItem) {
+					var op = pathItem[o];
+					if (op.parameters) {
+						for (var param of op.parameters) {
+							checkParam(param);
 						}
 					}
 				}
 			}
 
-			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0) && sanity) {
+			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0)) {
 		    	console.log(green+'  %s %s',src.info.title,src.info.version);
-		    	console.log('  %s',src.host);
+		    	console.log('  %s',src.swagger ? src.host : src.servers[0].url);
 				result = true;
 			}
 			else {

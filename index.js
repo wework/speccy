@@ -87,13 +87,13 @@ function processParameter(param,op,path,index,openapi) {
 			common.recurse(param.schema,{},fixupSchema);
 		}
 		if (param.collectionFormat) {
-			if (param.collectionFormat = 'csv') {
+			if (param.collectionFormat == 'csv') {
 				param.style = 'form';
 			}
-			if (param.collectionFormat = 'ssv') {
+			if (param.collectionFormat == 'ssv') {
 				param.style = 'spaceDelimited';
 			}
-			if (param.collectionFormat = 'pipes') {
+			if (param.collectionFormat == 'pipes') {
 				param.style = 'pipeDelimited';
 			}
 			delete param.collectionFormat;

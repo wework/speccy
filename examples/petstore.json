@@ -124,8 +124,7 @@
                 ],
                 "default": "available"
               }
-            },
-            "style": "pipeDelimited"
+            }
           }
         ],
         "responses": {
@@ -183,8 +182,7 @@
               "items": {
                 "type": "string"
               }
-            },
-            "style": "pipeDelimited"
+            }
           }
         ],
         "responses": {

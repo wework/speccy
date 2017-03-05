@@ -25,6 +25,19 @@ var options = {};
 var openapi = converter.convert(swagger, options);
 ````
 
+## Vendor extensions
+
+swagger2openapi has support for a limited number of real-world vendor extensions which have a direct bearing on the conversion. All other vendor extensions are left untouched.
+
+Vendor Extension|Vendor|Conversion Performed
+---|---|---
+x-ms-paths|Microsoft|Treated as an analogue of the `openapi.paths` object
+x-ms-skip-url-encoding|Microsoft|For query parameters, converted to `allowReserved:true`
+x-ms-odata|Microsoft|References to `#/definitions/` are updated to `#/components/schemas`
+x-anyOf|Open Nitro Project|Within schemas, converted to `anyOf`
+x-oneOf|Open Nitro Project|Within schemas, converted to `oneOf`
+x-not|Open Nitro Project|Within schemas, converted to `not`
+
 ## Tests
 
 To run a test-suite:

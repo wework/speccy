@@ -34,10 +34,6 @@ var pathspec = argv._.length>0 ? argv._[0] : '../openapi-directory/APIs/';
 
 var options = argv;
 
-function expect(obj){
-	return obj.should;
-}
-
 function checkParam(param){
 	param.should.not.have.property('items');
 	param.should.not.have.property('collectionFormat');
@@ -47,6 +43,24 @@ function checkParam(param){
 		param.in.should.not.be.exactly('formData');
 	}
 	return true;
+}
+
+function checkPathItem(pathItem) {
+	if (pathItem.parameters) {
+		for (var param of pathItem.parameters) {
+			checkParam(param);
+		}
+	}
+	for (var o in pathItem) {
+		var op = pathItem[o];
+		if (op.parameters) {
+			for (var param of op.parameters) {
+				checkParam(param);
+			}
+		}
+		op.should.not.have.property('consumes');
+		op.should.not.have.property('produces');
+	}
 }
 
 function check(file,force) {
@@ -107,19 +121,11 @@ function check(file,force) {
 				}
 			}
 			for (var p in result.paths) {
-				var pathItem = result.paths[p];
-				if (pathItem.parameters) {
-					for (var param of pathItem.parameters) {
-						checkParam(param);
-					}
-				}
-				for (var o in pathItem) {
-					var op = pathItem[o];
-					if (op.parameters) {
-						for (var param of op.parameters) {
-							checkParam(param);
-						}
-					}
+				checkPathItem(result.paths[p]);
+			}
+			if (result["x-ms-paths"]) {
+				for (var p in result["x-ms-paths"]) {
+					checkPathItem(result["x-ms-paths"]);
 				}
 			}
 

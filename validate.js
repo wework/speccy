@@ -35,6 +35,7 @@ function checkPathItem(pathItem) {
 
 function validate(openapi, options) {
     openapi.should.not.have.key('swagger');
+	openapi.should.have.key('openapi');
     openapi.should.not.have.key('definitions');
     openapi.should.not.have.key('parameters');
     openapi.should.not.have.key('responses');
@@ -42,7 +43,7 @@ function validate(openapi, options) {
     openapi.should.not.have.key('produces');
     openapi.should.not.have.key('consumes');
 
-    if (openapi.components.securitySchemes) {
+    if (openapi.components && openapi.components.securitySchemes) {
         for (var s in openapi.components.securitySchemes) {
             var scheme = openapi.components.securitySchemes[s];
             scheme.type.should.not.be.exactly('basic');
@@ -57,7 +58,7 @@ function validate(openapi, options) {
         }
     });
 
-    if (openapi.components.parameters) {
+    if (openapi.components && openapi.components.parameters) {
         for (var p in openapi.components.parameters) {
             checkParam(openapi.components.parameters[p]);
         }

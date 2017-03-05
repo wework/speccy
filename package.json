@@ -18,5 +18,13 @@
     "js-yaml": "^3.6.1",
     "recursive-readdir": "^2.1.1",
     "yargs": "^6.2.0"
-  }
+  },
+  "keywords": [
+    "swagger",
+	"openapi",
+	"openapi2",
+	"openapi3",
+	"converter",
+	"conversion"
+  ]
 }

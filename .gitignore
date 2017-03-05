@@ -1,5 +1,6 @@
 *.json
 *.yaml
+build.sh
 
 # Logs
 logs

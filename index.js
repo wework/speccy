@@ -4,6 +4,9 @@ var common = require('./common.js');
 var jptr = require('jgexml/jpath.js');
 
 // TODO split out into params, security etc
+// TODO handle vendor-extensions with plugins?
+// TODO x-ms-parameterized-host https://github.com/Azure/azure-rest-api-specs/blob/master/documentation/swagger-extensions.md#x-ms-parameterized-host
+// https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html
 
 function fixupSchema(obj,key,parent){
 	if (key == 'x-anyOf') {
@@ -95,7 +98,14 @@ function processParameter(param,op,path,index,openapi) {
 			}
 			delete param.collectionFormat;
 		}
+		if (param["x-ms-skip-url-encoding"]) {
+			param.allowReserved = true;
+			if (param.in == 'query') {
+				delete param["x-ms-skip-url-encoding"]; // might be in:path, not allowed in OAS3
+			}
+		}
 	}
+
 	if (param.in == 'formData') {
 		// convert to requestBody component
 		singularRequestBody = false;
@@ -206,6 +216,86 @@ function processParameter(param,op,path,index,openapi) {
 	return result;
 }
 
+function processPaths(container,containerName,options,requestBodyCache,openapi) {
+	for (var p in container) {
+		var path = container[p];
+		if (path["$ref"]) {
+			// external definition only
+		}
+		else {
+			for (var method in path) {
+				if ((method == 'get') || (method == 'put') || (method == 'post') || 
+					(method == 'delete') || (method == 'options') || (method == 'patch') ||
+					(method == 'head') || (method == 'trace')) {
+					var op = path[method];
+
+					if (op.parameters) {
+						for (var param of op.parameters) {
+							processParameter(param,op,path,null,openapi);
+						}
+						if (!options.debug) {
+							op.parameters = op.parameters.filter(deleteParameters);
+						}
+					}
+
+					//don't need to remove requestBody for non-supported ops "SHALL be ignored"
+
+					// responses
+					for (var r in op.responses) {
+						var response = op.responses[r];
+						if (response.schema) {
+							common.recurse(response,{},fixupSchema);
+
+							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
+							if (!produces.length) produces.push('*');
+							response.content = {};
+							for (var mimetype of produces) {
+								response.content[mimetype] = {};
+								response.content[mimetype].schema = response.schema;
+							}
+							delete response.schema;
+						}
+					}
+
+					if (options.debug) {
+						op["x-s2o-consumes"] = op.consumes;
+						op["x-s2o-produces"] = op.produces;
+					}
+					delete op.consumes;
+					delete op.produces;
+
+					common.recurse(op,{},fixupSchema); // for x-ms-odata etc
+
+					// TODO examples
+
+					if (op.requestBody) {
+						var rbStr = JSON.stringify(op.requestBody);
+						var rbSha1 = common.sha1(rbStr);
+						if (!requestBodyCache[rbSha1]) {
+							var entry = {};
+							entry.name = '';
+							entry.body = op.requestBody;
+							entry.refs = [];
+							requestBodyCache[rbSha1] = entry;
+						}
+						requestBodyCache[rbSha1].refs.push(containerName+' '+method+' '+p);
+					}
+
+				}
+			}
+			if (path.parameters) {
+				for (var p2 in path.parameters) {
+					var param = path.parameters[p2];
+					processParameter(param,null,path,p,openapi); // index here is the path string
+				}
+				if (!options.debug) {
+					path.parameters = path.parameters.filter(deleteParameters);
+				}
+			}
+		}
+	}
+}
+
 function convert(swagger, options) {
 	var requestBodyCache = {};
 
@@ -270,82 +360,9 @@ function convert(swagger, options) {
 		requestBodyCache[rbSha1] = entry;
 	}
 
-	for (var p in openapi.paths) {
-		var path = openapi.paths[p];
-		if (path["$ref"]) {
-			// external definition only
-		}
-		else {
-			for (var method in path) {
-				if ((method == 'get') || (method == 'put') || (method == 'post') || 
-					(method == 'delete') || (method == 'options') || (method == 'patch') ||
-					(method == 'head') || (method == 'trace')) {
-					var op = path[method];
-
-					if (op.parameters) {
-						for (var param of op.parameters) {
-							processParameter(param,op,path,null,openapi);
-						}
-						if (!options.debug) {
-							op.parameters = op.parameters.filter(deleteParameters);
-						}
-					}
-
-					//don't need to remove requestBody for non-supported ops "SHALL be ignored"
-
-					// responses
-					for (var r in op.responses) {
-						var response = op.responses[r];
-						if (response.schema) {
-							common.recurse(response,{},fixupSchema);
-
-							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
-							if (!produces.length) produces.push('*');
-							response.content = {};
-							for (var mimetype of produces) {
-								response.content[mimetype] = {};
-								response.content[mimetype].schema = response.schema;
-							}
-							delete response.schema;
-						}
-					}
-
-					if (options.debug) {
-						op["x-s2o-consumes"] = op.consumes;
-						op["x-s2o-produces"] = op.produces;
-					}
-					delete op.consumes;
-					delete op.produces;
-
-					common.recurse(op,{},fixupSchema); // for x-ms-odata etc
-
-					// TODO examples
-
-					if (op.requestBody) {
-						var rbStr = JSON.stringify(op.requestBody);
-						var rbSha1 = common.sha1(rbStr);
-						if (!requestBodyCache[rbSha1]) {
-							var entry = {};
-							entry.name = '';
-							entry.body = op.requestBody;
-							entry.refs = [];
-							requestBodyCache[rbSha1] = entry;
-						}
-						requestBodyCache[rbSha1].refs.push(method+' '+p);
-					}
-
-				}
-			}
-			if (path.parameters) {
-				for (var p2 in path.parameters) {
-					var param = path.parameters[p2];
-					processParameter(param,null,path,p,openapi); // index here is the path string
-				}
-				if (!options.debug) {
-					path.parameters = path.parameters.filter(deleteParameters);
-				}
-			}
-		}
+	processPaths(openapi.paths,'paths',options,requestBodyCache,openapi);
+	if (openapi["x-ms-paths"]) {
+		processPaths(openapi["x-ms-paths"],'x-ms-paths',options,requestBodyCache,openapi);
 	}
 
 	if (!options.debug) {
@@ -381,13 +398,12 @@ function convert(swagger, options) {
 				var address = entry.refs[r].split(' ');
 				var ref = {};
 				ref["$ref"] = '#/components/requestBodies/'+entry.name;
-				openapi.paths[address[1]][address[0]].requestBody = ref;
+				openapi[address[0]][address[2]][address[1]].requestBody = ref;
 			}
 		}
 	}
 
 	common.recurse(openapi.components.responses,{},fixupSchema);
-	common.recurse(openapi["x-ms-paths"],{},fixupSchema);
 
     return openapi;
 }

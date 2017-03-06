@@ -8,6 +8,8 @@ var jptr = require('jgexml/jpath.js');
 // TODO x-ms-parameterized-host https://github.com/Azure/azure-rest-api-specs/blob/master/documentation/swagger-extensions.md#x-ms-parameterized-host
 // https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html
 
+var targetVersion = '3.0.0-RC0';
+
 function fixupSchema(obj,key,parent){
 	if (key == 'x-anyOf') {
 		obj.anyOf = obj[key];
@@ -318,7 +320,7 @@ function convert(swagger, options) {
 	var requestBodyCache = {};
 
 	var openapi = {};
-	openapi.openapi = '3.0.0-RC0'; // semver
+	openapi.openapi = targetVersion; // semver
 	openapi.servers = [];
 	// we want the new and existing properties to appear in a sensible order
     openapi = Object.assign(openapi,common.clone(swagger));
@@ -426,7 +428,8 @@ function convert(swagger, options) {
 }
 
 module.exports = {
-
+	
+	targetVersion : targetVersion,
     convert : convert
 
 };

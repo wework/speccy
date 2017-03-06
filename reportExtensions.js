@@ -38,17 +38,21 @@ var options = argv;
 function check(file) {
 	var result = false;
 	var components = file.split(path.sep);
+	var filename = components[components.length-1];
 
-	if ((components[components.length-1] == 'swagger.yaml') || (components[components.length-1] == 'swagger.json')) {
+	if ((filename.indexOf('.yaml')>=0) || (filename.indexOf('.json')>=0)) {
 		console.log(normal+file);
 
 		var srcStr = fs.readFileSync(path.resolve(file),'utf8');
 		var src;
-		if (components[components.length-1] == 'swagger.yaml') {
+		if (filename.indexOf('.yaml')>=0) {
 			src = yaml.safeLoad(srcStr);
 		}
 		else {
 			src = JSON.parse(srcStr);
+		}
+		if (!src.swagger && !src.openapi) {
+			return true; // skip it
 		}
 
 		if ((src.info["x-origin"]) && (src.info["x-origin"].format)) {

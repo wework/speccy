@@ -32,6 +32,8 @@ var options = {};
 var result = validator.validate(openapi, options);
 ````
 
+Or use the [online version](https://openapi-converter.herokuapp.com) which also includes an API
+
 ## Vendor extensions
 
 swagger2openapi has support for a limited number of real-world vendor extensions which have a direct bearing on the conversion. All other vendor extensions are left untouched.

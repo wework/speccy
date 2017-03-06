@@ -43,7 +43,7 @@ function check(file,force) {
 		var srcStr = fs.readFileSync(path.resolve(file),'utf8');
 		var src;
 		try {
-			if (components[components.length-1] == 'swagger.yaml') {
+			if (name.indexOf('.yaml')>=0) {
 				src = yaml.safeLoad(srcStr);
 			}
 			else {
@@ -59,6 +59,7 @@ function check(file,force) {
 	        result = swagger2openapi.convert(src, options);
 			var resultStr = JSON.stringify(result).split('is undefined').join('x');
 			resultStr = resultStr.split('be undefined').join('x');
+			resultStr = resultStr.split('If undefined').join('x');
 			resultStr = resultStr.split('field undefined').join('x');
 			resultStr = resultStr.split('undefined in which').join('x');
 			resultStr = resultStr.split('undefined how many').join('x');

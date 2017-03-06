@@ -35,8 +35,17 @@ function processSecurityScheme(scheme) {
 		scheme.scheme = 'basic';
 	}
 	if (scheme.type == 'oauth2') {
-		if (scheme.flow == 'application') scheme.flow = 'clientCredentials';
-		if (scheme.flow == 'accessCode') scheme.flow = 'authorizationCode';
+		var flow = {};
+		var flowName = scheme.flow;
+		if (scheme.flow == 'application') flowName = 'clientCredentials';
+		if (scheme.flow == 'accessCode') flowName = 'authorizationCode';
+		flow.authorizationUrl = scheme.authorizationUrl;
+		flow.tokenUrl = scheme.tokenUrl;
+		flow.scopes = scheme.scopes||{};
+		scheme.flow = flow;
+		delete scheme.authorizationUrl;
+		delete scheme.tokenUrl;
+		delete scheme.scopes;
 	}
 }
 
@@ -241,6 +250,12 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 					//don't need to remove requestBody for non-supported ops "SHALL be ignored"
 
 					// responses
+					if (!op.responses) {
+						var defaultResp = {};
+						defaultResp.description = 'Default response';
+						op.responses = {default: defaultResp};
+
+					}
 					for (var r in op.responses) {
 						var response = op.responses[r];
 						if (response.schema) {

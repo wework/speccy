@@ -32,6 +32,10 @@ function checkParam(param,openapi){
 	}
 	param.should.have.property('name');
 	param.should.have.property('in');
+	if (param.in == 'path') {
+		param.should.have.property('required');
+		param.required.should.be.exactly(true);
+	}
 	param.should.not.have.property('items');
 	param.should.not.have.property('collectionFormat');
 	if (param.type) param.type.should.not.be.exactly('file');
@@ -117,10 +121,21 @@ function validate(openapi, options) {
             scheme.type.should.not.be.exactly('basic');
 			if (scheme.type == 'http') {
 				scheme.should.have.property('scheme');
+				if (scheme.scheme != 'bearer') {
+					scheme.should.not.have.property('bearerFormat');
+				}
+			}
+			else {
+				scheme.should.not.have.property('scheme');
+				scheme.should.not.have.property('bearerFormat');
 			}
 			if (scheme.type == 'apiKey') {
 				scheme.should.have.property('name');
 				scheme.should.have.property('in');
+			}
+			else {
+				scheme.should.not.have.property('name');
+				scheme.should.not.have.property('in');
 			}
 			if (scheme.type == 'oauth2') {
 				scheme.should.have.property('flow'); // TODO may change to flows in RC1
@@ -130,17 +145,32 @@ function validate(openapi, options) {
 						flow.should.have.property('authorizationUrl');
 						validateUrl(flow.authorizationUrl).should.not.throw();
 					}
+					else {
+						flow.should.not.have.property('authorizationUrl');
+					}
 					if ((f == 'password') || (f == 'clientCredentials') ||
 						(f == 'authorizationCode')) {
 						flow.should.have.property('tokenUrl');
 						validateUrl(flow.tokenUrl).should.not.throw();
 					}
+					else {
+						flow.should.not.have.property('tokenUrl');
+					}
+					if (typeof flow.refreshUrl !== 'undefined') {
+						validateUrl(flow.refreshUrl).should.not.throw();
+					}
 					flow.should.have.property('scopes');
 				}
+			}
+			else {
+				scheme.should.not.have.property('flow');
 			}
 			if (scheme.type == 'openIdConnect') {
 				scheme.should.have.property('openIdConnectUrl');
 				validateUrl(scheme.openIdConnectUrl).should.not.throw();
+			}
+			else {
+				scheme.should.not.have.property('openIdConnectUrl');
 			}
         }
     }

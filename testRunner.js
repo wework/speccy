@@ -62,15 +62,11 @@ function check(file,force) {
 			validator.validate(result);
 
 			resultStr = yaml.safeDump(result); // should be representable safely in yaml
+			resultStr.should.not.be.exactly('{}');
 
-			if (resultStr != '{}') {
-		    	console.log(green+'  %s %s',src.info.title,src.info.version);
-		    	console.log('  %s',src.swagger ? src.host : src.servers[0].url);
-				result = true;
-			}
-			else {
-				result = false;
-			}
+		  	console.log(green+'  %s %s',src.info.title,src.info.version);
+			console.log('  %s',src.swagger ? src.host : src.servers[0].url);
+			result = true;
 		}
 		catch (ex) {
 			console.log(ex.message);

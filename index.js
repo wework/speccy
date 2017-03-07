@@ -41,8 +41,8 @@ function processSecurityScheme(scheme) {
 		var flowName = scheme.flow;
 		if (scheme.flow == 'application') flowName = 'clientCredentials';
 		if (scheme.flow == 'accessCode') flowName = 'authorizationCode';
-		if (scheme.authorizationUrl) flow.authorizationUrl = scheme.authorizationUrl;
-		if (scheme.tokenUrl) flow.tokenUrl = scheme.tokenUrl;
+		if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl;
+		if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl;
 		flow.scopes = scheme.scopes||{};
 		scheme.flow = {};
 		scheme.flow[flowName] = flow;

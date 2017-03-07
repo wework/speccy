@@ -107,6 +107,7 @@ process.on('exit', function(code) {
 	if (failures.length>0) {
 		failures.sort();
 		console.log(red);
+		console.log('Failures:');
 		for (var f in failures) {
 			console.log(failures[f]);
 		}

@@ -338,7 +338,7 @@ function convert(swagger, options) {
         	openapi.servers.push(server);
     	}
 	}
-	else {
+	else if (swagger.basePath) {
 		server = {};
 		server.url = swagger.basePath;
 		openapi.servers.push(server);

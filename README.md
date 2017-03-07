@@ -1,5 +1,7 @@
 # swagger2openapi
 
+![logo](https://github.com/Mermade/swagger2openapi/blob/master/docs/logo.png?raw=true)
+
 ![Build](https://img.shields.io/travis/Mermade/swagger2openapi.svg) [![Tested on APIs.guru](https://api.apis.guru/badges/tested_on.svg)](https://APIs.guru) [![Tested on Mermade OpenAPIs](https://mermade.github.io/openapi_optimise/tested.svg)](https://github.com/mermade/openapi_specifications)
 [![Known Vulnerabilities](https://snyk.io/test/npm/swagger2openapi/badge.svg)](https://snyk.io/test/npm/swagger2openapi)
 

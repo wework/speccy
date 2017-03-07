@@ -41,10 +41,11 @@ function processSecurityScheme(scheme) {
 		var flowName = scheme.flow;
 		if (scheme.flow == 'application') flowName = 'clientCredentials';
 		if (scheme.flow == 'accessCode') flowName = 'authorizationCode';
-		flow.authorizationUrl = scheme.authorizationUrl;
-		flow.tokenUrl = scheme.tokenUrl;
+		if (scheme.authorizationUrl) flow.authorizationUrl = scheme.authorizationUrl;
+		if (scheme.tokenUrl) flow.tokenUrl = scheme.tokenUrl;
 		flow.scopes = scheme.scopes||{};
-		scheme.flow = flow;
+		scheme.flow = {};
+		scheme.flow[flowName] = flow;
 		delete scheme.authorizationUrl;
 		delete scheme.tokenUrl;
 		delete scheme.scopes;
@@ -129,28 +130,28 @@ function processParameter(param,op,path,index,openapi) {
 			result.content["application/x-www-form-urlencoded"].properties = {};
 			result.content["application/x-www-form-urlencoded"].properties[param.name] = {};
 			var target = result.content["application/x-www-form-urlencoded"].properties[param.name];
-			target.description = param.description;
-			target.type = param.type;
-			target.required = param.required;
-			target.default = param.default;
-			target.format = param.format;
-			target.minimum = param.minimum;
-			target.maximum = param.maximum;
-			target.exclusiveMinimum = param.exclusiveMinimum;
-			target.exclusiveMaximum = param.exclusiveMaximum;
-			target.minItems = param.minItems;
-			target.maxItems = param.maxItems;
-			target.uniqueItems = param.uniqueItems;
-			target.pattern = param.pattern;
-			target.enum = param.enum;
-			target.multipleOf = param.multipleOf;
-			target.minLength = param.minLength;
-			target.maxLength = param.maxLength;
-			target.properties = param.properties;
-			target.minProperties = param.minProperties;
-			target.maxProperties = param.maxProperties;
-			target.additionalProperties = param.additionalProperties;
-			target.allOf = param.allOf; // new are anyOf, oneOf, not
+			if (target.description) target.description = param.description;
+			if (target.type) target.type = param.type;
+			if (typeof target.required !== 'undefined') target.required = param.required;
+			if (typeof target.default !== 'undefined') target.default = param.default;
+			if (target.format) target.format = param.format;
+			if (typeof target.minimum !== 'undefined') target.minimum = param.minimum;
+			if (typeof target.maximum !== 'undefined') target.maximum = param.maximum;
+			if (typeof target.exclusiveMinimum !== 'undefined') target.exclusiveMinimum = param.exclusiveMinimum;
+			if (typeof target.exclusiveMaximum !== 'undefined') target.exclusiveMaximum = param.exclusiveMaximum;
+			if (typeof target.minItems !== 'undefined') target.minItems = param.minItems;
+			if (typeof target.maxItems !== 'undefined') target.maxItems = param.maxItems;
+			if (typeof target.uniqueItems !== 'undefined') target.uniqueItems = param.uniqueItems;
+			if (target.pattern) target.pattern = param.pattern;
+			if (target.enum) target.enum = param.enum;
+			if (typeof target.multipleOf !== 'undefined') target.multipleOf = param.multipleOf;
+			if (typeof target.minLength !== 'undefined') target.minLength = param.minLength;
+			if (typeof target.maxLength !== 'undefined') target.maxLength = param.maxLength;
+			if (target.properties) target.properties = param.properties;
+			if (typeof target.minProperties !== 'undefined') target.minProperties = param.minProperties;
+			if (typeof target.maxProperties !== 'undefined') target.maxProperties = param.maxProperties;
+			if (typeof target.additionalProperties !== 'undefined') target.additionalProperties = param.additionalProperties;
+			if (target.allOf) target.allOf = param.allOf; // new are anyOf, oneOf, not, x- vendor extensions?
 			if ((param.type == 'array') && (param.items)) {
 				target.items = param.items;
 			}
@@ -175,7 +176,7 @@ function processParameter(param,op,path,index,openapi) {
 
 		for (var mimetype of consumes) {
 			result.content[mimetype] = {};
-			result.content[mimetype].description = param.description;
+			if (param.description) result.content[mimetype].description = param.description;
 			result.content[mimetype].schema = param.schema||{};
 		}
 	}
@@ -275,8 +276,8 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 					}
 
 					if (options.debug) {
-						op["x-s2o-consumes"] = op.consumes;
-						op["x-s2o-produces"] = op.produces;
+						op["x-s2o-consumes"] = op.consumes||[];
+						op["x-s2o-produces"] = op.produces||[];
 					}
 					delete op.consumes;
 					delete op.produces;
@@ -347,7 +348,7 @@ function convert(swagger, options) {
     delete openapi.schemes;
 
     openapi.components = {};
-	openapi.components.schemas = openapi.definitions;
+	openapi.components.schemas = openapi.definitions||{};
 	openapi.components.responses = openapi.responses||{};
 	openapi.components.parameters = openapi.parameters||{};
 	openapi.components.examples = {};
@@ -397,8 +398,8 @@ function convert(swagger, options) {
 	common.recurse(openapi.components.schemas,{},fixupSchema); // second pass for fixed x-anyOf's etc
 
 	if (options.debug) {
-		openapi["x-s2o-consumes"] = openapi.consumes;
-		openapi["x-s2o-produces"] = openapi.produces;
+		openapi["x-s2o-consumes"] = openapi.consumes||[];
+		openapi["x-s2o-produces"] = openapi.produces||[];
 	}
 	delete openapi.consumes;
 	delete openapi.produces;

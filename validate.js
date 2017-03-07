@@ -75,14 +75,17 @@ function validate(openapi, options) {
 			}
 			if (scheme.type == 'oauth2') {
 				scheme.should.have.property('flow');
-				if ((scheme.flow == 'implicit') || (scheme.flow == 'authorizationCode')) {
-					scheme.flow.should.have.property('authorizationUrl');	
+				for (var f in scheme.flow) {
+					var flow = scheme.flow[f];
+					if ((f == 'implicit') || (f == 'authorizationCode')) {
+						flow.should.have.property('authorizationUrl');	
+					}
+					if ((f == 'password') || (f == 'clientCredentials') ||
+						(f == 'authorizationCode')) {
+						flow.should.have.property('tokenUrl');
+					}
+					flow.should.have.property('scopes');
 				}
-				if ((scheme.flow == 'password') || (scheme.flow == 'clientCredentials') ||
-					(scheme.flow == 'authorizationCode')) {
-					scheme.flow.should.have.property('tokenUrl');
-				}
-				scheme.flow.should.have.property('scopes');
 			}
 			if (scheme.type == 'openIdConnect') {
 				scheme.should.have.property('openIdConnectUrl');

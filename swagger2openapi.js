@@ -39,7 +39,7 @@ if (argv.outfile && argv.outfile.indexOf('.json') > 0) {
 }
 
 if (argv.yaml) {
-    s = yaml.safeDump(openapi);
+    s = argv.debug ? yaml.dump(openapi) : yaml.safeDump(openapi);
 }
 else {
     s = JSON.stringify(openapi, null, 2);

@@ -57,17 +57,13 @@ function check(file,force) {
 
 		try {
 	        result = swagger2openapi.convert(src, options);
-			var resultStr = JSON.stringify(result).split('is undefined').join('x');
-			resultStr = resultStr.split('be undefined').join('x');
-			resultStr = resultStr.split('If undefined').join('x');
-			resultStr = resultStr.split('field undefined').join('x');
-			resultStr = resultStr.split('undefined in which').join('x');
-			resultStr = resultStr.split('undefined how many').join('x');
-			resultStr = resultStr.split('":"undefined"').join('x'); // trello 'default's
+			var resultStr = JSON.stringify(result);
 
 			validator.validate(result);
 
-			if ((resultStr != '{}') && (resultStr.indexOf('undefined')<0)) {
+			resultStr = yaml.safeDump(result); // should be representable safely in yaml
+
+			if (resultStr != '{}') {
 		    	console.log(green+'  %s %s',src.info.title,src.info.version);
 		    	console.log('  %s',src.swagger ? src.host : src.servers[0].url);
 				result = true;

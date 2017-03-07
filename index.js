@@ -130,28 +130,28 @@ function processParameter(param,op,path,index,openapi) {
 			result.content["application/x-www-form-urlencoded"].properties = {};
 			result.content["application/x-www-form-urlencoded"].properties[param.name] = {};
 			var target = result.content["application/x-www-form-urlencoded"].properties[param.name];
-			if (target.description) target.description = param.description;
-			if (target.type) target.type = param.type;
-			if (typeof target.required !== 'undefined') target.required = param.required;
-			if (typeof target.default !== 'undefined') target.default = param.default;
-			if (target.format) target.format = param.format;
-			if (typeof target.minimum !== 'undefined') target.minimum = param.minimum;
-			if (typeof target.maximum !== 'undefined') target.maximum = param.maximum;
-			if (typeof target.exclusiveMinimum !== 'undefined') target.exclusiveMinimum = param.exclusiveMinimum;
-			if (typeof target.exclusiveMaximum !== 'undefined') target.exclusiveMaximum = param.exclusiveMaximum;
-			if (typeof target.minItems !== 'undefined') target.minItems = param.minItems;
-			if (typeof target.maxItems !== 'undefined') target.maxItems = param.maxItems;
-			if (typeof target.uniqueItems !== 'undefined') target.uniqueItems = param.uniqueItems;
-			if (target.pattern) target.pattern = param.pattern;
-			if (target.enum) target.enum = param.enum;
-			if (typeof target.multipleOf !== 'undefined') target.multipleOf = param.multipleOf;
-			if (typeof target.minLength !== 'undefined') target.minLength = param.minLength;
-			if (typeof target.maxLength !== 'undefined') target.maxLength = param.maxLength;
+			if (param.description) target.description = param.description;
+			if (param.type) target.type = param.type;
+			if (typeof param.required !== 'undefined') target.required = param.required;
+			if (typeof param.default !== 'undefined') target.default = param.default;
+			if (param.format) target.format = param.format;
+			if (typeof param.minimum !== 'undefined') target.minimum = param.minimum;
+			if (typeof param.maximum !== 'undefined') target.maximum = param.maximum;
+			if (typeof param.exclusiveMinimum !== 'undefined') target.exclusiveMinimum = param.exclusiveMinimum;
+			if (typeof param.exclusiveMaximum !== 'undefined') target.exclusiveMaximum = param.exclusiveMaximum;
+			if (typeof param.minItems !== 'undefined') target.minItems = param.minItems;
+			if (typeof param.maxItems !== 'undefined') target.maxItems = param.maxItems;
+			if (typeof param.uniqueItems !== 'undefined') target.uniqueItems = param.uniqueItems;
+			if (param.pattern) target.pattern = param.pattern;
+			if (param.enum) target.enum = param.enum;
+			if (typeof param.multipleOf !== 'undefined') target.multipleOf = param.multipleOf;
+			if (typeof param.minLength !== 'undefined') target.minLength = param.minLength;
+			if (typeof param.maxLength !== 'undefined') target.maxLength = param.maxLength;
 			if (target.properties) target.properties = param.properties;
-			if (typeof target.minProperties !== 'undefined') target.minProperties = param.minProperties;
-			if (typeof target.maxProperties !== 'undefined') target.maxProperties = param.maxProperties;
-			if (typeof target.additionalProperties !== 'undefined') target.additionalProperties = param.additionalProperties;
-			if (target.allOf) target.allOf = param.allOf; // new are anyOf, oneOf, not, x- vendor extensions?
+			if (typeof param.minProperties !== 'undefined') target.minProperties = param.minProperties;
+			if (typeof param.maxProperties !== 'undefined') target.maxProperties = param.maxProperties;
+			if (typeof param.additionalProperties !== 'undefined') target.additionalProperties = param.additionalProperties;
+			if (param.allOf) target.allOf = param.allOf; // new are anyOf, oneOf, not, x- vendor extensions?
 			if ((param.type == 'array') && (param.items)) {
 				target.items = param.items;
 			}

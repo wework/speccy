@@ -177,7 +177,7 @@ function processParameter(param,op,path,index,openapi) {
 		for (var mimetype of consumes) {
 			result.content[mimetype] = {};
 			if (param.description) result.content[mimetype].description = param.description;
-			result.content[mimetype].schema = param.schema||{};
+			result.content[mimetype].schema = common.clone(param.schema)||{};
 		}
 	}
 
@@ -269,7 +269,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 							response.content = {};
 							for (var mimetype of produces) {
 								response.content[mimetype] = {};
-								response.content[mimetype].schema = response.schema;
+								response.content[mimetype].schema = common.clone(response.schema);
 							}
 							delete response.schema;
 						}

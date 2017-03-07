@@ -302,16 +302,19 @@
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
-              "properties": {
-                "name": {
-                  "description": "Updated name of the pet",
-                  "type": "string",
-                  "required": false
-                },
-                "status": {
-                  "description": "Updated status of the pet",
-                  "type": "string",
-                  "required": false
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "description": "Updated name of the pet",
+                    "type": "string",
+                    "required": false
+                  },
+                  "status": {
+                    "description": "Updated status of the pet",
+                    "type": "string",
+                    "required": false
+                  }
                 }
               }
             }

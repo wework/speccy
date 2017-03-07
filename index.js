@@ -60,6 +60,9 @@ function processParameter(param,op,path,index,openapi) {
 	var result = {};
 	var singularRequestBody = true;
 
+	var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
+	consumes = consumes.filter(common.uniqueOnly);
+
 	if (param["$ref"]) {
 		param["$ref"] = param["$ref"].replace('#/parameters/','#/components/parameters/');
 		var ptr = param["$ref"].replace('#/components/parameters/','');
@@ -122,14 +125,21 @@ function processParameter(param,op,path,index,openapi) {
 		// convert to requestBody component
 		singularRequestBody = false;
 		result.content = {};
-		result.content["application/x-www-form-urlencoded"] = {};
+		var contentType = 'application/x-www-form-urlencoded';
+		if ((consumes.length) && (consumes[0] == 'multipart/form-data')) {
+			contentType = 'multipart/form-data';
+		}
+		
+		result.content[contentType] = {};
 		if (param.schema) {
-			result.content["application/x-www-form-urlencoded"].schema = param.schema;
+			result.content[contentType].schema = param.schema;
 		}
 		else {
-			result.content["application/x-www-form-urlencoded"].properties = {};
-			result.content["application/x-www-form-urlencoded"].properties[param.name] = {};
-			var target = result.content["application/x-www-form-urlencoded"].properties[param.name];
+			result.content[contentType].schema = {};
+			result.content[contentType].schema.type = 'object';
+			result.content[contentType].schema.properties = {};
+			result.content[contentType].schema.properties[param.name] = {};
+			var target = result.content[contentType].schema.properties[param.name];
 			if (param.description) target.description = param.description;
 			if (param.type) target.type = param.type;
 			if (typeof param.required !== 'undefined') target.required = param.required;
@@ -167,8 +177,6 @@ function processParameter(param,op,path,index,openapi) {
 	}
 	if (param.in == 'body') {
 		result.content = {};
-		var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
-		consumes = consumes.filter(common.uniqueOnly);
 
 		if (!consumes.length) {
 			consumes.push('application/json'); // TODO verify default
@@ -181,8 +189,6 @@ function processParameter(param,op,path,index,openapi) {
 		}
 	}
 
-	// TODO multipart/formData etc
-
 	if (Object.keys(result).length > 0) {
 		param["x-s2o-delete"] = true;
 		// work out where to attach the requestBody
@@ -193,10 +199,15 @@ function processParameter(param,op,path,index,openapi) {
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody);
-				if ((op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"]) 
+				if ((op.requestBody.content && op.requestBody.content["multipart/form-data"]) 
+					&& (result.content["multipart/form-data"])) {
+					op.requestBody.content["multipart/form-data"].schema.properties =
+						Object.assign(op.requestBody.content["multipart/form-data"].schema.properties,result.content["multipart/form-data"].schema.properties);
+				}
+				else if ((op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"]) 
 					&& (result.content["application/x-www-form-urlencoded"])) {
-					op.requestBody.content["application/x-www-form-urlencoded"].properties =
-						Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].properties,result.content["application/x-www-form-urlencoded"].properties);
+					op.requestBody.content["application/x-www-form-urlencoded"].schema.properties =
+						Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].schema.properties,result.content["application/x-www-form-urlencoded"].schema.properties);
 				}
 				else {
 					op.requestBody = Object.assign(op.requestBody,result);

@@ -268,7 +268,6 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 						var defaultResp = {};
 						defaultResp.description = 'Default response';
 						op.responses = {default: defaultResp};
-
 					}
 					for (var r in op.responses) {
 						var response = op.responses[r];
@@ -276,11 +275,14 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 							common.recurse(response,{},fixupSchema);
 
 							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
-							if (!produces.length) produces.push('*');
+							if (!produces.length) produces.push('*/*'); // TODO verify default
 							response.content = {};
 							for (var mimetype of produces) {
 								response.content[mimetype] = {};
 								response.content[mimetype].schema = common.clone(response.schema);
+								if (response.content[mimetype].schema.type == 'file') {
+									delete response.content[mimetype].schema;
+								}
 							}
 							delete response.schema;
 						}

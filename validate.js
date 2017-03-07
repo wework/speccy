@@ -13,6 +13,19 @@ function validateUrl(s) {
 	return true; // if we haven't thrown
 }
 
+function checkServers(servers) {
+	for (var server of servers) {
+		if (server.url) { // TODO may change to REQUIRED in RC1
+			validateUrl(server.url).should.not.throw();
+		}
+		if (server.variables) {
+			for (var v in server.variables) {
+				server.variables[v].should.have.key('default');
+			}
+		}
+	}
+}
+
 function checkParam(param,openapi){
 	if (param.$ref) {
 		param = jptr.jptr(openapi,param.$ref);
@@ -38,8 +51,16 @@ function checkPathItem(pathItem,openapi) {
 		else if (o.startsWith('x-')) {
 			// nop
 		}
+		else if (o == 'summary') {
+			// nop
+		}
+		else if (o == 'description') {
+			// nop
+		}
+		else if (o == 'servers') {
+			checkServers(op); // won't be here in converted specs
+		}
 		else {	
-			// check for description etc or that we are in get,put,post etc
 			op.should.have.property('responses');
 			op.responses.should.not.be.empty();
 			op.should.not.have.property('consumes');
@@ -47,6 +68,9 @@ function checkPathItem(pathItem,openapi) {
 			if (op.externalDocs) {
 				op.externalDocs.should.have.key('url');
 				validateUrl(op.externalDocs.url).should.not.throw();
+			}
+			if (op.servers) {
+				checkServers(op.servers);
 			}
 		}
 	}
@@ -62,16 +86,7 @@ function validate(openapi, options) {
 		openapi.info.license.should.have.key('name');
 	}
 	if (openapi.servers) {
-		for (var server of openapi.servers) {
-			if (server.url) { // TODO may change to REQUIRED in RC1
-				validateUrl(server.url).should.not.throw();
-			}
-			if (server.variables) {
-				for (var v in server.variables) {
-					server.variables[v].should.have.key('default');
-				}
-			}
-		}
+		checkServers(openapi.servers);
 	}
 	openapi.should.have.key('paths');
     openapi.should.not.have.key('definitions');
@@ -108,7 +123,7 @@ function validate(openapi, options) {
 				scheme.should.have.property('in');
 			}
 			if (scheme.type == 'oauth2') {
-				scheme.should.have.property('flow');
+				scheme.should.have.property('flow'); // TODO may change to flows in RC1
 				for (var f in scheme.flow) {
 					var flow = scheme.flow[f];
 					if ((f == 'implicit') || (f == 'authorizationCode')) {
@@ -130,7 +145,7 @@ function validate(openapi, options) {
         }
     }
 
-    openapi.openapi.startsWith('3.0.').should.be.ok();
+    should.ok(openapi.openapi.startsWith('3.0.'),'Must be an OpenAPI 3.0.x document');
 
     common.recurse(openapi,{},function(obj,key,parent){
         if ((key === '$ref') && (typeof obj[key] === 'string')) {

@@ -1,9 +1,17 @@
+var url = require('url');
 var should = require('should');
 
 var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
 
 // TODO validate with ajv when schema published
+// TODO requestBody.content may become REQUIRED in RC1
+
+function validateUrl(s) {
+	if (s === '') throw(new Error('Invalid URL'));
+	var u = url.parse(s);
+	return true; // if we haven't thrown
+}
 
 function checkParam(param,openapi){
 	if (param.$ref) {
@@ -36,6 +44,10 @@ function checkPathItem(pathItem,openapi) {
 			op.responses.should.not.be.empty();
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
+			if (op.externalDocs) {
+				op.externalDocs.should.have.key('url');
+				validateUrl(op.externalDocs.url).should.not.throw();
+			}
 		}
 	}
 }
@@ -49,7 +61,18 @@ function validate(openapi, options) {
 	if (openapi.info.license) {
 		openapi.info.license.should.have.key('name');
 	}
-	// TODO servers,server,variable,default
+	if (openapi.servers) {
+		for (var server of openapi.servers) {
+			if (server.url) { // TODO may change to REQUIRED in RC1
+				validateUrl(server.url).should.not.throw();
+			}
+			if (server.variables) {
+				for (var v in server.variables) {
+					server.variables[v].should.have.key('default');
+				}
+			}
+		}
+	}
 	openapi.should.have.key('paths');
     openapi.should.not.have.key('definitions');
     openapi.should.not.have.key('parameters');
@@ -58,7 +81,18 @@ function validate(openapi, options) {
     openapi.should.not.have.key('produces');
     openapi.should.not.have.key('consumes');
 	if (openapi.externalDocs) {
-		openapi.externalDocs.should.have.key('url'); // and MUST be a URL
+		openapi.externalDocs.should.have.key('url');
+		validateUrl(openapi.externalDocs.url).should.not.throw();
+	}
+
+	// TODO externalDocs.url in schemas?
+	if (openapi.tags) {
+		for (var tag of openapi.tags) {
+			if (tag.externalDocs) {
+				tag.externalDocs.should.have.key('url');
+				validateUrl(tag.externalDocs.url).should.not.throw();
+			}
+		}
 	}
 
     if (openapi.components && openapi.components.securitySchemes) {
@@ -78,17 +112,20 @@ function validate(openapi, options) {
 				for (var f in scheme.flow) {
 					var flow = scheme.flow[f];
 					if ((f == 'implicit') || (f == 'authorizationCode')) {
-						flow.should.have.property('authorizationUrl');	
+						flow.should.have.property('authorizationUrl');
+						validateUrl(flow.authorizationUrl).should.not.throw();
 					}
 					if ((f == 'password') || (f == 'clientCredentials') ||
 						(f == 'authorizationCode')) {
 						flow.should.have.property('tokenUrl');
+						validateUrl(flow.tokenUrl).should.not.throw();
 					}
 					flow.should.have.property('scopes');
 				}
 			}
 			if (scheme.type == 'openIdConnect') {
 				scheme.should.have.property('openIdConnectUrl');
+				validateUrl(scheme.openIdConnectUrl).should.not.throw();
 			}
         }
     }

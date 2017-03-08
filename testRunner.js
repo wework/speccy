@@ -65,11 +65,11 @@ function check(file,force) {
 			resultStr.should.not.be.exactly('{}');
 
 		  	console.log(green+'  %s %s',src.info.title,src.info.version);
-			console.log('  %s',src.swagger ? src.host : (src.servers && src.servers.length ? src.servers[0].url : ''));
+			console.log('  %s',src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
 			result = true;
 		}
 		catch (ex) {
-			console.log(ex.message);
+			console.log(red+ex.message);
 			result = false;
 		}
 		if (result) {
@@ -106,8 +106,7 @@ else {
 process.on('exit', function(code) {
 	if (failures.length>0) {
 		failures.sort();
-		console.log(red);
-		console.log('Failures:');
+		console.log(normal+'\nFailures:'+red);
 		for (var f in failures) {
 			console.log(failures[f]);
 		}

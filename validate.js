@@ -26,30 +26,31 @@ function checkServers(servers) {
 	}
 }
 
-function checkParam(param,openapi){
+function checkParam(param,openapi,options){
 	if (param.$ref) {
 		param = jptr.jptr(openapi,param.$ref);
 	}
 	param.should.have.property('name');
 	param.should.have.property('in');
+	if (options.verbose) console.log('p:'+param.name+' '+param.in);
 	if (param.in == 'path') {
 		param.should.have.property('required');
-		param.required.should.be.exactly(true);
+		param.required.should.be.exactly(true,'Path parameters must have an explicit required:true');
 	}
 	param.should.not.have.property('items');
 	param.should.not.have.property('collectionFormat');
-	if (param.type) param.type.should.not.be.exactly('file');
-	param.in.should.not.be.exactly('body');
-	param.in.should.not.be.exactly('formData');
+	if (param.type) param.type.should.not.be.exactly('file','Parameter type file is no-longer valid');
+	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
+	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
 	return true;
 }
 
-function checkPathItem(pathItem,openapi) {
+function checkPathItem(pathItem,openapi,options) {
 	for (var o in pathItem) {
 		var op = pathItem[o];
 		if (o == 'parameters') {
 			for (var param of pathItem.parameters) {
-				checkParam(param,openapi);
+				checkParam(param,openapi,options);
 			}
 		}
 		else if (o.startsWith('x-')) {
@@ -64,11 +65,17 @@ function checkPathItem(pathItem,openapi) {
 		else if (o == 'servers') {
 			checkServers(op); // won't be here in converted specs
 		}
-		else {	
+		else {
+			if (options.verbose) console.log('o:'+o);
 			op.should.have.property('responses');
 			op.responses.should.not.be.empty();
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
+			if (op.parameters) {
+				for (var param of op.parameters) {
+					checkParam(param,openapi,options);
+				}
+			}
 			if (op.externalDocs) {
 				op.externalDocs.should.have.key('url');
 				validateUrl(op.externalDocs.url).should.not.throw();
@@ -118,7 +125,7 @@ function validate(openapi, options) {
         for (var s in openapi.components.securitySchemes) {
             var scheme = openapi.components.securitySchemes[s];
 			scheme.should.have.property('type');
-            scheme.type.should.not.be.exactly('basic');
+            scheme.type.should.not.be.exactly('basic','Security scheme basic should be http with scheme basic');
 			if (scheme.type == 'http') {
 				scheme.should.have.property('scheme');
 				if (scheme.scheme != 'bearer') {
@@ -179,21 +186,23 @@ function validate(openapi, options) {
 
     common.recurse(openapi,{},function(obj,key,parent){
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
-            should(obj[key].indexOf('#/definitions/')).be.exactly(-1);
+            should(obj[key].indexOf('#/definitions/')).be.exactly(-1,'Reference to #/definitions');
         }
     });
 
     if (openapi.components && openapi.components.parameters) {
         for (var p in openapi.components.parameters) {
-            checkParam(openapi.components.parameters[p],openapi);
+            checkParam(openapi.components.parameters[p],openapi,options);
         }
     }
     for (var p in openapi.paths) {
-        checkPathItem(openapi.paths[p],openapi);
+		if (options.verbose) console.log(p);
+        checkPathItem(openapi.paths[p],openapi,options);
     }
     if (openapi["x-ms-paths"]) {
         for (var p in openapi["x-ms-paths"]) {
-            checkPathItem(openapi["x-ms-paths"][p],openapi);
+			if (options.verbose) console.log(p);
+            checkPathItem(openapi["x-ms-paths"][p],openapi,options);
         }
     }
 

@@ -59,13 +59,13 @@ function check(file,force) {
 	        result = swagger2openapi.convert(src, options);
 			var resultStr = JSON.stringify(result);
 
-			validator.validate(result);
+			validator.validate(result,options);
 
 			resultStr = yaml.safeDump(result); // should be representable safely in yaml
 			resultStr.should.not.be.exactly('{}');
 
 		  	console.log(green+'  %s %s',src.info.title,src.info.version);
-			console.log('  %s',src.swagger ? src.host : src.servers[0].url);
+			console.log('  %s',src.swagger ? src.host : (src.servers && src.servers.length ? src.servers[0].url : ''));
 			result = true;
 		}
 		catch (ex) {

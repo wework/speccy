@@ -36,12 +36,17 @@ function recurse(object,parent,callback) {
 	}
 }
 
+function getVersion() {
+	return require('./package.json').version;
+}
+
 module.exports = {
 
 	clone : clone,
 	uniqueOnly : uniqueOnly,
 	recurse : recurse,
     sha256 : sha256,
-	forceFailure : forceFailure
+	forceFailure : forceFailure,
+	getVersion : getVersion
 
 };

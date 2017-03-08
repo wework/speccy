@@ -69,7 +69,7 @@ function check(file,force) {
 			result = true;
 		}
 		catch (ex) {
-			console.log(red+ex.message);
+			console.log(red+options.context.pop()+'\n'+ex.message);
 			result = false;
 		}
 		if (result) {

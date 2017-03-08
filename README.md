@@ -21,14 +21,14 @@ Options:
 
 or use the APIs:
 
-````
+````javascript
 var converter = require('swagger2openapi');
 var options = {};
-//options.debug = true; // sets various x-s2o- properties for debugging
+//options.debug = true; // sets various x-s2o- debugging properties
 var openapi = converter.convert(swagger, options);
 ````
 
-````
+````javascript
 var validator = require('swagger2openapi/validate.js');
 var options = {};
 var result = validator.validate(openapi, options);
@@ -59,7 +59,7 @@ mechanism in a future release.
 
 To run a test-suite:
 
-````
+````shell
 node testRunner {path-to-APIs|single-file}
 ````
 

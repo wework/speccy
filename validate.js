@@ -37,7 +37,6 @@ function checkParam(param,index,openapi,options){
 	}
 	param.should.have.property('name');
 	param.should.have.property('in');
-	if (options.verbose) console.log('p:'+param.name+' '+param.in);
 	if (param.in == 'path') {
 		param.should.have.property('required');
 		param.required.should.be.exactly(true,'Path parameters must have an explicit required:true');
@@ -73,7 +72,6 @@ function checkPathItem(pathItem,openapi,options) {
 			checkServers(op); // won't be here in converted specs
 		}
 		else {
-			if (options.verbose) console.log('o:'+o);
 			op.should.have.property('responses');
 			op.responses.should.not.be.empty();
 			op.should.not.have.property('consumes');
@@ -212,14 +210,12 @@ function validate(openapi, options) {
         }
     }
     for (var p in openapi.paths) {
-		if (options.verbose) console.log(p);
 		options.context.push('#/paths/'+jptr.jpescape(p));
         checkPathItem(openapi.paths[p],openapi,options);
 		options.context.pop();
     }
     if (openapi["x-ms-paths"]) {
         for (var p in openapi["x-ms-paths"]) {
-			if (options.verbose) console.log(p);
 			options.context.push('#/x-ms-paths/'+jptr.jpescape(p));
             checkPathItem(openapi["x-ms-paths"][p],openapi,options);
 			options.context.pop();

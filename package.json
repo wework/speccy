@@ -27,5 +27,8 @@
     "openapi3",
     "converter",
     "conversion"
-  ]
+  ],
+  "devDependencies": {
+    "coveralls": "^2.12.0"
+  }
 }

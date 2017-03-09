@@ -16,6 +16,9 @@ var argv = require('yargs')
     .string('outfile')
     .alias('o','outfile')
     .describe('outfile', 'the output file to write to')
+	.string('url')
+	.describe('url','url of original spec, creates x-origin entry')
+	.alias('u','url')
     .boolean('yaml')
     .alias('y','yaml')
     .describe('yaml', 'read and write YAML, default JSON')
@@ -31,6 +34,7 @@ if (argv.yaml) {
 else {
     swagger = JSON.parse(s);
 }
+argv.origin = argv.url;
 
 var openapi = converter.convert(swagger, argv);
 

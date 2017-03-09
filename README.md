@@ -19,6 +19,7 @@ Options:
   -d, --debug    enable debug mode, adds specification-extensions      [boolean]
   -h, --help     Show help                                             [boolean]
   -o, --outfile  the output file to write to                            [string]
+  -u, --url      url of original spec, creates x-origin entry           [string]
   -y, --yaml     read and write YAML, default JSON                     [boolean]
 ````
 

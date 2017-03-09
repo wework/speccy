@@ -336,10 +336,24 @@ function convert(swagger, options) {
 	var openapi = {};
 	openapi.openapi = targetVersion; // semver
 	openapi.servers = [];
+
+	if (options.origin) {
+		if (!openapi["x-origin"]) {
+			openapi["x-origin"] = [];
+		}
+		var origin = {};
+		origin.url = options.origin;
+		origin.format = 'swagger';
+		origin.version = swagger.swagger;
+		origin.converter = {};
+		origin.converter.url = 'https://github.com/mermade/swagger2openapi';
+		origin.converter.version = common.getVersion();
+		openapi["x-origin"].push(origin);
+	}
+
 	// we want the new and existing properties to appear in a sensible order
     openapi = Object.assign(openapi,common.clone(swagger));
     delete openapi.swagger;
-
 
 	var server;
     if (swagger.host && swagger.schemes) {

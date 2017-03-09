@@ -1,6 +1,7 @@
 *.json
 *.yaml
 build.sh
+.coveralls.yml
 
 # Logs
 logs

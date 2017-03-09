@@ -6,6 +6,7 @@
 ![Build](https://img.shields.io/travis/Mermade/swagger2openapi.svg)
 [![Tested on APIs.guru](https://api.apis.guru/badges/tested_on.svg)](https://APIs.guru)
 [![Tested on Mermade OpenAPIs](https://img.shields.io/badge/Additional%20Specs-1258-brightgreen.svg)](https://github.com/mermade/openapi_specifications)
+[![Coverage Status](https://coveralls.io/repos/github/Mermade/swagger2openapi/badge.svg?branch=master)](https://coveralls.io/github/Mermade/swagger2openapi?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/npm/swagger2openapi/badge.svg)](https://snyk.io/test/npm/swagger2openapi)
 
 Convert Swagger 2.0 definitions into OpenApi 3.0.x

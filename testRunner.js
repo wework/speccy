@@ -51,7 +51,9 @@ function check(file,force,expectFailure) {
 				src = JSON.parse(srcStr);
 			}
 		}
-		catch (ex) {}
+		catch (ex) {
+			console.log(red+'Could not parse file '+file);
+		}
 
 		if (!src || ((!src.swagger && !src.openapi))) return true;
 		console.log(normal+file);

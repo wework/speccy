@@ -31,7 +31,8 @@ var openapi = converter.convert(swagger, options);
 ````javascript
 var validator = require('swagger2openapi/validate.js');
 var options = {};
-var result = validator.validate(openapi, options);
+var result = validator.validate(openapi, options); // throws on error
+// options.context now contains a stack (array) of JSON-Pointer strings
 ````
 
 Or use the [online version](https://openapi-converter.herokuapp.com) which also includes an API

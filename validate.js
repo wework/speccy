@@ -7,14 +7,18 @@ var common = require('./common.js');
 // TODO validate with ajv when schema published
 // TODO requestBody.content may become REQUIRED in RC1
 
+function contextAppend(options,s) {
+	options.context.push((options.context[options.context.length-1]+'/'+s).split('//').join('/'));
+}
+
 function validateUrl(s) {
 	if (s === '') throw(new Error('Invalid URL'));
 	var u = url.parse(s);
 	return true; // if we haven't thrown
 }
 
-function contextAppend(options,s) {
-	options.context.push(options.context[options.context.length-1]+'/'+s);
+function validateComponentName(name) {
+	return name.match(/[a-zA-Z0-9.\-_]+/);
 }
 
 function checkServers(servers) {
@@ -28,6 +32,14 @@ function checkServers(servers) {
 			}
 		}
 	}
+}
+
+function checkResponse(response,openapi){
+	if (response.$ref) {
+		response = jptr.jptr(openapi,response.$ref);
+	}
+	response.should.have.property('description');
+	should(response.description).have.type('string','response description should be of type string');
 }
 
 function checkParam(param,index,openapi,options){
@@ -72,10 +84,20 @@ function checkPathItem(pathItem,openapi,options) {
 			checkServers(op); // won't be here in converted specs
 		}
 		else {
-			op.should.have.property('responses');
-			op.responses.should.not.be.empty();
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
+			op.should.have.property('responses');
+			op.responses.should.not.be.empty();
+
+			contextAppend(options,'responses');
+			for (var r in op.responses) {
+				contextAppend(options,r);
+				var response = op.responses[r];
+				checkResponse(response,openapi);
+				options.context.pop();
+			}
+			options.context.pop();
+
 			if (op.parameters) {
 				contextAppend(options,'parameters');
 				for (var p in op.parameters) {
@@ -100,15 +122,6 @@ function validate(openapi, options) {
 	options.context.push('#/');
     openapi.should.not.have.key('swagger');
 	openapi.should.have.key('openapi');
-	openapi.should.have.key('info');
-	openapi.info.should.have.key('title');
-	openapi.info.should.have.key('version');
-	if (openapi.info.license) {
-		openapi.info.license.should.have.key('name');
-	}
-	if (openapi.servers) {
-		checkServers(openapi.servers);
-	}
 	openapi.should.have.key('paths');
     openapi.should.not.have.key('definitions');
     openapi.should.not.have.key('parameters');
@@ -116,6 +129,23 @@ function validate(openapi, options) {
     openapi.should.not.have.key('securityDefinitions');
     openapi.should.not.have.key('produces');
     openapi.should.not.have.key('consumes');
+
+	openapi.should.have.key('info');
+	contextAppend(options,'info');
+	openapi.info.should.have.key('title');
+	openapi.info.should.have.key('version');
+	should(openapi.info.version).be.type('string','version should be of type string');
+	if (openapi.info.license) {
+		openapi.info.license.should.have.key('name');
+	}
+	if (openapi.info.termsOfService) {
+		validateUrl(openapi.info.termsOfService).should.not.throw();
+	}
+	options.context.pop();
+
+	if (openapi.servers) {
+		checkServers(openapi.servers);
+	}
 	if (openapi.externalDocs) {
 		openapi.externalDocs.should.have.key('url');
 		validateUrl(openapi.externalDocs.url).should.not.throw();
@@ -134,6 +164,7 @@ function validate(openapi, options) {
     if (openapi.components && openapi.components.securitySchemes) {
         for (var s in openapi.components.securitySchemes) {
 			options.context.push('#/components/securitySchemes/'+s);
+			validateComponentName(s).should.be.ok();
             var scheme = openapi.components.securitySchemes[s];
 			scheme.should.have.property('type');
             scheme.type.should.not.be.exactly('basic','Security scheme basic should be http with scheme basic');
@@ -205,6 +236,7 @@ function validate(openapi, options) {
     if (openapi.components && openapi.components.parameters) {
         for (var p in openapi.components.parameters) {
 			options.context.push('#/components/parameters/'+p);
+			validateComponentName(p).should.be.ok();
             checkParam(openapi.components.parameters[p],p,openapi,options);
 			options.context.pop();
         }
@@ -221,6 +253,23 @@ function validate(openapi, options) {
 			options.context.pop();
         }
     }
+
+	if (openapi.components && openapi.components.schemas) {
+		for (var s in openapi.components.schemas) {
+			options.context.push('#/components/schemas/'+s);
+			validateComponentName(s).should.be.ok();
+			options.context.pop();
+		}
+	}
+
+	if (openapi.components && openapi.components.responses) {
+		for (var r in openapi.components.responses) {
+			options.context.push('#/components/responses/'+r);
+			validateComponentName(s).should.be.ok();
+			checkResponse(openapi.components.responses[r],openapi);
+			options.context.pop();
+		}
+	}
 
     return true;
 }

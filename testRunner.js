@@ -13,6 +13,9 @@ var argv = require('yargs')
 	.string('fail')
 	.describe('fail','path to specs expected to fail')
 	.alias('f','fail')
+	.boolean('stop')
+	.alias('s','stop')
+	.describe('stop','stop on first error')
 	.count('verbose')
 	.alias('v','verbose')
 	.describe('verbose','Increase verbosity')
@@ -31,8 +34,10 @@ var normal = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[0m';
 var pass = 0;
 var fail = 0;
 var failures = [];
+var warnings = [];
 
 var options = argv;
+options.context = [];
 
 function check(file,force,expectFailure) {
 	var result = false;
@@ -52,7 +57,9 @@ function check(file,force,expectFailure) {
 			}
 		}
 		catch (ex) {
-			console.log(red+'Could not parse file '+file);
+			var warning = 'Could not parse file '+file;
+			console.log(red+warning);
+			warnings.push(warning);
 		}
 
 		if (!src || ((!src.swagger && !src.openapi))) return true;
@@ -81,6 +88,7 @@ function check(file,force,expectFailure) {
 		}
 		else {
 			fail++;
+			if (argv.stop) process.exit(1);
 		}
 	}
 	else {
@@ -93,7 +101,7 @@ function processPathSpec(pathspec,expectFailure) {
 	pathspec = path.resolve(pathspec);
 	var stats = fs.statSync(pathspec);
 	if (stats.isFile()) {
-		if (!check(pathspec,true,expectFaiure)) {
+		if (!check(pathspec,true,expectFailure)) {
 			failures.push(pathspec);
 		}
 	}
@@ -123,14 +131,21 @@ if (argv.fail) {
 }
 
 process.on('exit', function(code) {
-	if (failures.length>0) {
+	if (failures.length) {
 		failures.sort();
 		console.log(normal+'\nFailures:'+red);
 		for (var f in failures) {
 			console.log(failures[f]);
 		}
 	}
+	if (warnings.length) {
+		warnings.sort();
+		console.log(normal+'\nWarnings:'+red);
+		for (var w in warnings) {
+			console.log(warnings[w]);
+		}
+	}
 	console.log(normal);
-	console.log('Tests: %s passing, %s failing', pass, fail);
+	console.log('Tests: %s passing, %s failing, %s warnings', pass, fail, warnings.length);
 	process.exitCode = ((fail === 0) && (pass > 0)) ? 0 : 1;
 });

@@ -70,7 +70,7 @@ function processParameter(param,op,path,index,openapi) {
 		var target = openapi.components.parameters[ptr];
 		if ((!target) || (target["x-s2o-delete"])) {
 			// it's gone, chances are it's a requestBody component now unless spec was broken
-			// OR external ref - not supported yet
+			// OR external ref - TODO
 			param["x-s2o-delete"] = true;
 			rbody = true;
 		}
@@ -243,7 +243,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 	for (var p in container) {
 		var path = container[p];
 		if (path["$ref"]) {
-			// external definition only
+			// external ref / external definition only TODO
 		}
 		else {
 			for (var method in path) {
@@ -271,6 +271,9 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 					}
 					for (var r in op.responses) {
 						var response = op.responses[r];
+						if (response.$ref) {
+							response.$ref = response.$ref.replace('#/responses/','#/components/responses/');
+						}
 						if (response.schema) {
 							common.recurse(response,{},fixupSchema);
 

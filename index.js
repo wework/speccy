@@ -274,6 +274,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 						if (response.$ref) {
 							response.$ref = response.$ref.replace('#/responses/','#/components/responses/');
 						}
+						if (!response.description) response.description = '';
 						if (response.schema) {
 							common.recurse(response,{},fixupSchema);
 
@@ -376,6 +377,8 @@ function convert(swagger, options) {
     delete openapi.host;
     delete openapi.basePath;
     delete openapi.schemes;
+
+	if (!openapi.info.version) openapi.info.version = '';
 
     openapi.components = {};
 	openapi.components.schemas = openapi.definitions||{};

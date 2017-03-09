@@ -9,7 +9,10 @@ var swagger2openapi = require('./index.js');
 var validator = require('./validate.js');
 
 var argv = require('yargs')
-	.usage('testRunner [options] [{path-to-specs}]')
+	.usage('testRunner [options] [{path-to-specs}...]')
+	.string('fail')
+	.describe('fail','path to specs expected to fail')
+	.alias('f','fail')
 	.count('verbose')
 	.alias('v','verbose')
 	.describe('verbose','Increase verbosity')
@@ -29,11 +32,9 @@ var pass = 0;
 var fail = 0;
 var failures = [];
 
-var pathspec = argv._.length>0 ? argv._[0] : '../openapi-directory/APIs/';
-
 var options = argv;
 
-function check(file,force) {
+function check(file,force,expectFailure) {
 	var result = false;
 	var components = file.split(path.sep);
 	var name = components[components.length-1];
@@ -72,6 +73,7 @@ function check(file,force) {
 			console.log(red+options.context.pop()+'\n'+ex.message);
 			result = false;
 		}
+		if (expectFailure) result = !result;
 		if (result) {
 			pass++;
 		}
@@ -85,22 +87,37 @@ function check(file,force) {
 	return result;
 }
 
-process.exitCode = 1;
-pathspec = path.resolve(pathspec);
-var stats = fs.statSync(pathspec);
-if (stats.isFile()) {
-	if (!check(pathspec,true)) {
-		failures.push(pathspec);
+function processPathSpec(pathspec,expectFailure) {
+	pathspec = path.resolve(pathspec);
+	var stats = fs.statSync(pathspec);
+	if (stats.isFile()) {
+		if (!check(pathspec,true,expectFaiure)) {
+			failures.push(pathspec);
+		}
+	}
+	else {
+		rr(pathspec, function (err, files) {
+			for (var i in files) {
+				if (!check(files[i],false,expectFailure)) {
+					failures.push(files[i]);
+				}
+			}
+		});
 	}
 }
-else {
-	rr(pathspec, function (err, files) {
-		for (var i in files) {
-			if (!check(files[i])) {
-				failures.push(files[i]);
-			}
-		}
-	});
+
+process.exitCode = 1;
+if ((!argv._.length) && (!argv.fail)) {
+	argv._.push('../openapi-directory/APIs/');
+}
+for (var pathspec of argv._) {
+	processPathSpec(pathspec,false);
+}
+if (argv.fail) {
+	if (!Array.isArray(argv.fail)) argv.fail = [argv.fail];
+	for (var pathspec of argv.fail) {
+		processPathSpec(pathspec,true);
+	}
 }
 
 process.on('exit', function(code) {

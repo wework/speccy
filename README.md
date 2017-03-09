@@ -34,7 +34,7 @@ var openapi = converter.convert(swagger, options);
 ````javascript
 var validator = require('swagger2openapi/validate.js');
 var options = {};
-var result = validator.validate(openapi, options); // throws on error
+var result = validator.validate(openapi, options); // returns boolean, throws on error
 // options.context now contains a stack (array) of JSON-Pointer strings
 ````
 
@@ -64,7 +64,7 @@ mechanism in a future release.
 To run a test-suite:
 
 ````shell
-node testRunner {path-to-APIs|single-file}
+node testRunner [-f {path-to-expected-failures}]... [{path-to-APIs|single-file...}]
 ````
 
 The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x and 6.x against

@@ -13,9 +13,13 @@ function contextAppend(options,s) {
 	options.context.push((options.context[options.context.length-1]+'/'+s).split('//').join('/'));
 }
 
-function validateUrl(s) {
-	if (s === '') throw(new Error('Invalid URL'));
-	var u = URL ? new URL(s) : url.parse(s);
+function validateUrl(s,servers,context) {
+	if (s === '') throw(new Error('Invalid URL: '+context));
+	var base = 'http://localhost/'; // could be anything, including options.origin
+	if (servers && servers.length) {
+		base = servers[0].url;
+	}
+	var u = URL ? new URL(s,base) : url.parse(s);
 	return true; // if we haven't thrown
 }
 
@@ -26,7 +30,7 @@ function validateComponentName(name) {
 function checkServers(servers) {
 	for (var server of servers) {
 		if (server.url) { // TODO may change to REQUIRED in RC1
-			validateUrl(server.url).should.not.throw();
+			validateUrl(server.url,[],'server.url').should.not.throw();
 		}
 		if (server.variables) {
 			for (var v in server.variables) {
@@ -65,6 +69,9 @@ function checkParam(param,index,openapi,options){
 }
 
 function checkPathItem(pathItem,openapi,options) {
+
+	var contextServers = [];
+
 	for (var o in pathItem) {
 		contextAppend(options,o);
 		var op = pathItem[o];
@@ -107,12 +114,13 @@ function checkPathItem(pathItem,openapi,options) {
 				}
 				options.context.pop();
 			}
-			if (op.externalDocs) {
-				op.externalDocs.should.have.key('url');
-				validateUrl(op.externalDocs.url).should.not.throw();
-			}
 			if (op.servers) {
 				checkServers(op.servers);
+			}
+			if (op.externalDocs) {
+				op.externalDocs.should.have.key('url');
+				// TODO process path/op servers before HTTP verbs and pass correct context in here
+				validateUrl(op.externalDocs.url,openapi.servers,'externalDocs').should.not.throw();
 			}
 		}
 		options.context.pop();
@@ -141,7 +149,7 @@ function validate(openapi, options) {
 		openapi.info.license.should.have.key('name');
 	}
 	if (openapi.info.termsOfService) {
-		validateUrl(openapi.info.termsOfService).should.not.throw();
+		validateUrl(openapi.info.termsOfService,openapi.servers,'termsOfService').should.not.throw();
 	}
 	options.context.pop();
 
@@ -150,7 +158,7 @@ function validate(openapi, options) {
 	}
 	if (openapi.externalDocs) {
 		openapi.externalDocs.should.have.key('url');
-		validateUrl(openapi.externalDocs.url).should.not.throw();
+		validateUrl(openapi.externalDocs.url,openapi.servers,'externalDocs').should.not.throw();
 	}
 
 	// TODO externalDocs.url in schemas?
@@ -158,7 +166,7 @@ function validate(openapi, options) {
 		for (var tag of openapi.tags) {
 			if (tag.externalDocs) {
 				tag.externalDocs.should.have.key('url');
-				validateUrl(tag.externalDocs.url).should.not.throw();
+				validateUrl(tag.externalDocs.url,openapi.servers,'tag.externalDocs').should.not.throw();
 			}
 		}
 	}
@@ -194,7 +202,7 @@ function validate(openapi, options) {
 					var flow = scheme.flow[f];
 					if ((f == 'implicit') || (f == 'authorizationCode')) {
 						flow.should.have.property('authorizationUrl');
-						validateUrl(flow.authorizationUrl).should.not.throw();
+						validateUrl(flow.authorizationUrl,openapi.servers,'authorizationUrl').should.not.throw();
 					}
 					else {
 						flow.should.not.have.property('authorizationUrl');
@@ -202,13 +210,13 @@ function validate(openapi, options) {
 					if ((f == 'password') || (f == 'clientCredentials') ||
 						(f == 'authorizationCode')) {
 						flow.should.have.property('tokenUrl');
-						validateUrl(flow.tokenUrl).should.not.throw();
+						validateUrl(flow.tokenUrl,openapi.servers,'tokenUrl').should.not.throw();
 					}
 					else {
 						flow.should.not.have.property('tokenUrl');
 					}
 					if (typeof flow.refreshUrl !== 'undefined') {
-						validateUrl(flow.refreshUrl).should.not.throw();
+						validateUrl(flow.refreshUrl,openapi.servers,'refreshUrl').should.not.throw();
 					}
 					flow.should.have.property('scopes');
 				}
@@ -218,7 +226,7 @@ function validate(openapi, options) {
 			}
 			if (scheme.type == 'openIdConnect') {
 				scheme.should.have.property('openIdConnectUrl');
-				validateUrl(scheme.openIdConnectUrl).should.not.throw();
+				validateUrl(scheme.openIdConnectUrl,openapi.servers,'openIdConnectUrl').should.not.throw();
 			}
 			else {
 				scheme.should.not.have.property('openIdConnectUrl');

@@ -1,4 +1,6 @@
 var url = require('url');
+var URL = url.URL;
+var util = require('util');
 var should = require('should');
 
 var jptr = require('jgexml/jpath.js');
@@ -13,7 +15,7 @@ function contextAppend(options,s) {
 
 function validateUrl(s) {
 	if (s === '') throw(new Error('Invalid URL'));
-	var u = url.parse(s);
+	var u = URL ? new URL(s) : url.parse(s);
 	return true; // if we haven't thrown
 }
 

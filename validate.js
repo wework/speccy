@@ -252,12 +252,12 @@ function validate(openapi, options) {
     });
 
     if (openapi.components && openapi.components.parameters) {
+		options.context.push('#/components/parameters/');
         for (var p in openapi.components.parameters) {
-			options.context.push('#/components/parameters/'+p);
 			validateComponentName(p).should.be.ok();
             checkParam(openapi.components.parameters[p],p,openapi,options);
-			options.context.pop();
         }
+		options.context.pop();
     }
     for (var p in openapi.paths) {
 		options.context.push('#/paths/'+jptr.jpescape(p));

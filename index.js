@@ -285,6 +285,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 					for (var r in op.responses) {
 						var response = op.responses[r];
 						if (response.$ref) {
+							if (response.description) delete response.description; // rebilly!
 							response.$ref = response.$ref.replace('#/responses/','#/components/responses/');
 						}
 						else {

@@ -42,6 +42,7 @@ function checkServers(servers) {
 
 function checkHeader(header,openapi,options) {
 	if (header.$ref) {
+		should(Object.keys(header).length).be.exactly(1,'Reference object cannot be extended');
 		header = common.resolve(openapi,header.$ref);
 		header.should.not.be.exactly(false,'Could not resolve reference');
 	}
@@ -56,6 +57,7 @@ function checkHeader(header,openapi,options) {
 
 function checkResponse(response,openapi,options) {
 	if (response.$ref) {
+		should(Object.keys(response).length).be.exactly(1,'Reference object cannot be extended');
 		response = common.resolve(openapi,response.$ref);
 		response.should.not.be.exactly(false,'Could not resolve reference');
 	}
@@ -75,6 +77,7 @@ function checkResponse(response,openapi,options) {
 function checkParam(param,index,openapi,options){
 	contextAppend(options,index);
 	if (param.$ref) {
+		should(Object.keys(param).length).be.exactly(1,'Reference object cannot be extended');
 		param = common.resolve(openapi,param.$ref);
 		param.should.not.be.exactly(false,'Could not resolve reference');
 	}

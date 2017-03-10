@@ -16,9 +16,12 @@ var argv = require('yargs')
 	.boolean('stop')
 	.alias('s','stop')
 	.describe('stop','stop on first error')
+	.boolean('quiet')
+	.alias('q','quiet')
+	.describe('quiet','do not show test passes on console, for CI')
 	.count('verbose')
 	.alias('v','verbose')
-	.describe('verbose','Increase verbosity')
+	.describe('verbose','increase verbosity')
 	.help('h')
     .alias('h', 'help')
 	.strict()
@@ -63,7 +66,7 @@ function check(file,force,expectFailure) {
 		}
 
 		if (!src || ((!src.swagger && !src.openapi))) return true;
-		console.log(normal+file);
+		if (!argv.quiet) console.log(normal+file);
 
 		try {
 	        result = swagger2openapi.convert(src, options);
@@ -74,11 +77,14 @@ function check(file,force,expectFailure) {
 			resultStr = yaml.safeDump(result); // should be representable safely in yaml
 			resultStr.should.not.be.exactly('{}');
 
-		  	console.log(green+'  %s %s',src.info.title,src.info.version);
-			console.log('  %s',src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
+			if (!argv.quiet) {
+		  		console.log(green+'  %s %s',src.info.title,src.info.version);
+				console.log('  %s',src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
+			}
 			result = true;
 		}
 		catch (ex) {
+			if (argv.quiet) console.log(normal+file);
 			console.log(red+options.context.pop()+'\n'+ex.message);
 			result = false;
 		}

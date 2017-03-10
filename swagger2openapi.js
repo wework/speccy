@@ -38,8 +38,11 @@ argv.origin = argv.url;
 
 var openapi = converter.convert(swagger, argv);
 
-if (argv.outfile && argv.outfile.indexOf('.json') > 0) {
+if (argv.yaml && argv.outfile && argv.outfile.indexOf('.json') > 0) {
 	argv.yaml = false;
+}
+if (!argv.yaml && argv.outfile && argv.outfile.indexOf('.yaml') > 0) {
+	argv.yaml = true;
 }
 
 if (argv.yaml) {

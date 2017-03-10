@@ -1,6 +1,7 @@
 'use strict';
 
 var crypto = require('crypto');
+var jptr = require('jgexml/jpath.js');
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -40,6 +41,32 @@ function getVersion() {
 	return require('./package.json').version;
 }
 
+function resolve(root,pointer) {
+	// TODO to be extended to resolve external references
+	// use yield to wrap node-fetch for url refs ?
+	return jptr.jptr(root,pointer);
+}
+
+const parameterTypeProperties = [
+	'format',
+	'minimum',
+	'maximum',
+	'exclusiveMinimum',
+	'exclusiveMaximum',
+	'minLength',
+	'maxLength',
+	'multipleOf',
+	'minItems',
+	'maxItems',
+	'uniqueItems',
+	'minProperties',
+	'maxProperties',
+	'additionalProperties',
+	'pattern',
+	'enum',
+	'default'
+];
+
 module.exports = {
 
 	clone : clone,
@@ -47,6 +74,8 @@ module.exports = {
 	recurse : recurse,
     sha256 : sha256,
 	forceFailure : forceFailure,
-	getVersion : getVersion
+	getVersion : getVersion,
+	resolve : resolve,
+	parameterTypeProperties : parameterTypeProperties
 
 };

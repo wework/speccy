@@ -42,7 +42,8 @@ function checkServers(servers) {
 
 function checkResponse(response,openapi){
 	if (response.$ref) {
-		response = jptr.jptr(openapi,response.$ref);
+		response = common.resolve(openapi,response.$ref);
+		response.should.not.be.exactly(false,'Could not resolve reference');
 	}
 	response.should.have.property('description');
 	should(response.description).have.type('string','response description should be of type string');
@@ -51,7 +52,8 @@ function checkResponse(response,openapi){
 function checkParam(param,index,openapi,options){
 	contextAppend(options,index);
 	if (param.$ref) {
-		param = jptr.jptr(openapi,param.$ref);
+		param = common.resolve(openapi,param.$ref);
+		param.should.not.be.exactly(false,'Could not resolve reference');
 	}
 	param.should.have.property('name');
 	param.should.have.property('in');
@@ -61,7 +63,11 @@ function checkParam(param,index,openapi,options){
 	}
 	param.should.not.have.property('items');
 	param.should.not.have.property('collectionFormat');
-	if (param.type) param.type.should.not.be.exactly('file','Parameter type file is no-longer valid');
+	param.should.not.have.property('type');
+	for (var prop of common.parameterTypeProperties) {
+		param.should.not.have.property(prop);
+	}
+	param.should.not.have.property('default'); // TODO just testing
 	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
 	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
 	options.context.pop();
@@ -132,6 +138,7 @@ function validate(openapi, options) {
 	options.context.push('#/');
     openapi.should.not.have.key('swagger');
 	openapi.should.have.key('openapi');
+	openapi.openapi.should.have.type('string');
 	openapi.should.have.key('paths');
     openapi.should.not.have.key('definitions');
     openapi.should.not.have.key('parameters');
@@ -164,6 +171,7 @@ function validate(openapi, options) {
 	// TODO externalDocs.url in schemas?
 	if (openapi.tags) {
 		for (var tag of openapi.tags) {
+			tag.should.have.property('name');
 			if (tag.externalDocs) {
 				tag.externalDocs.should.have.key('url');
 				validateUrl(tag.externalDocs.url,openapi.servers,'tag.externalDocs').should.not.throw();

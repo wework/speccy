@@ -12,7 +12,7 @@
       "version": "2.0",
       "converter": {
         "url": "https://github.com/mermade/swagger2openapi",
-        "version": "1.1.16"
+        "version": "1.1.17"
       }
     }
   ],
@@ -247,8 +247,10 @@
             "in": "path",
             "description": "ID of pet to return",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -293,8 +295,10 @@
             "in": "path",
             "description": "ID of pet that needs to be updated",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -344,15 +348,19 @@
             "name": "api_key",
             "in": "header",
             "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "petId",
             "in": "path",
             "description": "Pet id to delete",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -387,8 +395,10 @@
             "in": "path",
             "description": "ID of pet to update",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -510,10 +520,12 @@
             "in": "path",
             "description": "ID of pet that needs to be fetched",
             "required": true,
-            "type": "integer",
-            "maximum": 10,
-            "minimum": 1,
-            "format": "int64"
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1,
+              "maximum": 10
+            }
           }
         ],
         "responses": {
@@ -553,9 +565,11 @@
             "in": "path",
             "description": "ID of the order that needs to be deleted",
             "required": true,
-            "type": "integer",
-            "minimum": 1,
-            "format": "int64"
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
           }
         ],
         "responses": {
@@ -646,15 +660,19 @@
             "in": "query",
             "description": "The user name for login",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "password",
             "in": "query",
             "description": "The password for login in clear text",
             "required": true,
-            "type": "string",
-            "format": "password"
+            "schema": {
+              "type": "string",
+              "format": "password"
+            }
           }
         ],
         "responses": {
@@ -721,7 +739,9 @@
             "in": "path",
             "description": "The name that needs to be fetched. Use user1 for testing. ",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -761,7 +781,9 @@
             "in": "path",
             "description": "name that need to be updated",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -796,7 +818,9 @@
             "in": "path",
             "description": "The name that needs to be deleted",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

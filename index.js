@@ -1,7 +1,6 @@
 'use strict';
 
 var common = require('./common.js');
-var jptr = require('jgexml/jpath.js');
 
 // TODO split out into params, security etc
 // TODO handle vendor-extensions with plugins?
@@ -44,7 +43,7 @@ function processSecurityScheme(scheme) {
 		if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl||'/';
 		if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl||'/';
 		flow.scopes = scheme.scopes||{};
-		scheme.flow = {};
+		scheme.flow = {}; // may become flows in RC1
 		scheme.flow[flowName] = flow;
 		delete scheme.authorizationUrl;
 		delete scheme.tokenUrl;
@@ -63,9 +62,9 @@ function processParameter(param,op,path,index,openapi) {
 	var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
 	consumes = consumes.filter(common.uniqueOnly);
 
-	if (param["$ref"]) {
-		param["$ref"] = param["$ref"].replace('#/parameters/','#/components/parameters/');
-		var ptr = param["$ref"].replace('#/components/parameters/','');
+	if (param.$ref) {
+		param.$ref = param.$ref.replace('#/parameters/','#/components/parameters/');
+		var ptr = param.$ref.replace('#/components/parameters/','');
 		var rbody = false;
 		var target = openapi.components.parameters[ptr];
 		if ((!target) || (target["x-s2o-delete"])) {
@@ -79,22 +78,28 @@ function processParameter(param,op,path,index,openapi) {
 		// we dereference all op.requestBody's then hash them and pull out common ones later
 
 		if (rbody) {
-			param = jptr.jptr(openapi,param["$ref"]);
+			param = common.resolve(openapi,param.$ref);
+			if (!param) common.forceFailure('Could not resolve reference');
 		}
 	}
 
-	if (param.type || param.in) { // if it's a real parameter OR we've dereferenced it
+	if (param.name || param.in) { // if it's a real parameter OR we've dereferenced it
 
-		if ((param.type == 'array') && (param.items)) {
-			if (param.schema) {
-				forceFailure(openapi,'parameter has array,items and schema');
+		if (param.type && (param.type != 'object') && (param.type != 'body') && (param.in != 'formData')) {
+			if (param.items && param.schema) {
+				common.forceFailure(openapi,'parameter has array,items and schema');
 			}
 			else {
-				param.schema = {};
-				param.schema.type = 'array';
-				param.schema.items = param.items;
-				delete param.type;
-				delete param.items;
+				if (!param.schema) param.schema = {};
+				param.schema.type = param.type;
+				if (param.items) {
+					param.schema.items = param.items;
+					delete param.items;
+				}
+				for (var prop of common.parameterTypeProperties) {
+					if (typeof param[prop] !== 'undefined') param.schema[prop] = param[prop];
+					delete param.prop;
+				}
 			}
 		}
 
@@ -142,25 +147,13 @@ function processParameter(param,op,path,index,openapi) {
 			var target = result.content[contentType].schema.properties[param.name];
 			if (param.description) target.description = param.description;
 			if (param.type) target.type = param.type;
+
+			for (var prop of common.parameterTypeProperties) {
+				if (typeof param[prop] !== 'undefined') target[prop] = param[prop];
+			}
 			if (typeof param.required !== 'undefined') target.required = param.required;
 			if (typeof param.default !== 'undefined') target.default = param.default;
-			if (param.format) target.format = param.format;
-			if (typeof param.minimum !== 'undefined') target.minimum = param.minimum;
-			if (typeof param.maximum !== 'undefined') target.maximum = param.maximum;
-			if (typeof param.exclusiveMinimum !== 'undefined') target.exclusiveMinimum = param.exclusiveMinimum;
-			if (typeof param.exclusiveMaximum !== 'undefined') target.exclusiveMaximum = param.exclusiveMaximum;
-			if (typeof param.minItems !== 'undefined') target.minItems = param.minItems;
-			if (typeof param.maxItems !== 'undefined') target.maxItems = param.maxItems;
-			if (typeof param.uniqueItems !== 'undefined') target.uniqueItems = param.uniqueItems;
-			if (param.pattern) target.pattern = param.pattern;
-			if (param.enum) target.enum = param.enum;
-			if (typeof param.multipleOf !== 'undefined') target.multipleOf = param.multipleOf;
-			if (typeof param.minLength !== 'undefined') target.minLength = param.minLength;
-			if (typeof param.maxLength !== 'undefined') target.maxLength = param.maxLength;
 			if (target.properties) target.properties = param.properties;
-			if (typeof param.minProperties !== 'undefined') target.minProperties = param.minProperties;
-			if (typeof param.maxProperties !== 'undefined') target.maxProperties = param.maxProperties;
-			if (typeof param.additionalProperties !== 'undefined') target.additionalProperties = param.additionalProperties;
 			if (param.allOf) target.allOf = param.allOf; // new are anyOf, oneOf, not, x- vendor extensions?
 			if ((param.type == 'array') && (param.items)) {
 				target.items = param.items;
@@ -195,7 +188,7 @@ function processParameter(param,op,path,index,openapi) {
 		if (op) {
 			if (op.requestBody && singularRequestBody) {
 				op.requestBody["x-s2o-overloaded"] = true;
-				forceFailure(openapi,'Operation has >1 requestBodies');
+				common.forceFailure(openapi,'Operation has >1 requestBodies');
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody);
@@ -217,7 +210,7 @@ function processParameter(param,op,path,index,openapi) {
 		else if (path) {
 			var uniqueName = index ? index.toCamelCase()+'RequestBodyBase' : param.name;
 			if (!index) {
-				forceFailure(openapi,'Named requestBody needs name');
+				common.forceFailure(openapi,'Named requestBody needs name');
 			}
 			if (param.in == 'formData') {
 				result["x-s2o-partial"] = true;
@@ -227,13 +220,19 @@ function processParameter(param,op,path,index,openapi) {
 		else {
 			var uniqueName = index ? index : param.name;
 			if (!index) {
-				forceFailure(openapi,'Named requestBody needs name');
+				common.forceFailure(openapi,'Named requestBody needs name');
 			}
 			if (param.in == 'formData') {
 				result["x-s2o-partial"] = true;
 			}
 			openapi.components.requestBodies[uniqueName] = result;
 		}
+	}
+
+	// tidy up
+	delete param.type;
+	for (var prop of common.parameterTypeProperties) {
+		delete param[prop];
 	}
 
 	return result;
@@ -355,7 +354,7 @@ function convert(swagger, options) {
 		openapi["x-origin"].push(origin);
 	}
 
-	// we want the new and existing properties to appear in a sensible order
+	// we want the new and existing properties to appear in a sensible order. Not guaranteed
     openapi = Object.assign(openapi,common.clone(swagger));
     delete openapi.swagger;
 

@@ -69,13 +69,13 @@ To run a test-suite:
 node testRunner [-f {path-to-expected-failures}]... [{path-to-APIs|single-file...}]
 ````
 
-The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x and 6.x against
+The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x, 6.x and 7.x against
 
 * [APIs.guru](https://github.com/APIs-guru/openapi-directory)
 * [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)
 * [SOM-Research collection](https://github.com/SOM-Research/hapi) (overlaps with APIs.guru)
 
-It can also be used as a simple validator if given an existing OpenAPI 3.x definition
+It can also be used as a simple validator if given an existing OpenAPI 3.x definition. The validator (however it is called) uses [WHATWG](https://whatwg.org/) URL parsing if available (node 7.x and above).
 
 ## Metadata reporting
 

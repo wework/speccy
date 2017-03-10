@@ -55,6 +55,20 @@ function deleteParameters(value, index, self) {
 	return !value["x-s2o-delete"];
 }
 
+function processHeader(header) {
+	if (header.type && !header.schema) {
+		header.schema = {};
+	}
+	if (header.type) header.schema.type = header.type;
+	delete header.type;
+	for (var prop of common.parameterTypeProperties) {
+		if (typeof header[prop] !== 'undefined') {
+			header.schema[prop] = header[prop];
+			delete header[prop];
+		}
+	}
+}
+
 function processParameter(param,op,path,index,openapi) {
 	var result = {};
 	var singularRequestBody = true;
@@ -273,21 +287,28 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 						if (response.$ref) {
 							response.$ref = response.$ref.replace('#/responses/','#/components/responses/');
 						}
-						if (!response.description) response.description = '';
-						if (response.schema) {
-							common.recurse(response,{},fixupSchema);
-
-							var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
-							if (!produces.length) produces.push('*/*'); // TODO verify default
-							response.content = {};
-							for (var mimetype of produces) {
-								response.content[mimetype] = {};
-								response.content[mimetype].schema = common.clone(response.schema);
-								if (response.content[mimetype].schema.type == 'file') {
-									delete response.content[mimetype].schema;
+						else {
+							if (!response.description) response.description = '';
+							if (response.schema) {
+								common.recurse(response,{},fixupSchema);
+	
+								var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
+								if (!produces.length) produces.push('*/*'); // TODO verify default
+								response.content = {};
+								for (var mimetype of produces) {
+									response.content[mimetype] = {};
+									response.content[mimetype].schema = common.clone(response.schema);
+									if (response.content[mimetype].schema.type == 'file') {
+										delete response.content[mimetype].schema;
+									}
+								}
+								delete response.schema;
+							}
+							if (response.headers) {
+								for (var h in response.headers) {
+									processHeader(response.headers[h]);
 								}
 							}
-							delete response.schema;
 						}
 					}
 
@@ -456,6 +477,14 @@ function convert(swagger, options) {
 	}
 
 	common.recurse(openapi.components.responses,{},fixupSchema);
+	for (var r in openapi.components.responses) {
+		var response = openapi.components.responses[r];
+		if (response.headers) {
+			for (var h in response.headers) {
+				processHeader(response.headers[h]);
+			}
+		}
+	}
 
     return openapi;
 }

@@ -40,13 +40,36 @@ function checkServers(servers) {
 	}
 }
 
-function checkResponse(response,openapi){
+function checkHeader(header,openapi,options) {
+	if (header.$ref) {
+		header = common.resolve(openapi,header.$ref);
+		header.should.not.be.exactly(false,'Could not resolve reference');
+	}
+	header.should.not.have.property('name');
+	header.should.not.have.property('in');
+	header.should.not.have.property('type');
+	for (var prop of common.parameterTypeProperties) {
+		header.should.not.have.property(prop);
+	}
+}
+
+
+function checkResponse(response,openapi,options) {
 	if (response.$ref) {
 		response = common.resolve(openapi,response.$ref);
 		response.should.not.be.exactly(false,'Could not resolve reference');
 	}
 	response.should.have.property('description');
 	should(response.description).have.type('string','response description should be of type string');
+	if (response.headers) {
+		contextAppend(options,'headers');
+		for (var h in response.headers) {
+			contextAppend(options,h);
+			checkHeader(response.headers[h],openapi);
+			options.context.pop();
+		}
+		options.context.pop();
+	}
 }
 
 function checkParam(param,index,openapi,options){
@@ -67,7 +90,6 @@ function checkParam(param,index,openapi,options){
 	for (var prop of common.parameterTypeProperties) {
 		param.should.not.have.property(prop);
 	}
-	param.should.not.have.property('default'); // TODO just testing
 	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
 	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
 	options.context.pop();
@@ -86,19 +108,10 @@ function checkPathItem(pathItem,openapi,options) {
 				checkParam(pathItem.parameters[p],p,openapi,options);
 			}
 		}
-		else if (o.startsWith('x-')) {
-			// nop
-		}
-		else if (o == 'summary') {
-			// nop
-		}
-		else if (o == 'description') {
-			// nop
-		}
 		else if (o == 'servers') {
 			checkServers(op); // won't be here in converted specs
 		}
-		else {
+		else if (common.httpVerbs.indexOf(o)>=0) {
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
 			op.should.have.property('responses');
@@ -108,7 +121,7 @@ function checkPathItem(pathItem,openapi,options) {
 			for (var r in op.responses) {
 				contextAppend(options,r);
 				var response = op.responses[r];
-				checkResponse(response,openapi);
+				checkResponse(response,openapi,options);
 				options.context.pop();
 			}
 			options.context.pop();
@@ -139,6 +152,9 @@ function validate(openapi, options) {
     openapi.should.not.have.key('swagger');
 	openapi.should.have.key('openapi');
 	openapi.openapi.should.have.type('string');
+	openapi.should.not.have.key('host');
+	openapi.should.not.have.key('basePath');
+	openapi.should.not.have.key('schemes');
 	openapi.should.have.key('paths');
     openapi.should.not.have.key('definitions');
     openapi.should.not.have.key('parameters');
@@ -283,8 +299,17 @@ function validate(openapi, options) {
 	if (openapi.components && openapi.components.responses) {
 		for (var r in openapi.components.responses) {
 			options.context.push('#/components/responses/'+r);
-			validateComponentName(s).should.be.ok();
-			checkResponse(openapi.components.responses[r],openapi);
+			validateComponentName(r).should.be.ok();
+			checkResponse(openapi.components.responses[r],openapi,options);
+			options.context.pop();
+		}
+	}
+
+	if (openapi.components && openapi.components.headers) {
+		for (var h in openapi.components.headers) {
+			options.context.push('#/components/headers/'+h);
+			validateComponentName(h).should.be.ok();
+			checkHeader(openapi.components.headers[h],openapi,options);
 			options.context.pop();
 		}
 	}

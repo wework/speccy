@@ -67,6 +67,17 @@ const parameterTypeProperties = [
 	'default'
 ];
 
+const httpVerbs = [
+	'get',
+	'post',
+	'put',
+	'delete',
+	'patch',
+	'head',
+	'options',
+	'trace'
+];
+
 module.exports = {
 
 	clone : clone,
@@ -76,6 +87,7 @@ module.exports = {
 	forceFailure : forceFailure,
 	getVersion : getVersion,
 	resolve : resolve,
-	parameterTypeProperties : parameterTypeProperties
+	parameterTypeProperties : parameterTypeProperties,
+	httpVerbs : httpVerbs
 
 };

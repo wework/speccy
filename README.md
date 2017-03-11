@@ -5,7 +5,7 @@
 [![OpenAPI Validation](https://openapi-converter.herokuapp.com/api/v1/badge?url=https://openapi-converter.herokuapp.com/examples/openapi.json)](https://openapi-converter.herokuapp.com/api/v1/validate?url=https://openapi-converter.herokuapp.com/examples/openapi.json)
 ![Build](https://img.shields.io/travis/Mermade/swagger2openapi.svg)
 [![Tested on APIs.guru](https://api.apis.guru/badges/tested_on.svg)](https://APIs.guru)
-[![Tested on Mermade OpenAPIs](https://img.shields.io/badge/Additional%20Specs-1258-brightgreen.svg)](https://github.com/mermade/openapi_specifications)
+[![Tested on Mermade OpenAPIs](https://img.shields.io/badge/Additional%20Specs-1258-brightgreen.svg)](https://github.com/mermade/openapi-definitions)
 [![Coverage Status](https://coveralls.io/repos/github/Mermade/swagger2openapi/badge.svg?branch=master)](https://coveralls.io/github/Mermade/swagger2openapi?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/npm/swagger2openapi/badge.svg)](https://snyk.io/test/npm/swagger2openapi)
 

@@ -509,6 +509,7 @@ function convertStr(str,options,callback) {
 	catch (ex) {
 		try {
 			obj = yaml.safeLoad(str);
+			options.sourceYaml = true;
 		}
 		catch (ex) {}
 	}

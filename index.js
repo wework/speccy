@@ -1,5 +1,10 @@
 'use strict';
 
+var fs = require('fs');
+
+var fetch = require('node-fetch');
+var yaml = require('js-yaml');
+
 var common = require('./common.js');
 
 // TODO split out into params, security etc
@@ -92,7 +97,7 @@ function processParameter(param,op,path,index,openapi) {
 		// we dereference all op.requestBody's then hash them and pull out common ones later
 
 		if (rbody) {
-			param = common.resolve(openapi,param.$ref);
+			param = common.resolveSync(openapi,param.$ref);
 			if (!param) common.forceFailure('Could not resolve reference');
 		}
 	}
@@ -352,7 +357,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 	}
 }
 
-function convert(swagger, options) {
+function convertSync(swagger, options) {
 	if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) return swagger;
 	if ((!swagger.swagger) || (swagger.swagger != "2.0")) return {}; // handle 1.2 later?
 
@@ -490,9 +495,64 @@ function convert(swagger, options) {
     return openapi;
 }
 
+function convertObj(swagger,options,callback) {
+	process.nextTick(function(){
+		convertSync(swagger,options,callback);
+	});
+}
+
+function convertStr(str,options,callback) {
+	var obj = null;
+	try {
+		obj = JSON.parse(str);
+	}
+	catch (ex) {
+		try {
+			obj = yaml.safeLoad(str);
+		}
+		catch (ex) {}
+	}
+	if (obj) {
+		convertObj(obj,options,callback);
+	}
+	else {
+		callback(new Error('Could not resolve url'),null,options);
+	}
+}
+
+function convertUrl(url,options,callback) {
+	if (!options.origin) {
+		options.origin = url;
+	}
+	fetch(url).then(function(res) {
+    	return res.text();
+	}).then(function(body) {
+		convertStr(body,options,callback);
+	}).catch(function(err){
+		callback(err,null,options);
+	});
+}
+
+function convertFile(filename,options,callback) {
+	fs.readFile(filename,options.encoding||'utf8',function(err,s){
+		if (err) {
+			callback(err,null,options);
+		}
+		else {
+			options.sourceFile = filename;
+			convertStr(s,options,callback);
+		}
+	});
+}
+
 module.exports = {
 	
 	targetVersion : targetVersion,
-    convert : convert
+    convertSync : convertSync,
+    convert : convertSync, // for backwards compatibility
+	convertObj : convertObj,
+	convertUrl : convertUrl,
+	convertStr : convertStr,
+	convertFile : convertFile
 
 };

@@ -1,6 +1,8 @@
 'use strict';
 
 var crypto = require('crypto');
+var util = require('util');
+
 var jptr = require('jgexml/jpath.js');
 
 function clone(obj) {
@@ -41,10 +43,24 @@ function getVersion() {
 	return require('./package.json').version;
 }
 
-function resolve(root,pointer) {
+function* resolve(root,pointer,callback) {
 	// TODO to be extended to resolve external references
 	// use yield to wrap node-fetch for url refs ?
-	return jptr.jptr(root,pointer);
+	var result = yield jptr.jptr(root,pointer);
+	callback(null,result);
+	return result;
+}
+
+function resolveSync(root,pointer) {
+	var obj = false;
+	var r = resolve(root,pointer,function(err,data){
+		obj = data;
+	});
+	var result = r.next();
+    while (!result.done) {
+		result = r.next(result.value);
+    }
+	return obj; // just in case
 }
 
 const parameterTypeProperties = [
@@ -87,6 +103,7 @@ module.exports = {
 	forceFailure : forceFailure,
 	getVersion : getVersion,
 	resolve : resolve,
+	resolveSync : resolveSync,
 	parameterTypeProperties : parameterTypeProperties,
 	httpVerbs : httpVerbs
 

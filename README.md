@@ -16,8 +16,10 @@ Currently tracking [v3.0.0-RC0](https://github.com/OAI/OpenAPI-Specification/blo
 Usage:
 
 ````
+swagger2openapi [options] [filename|url]
 Options:
   -d, --debug    enable debug mode, adds specification-extensions      [boolean]
+  -e, --encoding encoding for input/output files      [string] [default: "utf8"]
   -h, --help     Show help                                             [boolean]
   -o, --outfile  the output file to write to                            [string]
   -u, --url      url of original spec, creates x-origin entry           [string]
@@ -30,7 +32,8 @@ or use the APIs:
 var converter = require('swagger2openapi');
 var options = {};
 //options.debug = true; // sets various x-s2o- debugging properties
-var openapi = converter.convert(swagger, options);
+var openapi = converter.convertSync(swagger, options);
+// also available are asynchronous convertObj, convertFile, convertUrl and convertStr functions
 ````
 
 ````javascript
@@ -42,11 +45,11 @@ var result = validator.validate(openapi, options); // returns boolean, throws on
 
 Or use the [online version](https://openapi-converter.herokuapp.com) which also includes an API
 
-## Vendor extensions
+## Specification extensions
 
-swagger2openapi has support for a limited number of real-world vendor extensions which have a direct bearing on the conversion. All other vendor extensions are left untouched.
+swagger2openapi has support for a limited number of real-world specification extensions which have a direct bearing on the conversion. All other specification extensions are left untouched.
 
-Vendor Extension|Vendor|Conversion Performed
+Specification Extension|Vendor|Conversion Performed
 |---|---|---|
 x-ms-paths|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|Treated as an analogue of the `openapi.paths` object
 x-ms-skip-url-encoding|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|For query parameters, converted to `allowReserved:true`
@@ -56,7 +59,7 @@ x-anyOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas
 x-oneOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `oneOf`
 x-not|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `not`
 
-See also [Amazon API Gateway vendor extensions](http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html)
+See also [Amazon API Gateway specification extensions](http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html)
 
 It is expected to be able to configure the process of vendor-extension modification using options or a plugin 
 mechanism in a future release.

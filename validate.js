@@ -72,6 +72,19 @@ function checkResponse(response,openapi,options) {
 		}
 		options.context.pop();
 	}
+
+	if (response.content) {
+		for (var ct in response.content) {
+			var responseType = response.content[ct];
+			if (responseType.example) {
+				responseType.should.not.have.property('examples');
+			}
+			if (responseType.examples) {
+				responseType.should.not.have.property('example');
+				responseType.examples.should.be.an.Array();
+			}
+		}
+	}
 }
 
 function checkParam(param,index,openapi,options){
@@ -87,6 +100,7 @@ function checkParam(param,index,openapi,options){
 		param.should.have.property('required');
 		param.required.should.be.exactly(true,'Path parameters must have an explicit required:true');
 	}
+	if (typeof param.required !== 'undefined') should(param.required).have.type('boolean');
 	param.should.not.have.property('items');
 	param.should.not.have.property('collectionFormat');
 	param.should.not.have.property('type');
@@ -114,11 +128,19 @@ function checkPathItem(pathItem,openapi,options) {
 		else if (o == 'servers') {
 			checkServers(op); // won't be here in converted specs
 		}
+		else if (o == 'summary') {
+			pathItem.summary.should.have.type('string');
+		}
+		else if (o == 'description') {
+			pathItem.description.should.have.type('string');
+		}
 		else if (common.httpVerbs.indexOf(o)>=0) {
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
 			op.should.have.property('responses');
 			op.responses.should.not.be.empty();
+			if (op.summary) op.summary.should.have.type('string');
+			if (op.description) op.description.should.have.type('string');
 
 			contextAppend(options,'responses');
 			for (var r in op.responses) {

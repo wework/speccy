@@ -497,7 +497,8 @@ function convertSync(swagger, options) {
 
 function convertObj(swagger,options,callback) {
 	process.nextTick(function(){
-		convertSync(swagger,options,callback);
+		var openapi = convertSync(swagger,options);
+		callback(null,openapi,options);
 	});
 }
 

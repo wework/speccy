@@ -226,6 +226,8 @@ function validate(openapi, options) {
 			validateComponentName(s).should.be.ok();
             var scheme = openapi.components.securitySchemes[s];
 			scheme.should.have.property('type');
+			scheme.type.should.have.type('string');
+			scheme.type.should.equalOneOf('apiKey','http','oauth2','openIdConnect');
             scheme.type.should.not.be.exactly('basic','Security scheme basic should be http with scheme basic');
 			if (scheme.type == 'http') {
 				scheme.should.have.property('scheme');

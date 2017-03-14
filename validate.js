@@ -34,7 +34,7 @@ function checkServers(servers) {
 		}
 		if (server.variables) {
 			for (var v in server.variables) {
-				server.variables[v].should.have.key('default');
+				server.variables[v].should.have.key('default'); // may be always type string in RC1
 			}
 		}
 	}
@@ -95,7 +95,10 @@ function checkParam(param,index,openapi,options){
 		param.should.not.be.exactly(false,'Could not resolve reference');
 	}
 	param.should.have.property('name');
+	param.name.should.have.type('string');
 	param.should.have.property('in');
+	param.in.should.have.type('string');
+	param.in.should.equalOneOf('query','header','path','cookie');
 	if (param.in == 'path') {
 		param.should.have.property('required');
 		param.required.should.be.exactly(true,'Path parameters must have an explicit required:true');
@@ -163,6 +166,7 @@ function checkPathItem(pathItem,openapi,options) {
 			}
 			if (op.externalDocs) {
 				op.externalDocs.should.have.key('url');
+				op.externalDocs.url.should.have.type('string');
 				// TODO process path/op servers before HTTP verbs and pass correct context in here
 				validateUrl(op.externalDocs.url,openapi.servers,'externalDocs').should.not.throw();
 			}
@@ -191,10 +195,12 @@ function validate(openapi, options) {
 	openapi.should.have.key('info');
 	contextAppend(options,'info');
 	openapi.info.should.have.key('title');
+	openapi.info.title.should.have.type('string');
 	openapi.info.should.have.key('version');
 	should(openapi.info.version).be.type('string','version should be of type string');
 	if (openapi.info.license) {
 		openapi.info.license.should.have.key('name');
+		openapi.info.license.name.should.have.type('string');
 	}
 	if (openapi.info.termsOfService) {
 		validateUrl(openapi.info.termsOfService,openapi.servers,'termsOfService').should.not.throw();
@@ -206,6 +212,7 @@ function validate(openapi, options) {
 	}
 	if (openapi.externalDocs) {
 		openapi.externalDocs.should.have.key('url');
+		openapi.externalDocs.url.should.have.type('string');
 		validateUrl(openapi.externalDocs.url,openapi.servers,'externalDocs').should.not.throw();
 	}
 
@@ -213,8 +220,10 @@ function validate(openapi, options) {
 	if (openapi.tags) {
 		for (var tag of openapi.tags) {
 			tag.should.have.property('name');
+			tag.name.should.have.type('string');
 			if (tag.externalDocs) {
 				tag.externalDocs.should.have.key('url');
+				tag.externalDocs.url.should.have.type('string');
 				validateUrl(tag.externalDocs.url,openapi.servers,'tag.externalDocs').should.not.throw();
 			}
 		}
@@ -227,10 +236,11 @@ function validate(openapi, options) {
             var scheme = openapi.components.securitySchemes[s];
 			scheme.should.have.property('type');
 			scheme.type.should.have.type('string');
-			scheme.type.should.equalOneOf('apiKey','http','oauth2','openIdConnect');
             scheme.type.should.not.be.exactly('basic','Security scheme basic should be http with scheme basic');
+			scheme.type.should.equalOneOf('apiKey','http','oauth2','openIdConnect');
 			if (scheme.type == 'http') {
 				scheme.should.have.property('scheme');
+				scheme.scheme.should.have.type('string');
 				if (scheme.scheme != 'bearer') {
 					scheme.should.not.have.property('bearerFormat');
 				}
@@ -241,7 +251,10 @@ function validate(openapi, options) {
 			}
 			if (scheme.type == 'apiKey') {
 				scheme.should.have.property('name');
+				scheme.name.should.have.type('string');
 				scheme.should.have.property('in');
+				scheme.in.should.have.type('string');
+				scheme.in.should.equalOneOf('query','header');
 			}
 			else {
 				scheme.should.not.have.property('name');
@@ -253,6 +266,7 @@ function validate(openapi, options) {
 					var flow = scheme.flow[f];
 					if ((f == 'implicit') || (f == 'authorizationCode')) {
 						flow.should.have.property('authorizationUrl');
+						flow.authorizationUrl.should.have.type('string');
 						validateUrl(flow.authorizationUrl,openapi.servers,'authorizationUrl').should.not.throw();
 					}
 					else {
@@ -261,6 +275,7 @@ function validate(openapi, options) {
 					if ((f == 'password') || (f == 'clientCredentials') ||
 						(f == 'authorizationCode')) {
 						flow.should.have.property('tokenUrl');
+						flow.tokenUrl.should.have.type('string');
 						validateUrl(flow.tokenUrl,openapi.servers,'tokenUrl').should.not.throw();
 					}
 					else {
@@ -277,6 +292,7 @@ function validate(openapi, options) {
 			}
 			if (scheme.type == 'openIdConnect') {
 				scheme.should.have.property('openIdConnectUrl');
+				scheme.openIdConnectUrl.should.have.type('string');
 				validateUrl(scheme.openIdConnectUrl,openapi.servers,'openIdConnectUrl').should.not.throw();
 			}
 			else {

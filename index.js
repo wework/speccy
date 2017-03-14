@@ -304,12 +304,25 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 								for (var mimetype of produces) {
 									response.content[mimetype] = {};
 									response.content[mimetype].schema = common.clone(response.schema);
+									if (response.examples && response.examples[mimetype]) {
+										response.content[mimetype].examples = [];
+										response.content[mimetype].examples.push(response.examples[mimetype]);
+										delete response.examples[mimetype];
+									}
 									if (response.content[mimetype].schema.type == 'file') {
 										delete response.content[mimetype].schema;
 									}
 								}
 								delete response.schema;
 							}
+							// examples for other types
+							for (var mimetype in response.examples) {
+								if (!response.content) response.content = {};
+								if (!response.content[mimetype]) response.content[mimetype] = {};
+								response.content[mimetype].examples = [];
+								response.content[mimetype].examples.push(response.examples[mimetype]);
+							}
+							delete response.examples;
 							if (response.headers) {
 								for (var h in response.headers) {
 									processHeader(response.headers[h]);

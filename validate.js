@@ -63,6 +63,7 @@ function checkResponse(response,openapi,options) {
 	}
 	response.should.have.property('description');
 	should(response.description).have.type('string','response description should be of type string');
+	response.should.not.have.property('examples');
 	if (response.headers) {
 		contextAppend(options,'headers');
 		for (var h in response.headers) {

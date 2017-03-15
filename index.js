@@ -27,11 +27,23 @@ function fixupSchema(obj,key,parent){
 		obj.not = obj[key];
 		delete obj[key];
 	}
-	if ((key == '$ref') && (typeof obj[key] === 'string')) {
-		obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
+	if ((key == '$ref') && (typeof obj[key] === 'string') && (obj[key].indexOf('#/definitions/')>=0)) {
+		obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
 	}
 	if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
-		obj[key] = obj[key].replace('#/definitions/','#/components/schemas/');
+		obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
+	}
+}
+
+function processSecurity(securityObject) {
+	for (var s in securityObject) {
+		for (var k in securityObject[s]) {
+			var sname = common.sanitise(k);
+			if (k != sname) {
+				securityObject[s][sname] = securityObject[s][k];
+				delete securityObject[s][k];
+			}
+		}
 	}
 }
 
@@ -82,10 +94,10 @@ function processParameter(param,op,path,index,openapi) {
 	consumes = consumes.filter(common.uniqueOnly);
 
 	if (param.$ref) {
-		param.$ref = param.$ref.replace('#/parameters/','#/components/parameters/');
+		param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
 		var ptr = param.$ref.replace('#/components/parameters/','');
 		var rbody = false;
-		var target = openapi.components.parameters[ptr];
+		var target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
 		if ((!target) || (target["x-s2o-delete"])) {
 			// it's gone, chances are it's a requestBody component now unless spec was broken
 			// OR external ref - TODO
@@ -98,7 +110,7 @@ function processParameter(param,op,path,index,openapi) {
 
 		if (rbody) {
 			param = common.resolveSync(openapi,param.$ref);
-			if (!param) common.forceFailure('Could not resolve reference');
+			if (!param) throw(new Error('Could not resolve reference '+param.ref));
 		}
 	}
 
@@ -106,7 +118,7 @@ function processParameter(param,op,path,index,openapi) {
 
 		if (param.type && (param.type != 'object') && (param.type != 'body') && (param.in != 'formData')) {
 			if (param.items && param.schema) {
-				common.forceFailure(openapi,'parameter has array,items and schema');
+				throw(new Error('parameter has array,items and schema'));
 			}
 			else {
 				if (!param.schema) param.schema = {};
@@ -265,9 +277,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 		}
 		else {
 			for (var method in path) {
-				if ((method == 'get') || (method == 'put') || (method == 'post') || 
-					(method == 'delete') || (method == 'options') || (method == 'patch') ||
-					(method == 'head') || (method == 'trace')) {
+				if (common.httpVerbs.indexOf((method)>0)) {
 					var op = path[method];
 
 					if (op.parameters) {
@@ -278,6 +288,8 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 							op.parameters = op.parameters.filter(deleteParameters);
 						}
 					}
+
+					if (op.security) processSecurity(op.security);
 
 					//don't need to remove requestBody for non-supported ops "SHALL be ignored"
 
@@ -290,13 +302,22 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 					for (var r in op.responses) {
 						var response = op.responses[r];
 						if (response.$ref) {
-							if (response.description) delete response.description; // rebilly!
-							response.$ref = response.$ref.replace('#/responses/','#/components/responses/');
+							if (response.description) {
+								//delete response.description; // rebilly
+								throw(new Error('$ref object cannot be extended'));
+							}
+							if (response.$ref.indexOf('#/definitions/')>=0) {
+								//response.$ref = '#/components/schemas/'+common.sanitise(response.$ref.replace('#/definitions/',''));
+								throw(new Error('definition used as response'));
+							}
+							else {
+								response.$ref = '#/components/responses/'+common.sanitise(response.$ref.replace('#/responses/',''));
+							}
 						}
 						else {
 							if (!response.description) response.description = '';
 							if (response.schema) {
-								common.recurse(response,{},fixupSchema);
+								common.recurse(response.schema,{},fixupSchema); // was response
 	
 								var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
 								if (!produces.length) produces.push('*/*'); // TODO verify default
@@ -433,14 +454,55 @@ function convertSync(swagger, options) {
 	delete openapi.securityDefinitions;
     // new are [ callbacks, links ]
 
+	if (openapi.security) processSecurity(openapi.security);
+
 	for (var s in openapi.components.securitySchemes) {
-		processSecurityScheme(openapi.components.securitySchemes[s]);
+		var sname = common.sanitise(s);
+		if (s != sname) {
+			if (openapi.components.securitySchemes[sname]) {
+				throw(new Error('Duplicate sanitised securityScheme name'));
+			}
+			openapi.components.securitySchemes[sname] = openapi.components.securitySchemes[s];
+			delete openapi.components.securitySchemes[s];
+		}
+		processSecurityScheme(openapi.components.securitySchemes[sname]);
+	}
+
+	for (var s in openapi.components.schemas) {
+		var sname = common.sanitise(s);
+		if (s != sname) {
+			if (openapi.components.schemas[sname]) {
+				throw(new Error('Duplicate sanitised schema name'));
+			}
+			openapi.components.schemas[sname] = openapi.components.schemas[s];
+			delete openapi.components.schemas[s];
+		}
 	}
 
 	for (var p in openapi.components.parameters) {
-		var param = openapi.components.parameters[p];
-		processParameter(param,null,null,p,openapi);
+		var sname = common.sanitise(p);
+		if (p != sname) {
+			if (openapi.components.parameters[sname]) {
+				throw(new Error('Duplicate sanitised parameter name'));
+			}
+			openapi.components.parameters[sname] = openapi.components.parameters[p];
+			delete openapi.components.parameters[p];
+		}
+		var param = openapi.components.parameters[sname];
+		processParameter(param,null,null,sname,openapi);
 	}
+
+	for (var r in openapi.components.responses) {
+		var sname = common.sanitise(r);
+		if (r != sname) {
+			if (openapi.components.responses[sname]) {
+				throw(new Error('Duplicate sanitised response name'));
+			}
+			openapi.components.responses[sname] = openapi.components.responses[r];
+			delete openapi.components.responses[r];
+		}
+	}
+
 	for (var r in openapi.components.requestBodies) { // converted ones
 		var rb = openapi.components.requestBodies[r];
 		var rbStr = JSON.stringify(rb);

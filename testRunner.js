@@ -70,8 +70,16 @@ function check(file,force,expectFailure) {
 
 		try {
 	        result = swagger2openapi.convert(src, options);
-			var resultStr = JSON.stringify(result);
+		}
+		catch (ex) {
+			console.log(red+'Converter threw an error: '+ex.message);
+			warnings.push('Converter failed '+file);
+			result = true;
+		}
 
+		var resultStr = JSON.stringify(result);
+
+		if (typeof result !== 'boolean') try {
 			validator.validate(result,options);
 
 			resultStr = yaml.safeDump(result); // should be representable safely in yaml

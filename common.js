@@ -94,6 +94,10 @@ const httpVerbs = [
 	'trace'
 ];
 
+function sanitise(s) {
+    return s.replace(/[^A-Za-z0-9_\-\.\\]+|\s+/gm, '_');
+}
+
 module.exports = {
 
 	clone : clone,
@@ -105,6 +109,7 @@ module.exports = {
 	resolve : resolve,
 	resolveSync : resolveSync,
 	parameterTypeProperties : parameterTypeProperties,
-	httpVerbs : httpVerbs
+	httpVerbs : httpVerbs,
+	sanitise : sanitise
 
 };

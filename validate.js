@@ -24,7 +24,7 @@ function validateUrl(s,servers,context) {
 }
 
 function validateComponentName(name) {
-	return name.match(/[a-zA-Z0-9.\-_]+/);
+	return /^[a-zA-Z0-9\.\\\-_]+$/.test(name);
 }
 
 function checkServers(servers) {
@@ -42,9 +42,10 @@ function checkServers(servers) {
 
 function checkHeader(header,openapi,options) {
 	if (header.$ref) {
+		var ref = header.$ref;
 		should(Object.keys(header).length).be.exactly(1,'Reference object cannot be extended');
-		header = common.resolveSync(openapi,header.$ref);
-		header.should.not.be.exactly(false,'Could not resolve reference');
+		header = common.resolveSync(openapi,ref);
+		header.should.not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	header.should.not.have.property('name');
 	header.should.not.have.property('in');
@@ -54,12 +55,16 @@ function checkHeader(header,openapi,options) {
 	}
 }
 
-
 function checkResponse(response,openapi,options) {
 	if (response.$ref) {
-		should(Object.keys(response).length).be.exactly(1,'Reference object cannot be extended');
-		response = common.resolveSync(openapi,response.$ref);
-		response.should.not.be.exactly(false,'Could not resolve reference');
+		var ref = response.$ref;
+		if (Object.keys(response).length>1) {
+			console.log(options.context[options.context.length-1]);
+			console.log('  '+ref);
+		}
+		//should(Object.keys(response).length).be.exactly(1,'Reference object cannot be extended');
+		response = common.resolveSync(openapi,ref);
+		response.should.not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	response.should.have.property('description');
 	should(response.description).have.type('string','response description should be of type string');
@@ -92,8 +97,9 @@ function checkParam(param,index,openapi,options){
 	contextAppend(options,index);
 	if (param.$ref) {
 		should(Object.keys(param).length).be.exactly(1,'Reference object cannot be extended');
-		param = common.resolveSync(openapi,param.$ref);
-		param.should.not.be.exactly(false,'Could not resolve reference');
+		var ref = param.$ref;
+		param = common.resolveSync(openapi,ref);
+		param.should.not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	param.should.have.property('name');
 	param.name.should.have.type('string');
@@ -233,7 +239,7 @@ function validate(openapi, options) {
     if (openapi.components && openapi.components.securitySchemes) {
         for (var s in openapi.components.securitySchemes) {
 			options.context.push('#/components/securitySchemes/'+s);
-			validateComponentName(s).should.be.ok();
+			validateComponentName(s).should.be.equal(true,'component name invalid');
             var scheme = openapi.components.securitySchemes[s];
 			scheme.should.have.property('type');
 			scheme.type.should.have.type('string');
@@ -314,8 +320,10 @@ function validate(openapi, options) {
     if (openapi.components && openapi.components.parameters) {
 		options.context.push('#/components/parameters/');
         for (var p in openapi.components.parameters) {
-			validateComponentName(p).should.be.ok();
             checkParam(openapi.components.parameters[p],p,openapi,options);
+			contextAppend(options, p);
+			validateComponentName(p).should.be.equal(true,'component name invalid');
+			options.context.pop();
         }
 		options.context.pop();
     }
@@ -335,7 +343,7 @@ function validate(openapi, options) {
 	if (openapi.components && openapi.components.schemas) {
 		for (var s in openapi.components.schemas) {
 			options.context.push('#/components/schemas/'+s);
-			validateComponentName(s).should.be.ok();
+			validateComponentName(s).should.be.equal(true,'component name invalid');
 			options.context.pop();
 		}
 	}
@@ -343,7 +351,7 @@ function validate(openapi, options) {
 	if (openapi.components && openapi.components.responses) {
 		for (var r in openapi.components.responses) {
 			options.context.push('#/components/responses/'+r);
-			validateComponentName(r).should.be.ok();
+			validateComponentName(r).should.be.equal(true,'component name invalid');
 			checkResponse(openapi.components.responses[r],openapi,options);
 			options.context.pop();
 		}
@@ -352,7 +360,7 @@ function validate(openapi, options) {
 	if (openapi.components && openapi.components.headers) {
 		for (var h in openapi.components.headers) {
 			options.context.push('#/components/headers/'+h);
-			validateComponentName(h).should.be.ok();
+			validateComponentName(h).should.be.equal(true,'component name invalid');
 			checkHeader(openapi.components.headers[h],openapi,options);
 			options.context.pop();
 		}

@@ -219,7 +219,7 @@ function processParameter(param,op,path,index,openapi) {
 		if (op) {
 			if (op.requestBody && singularRequestBody) {
 				op.requestBody["x-s2o-overloaded"] = true;
-				common.forceFailure(openapi,'Operation has >1 requestBodies');
+				throw(new Error('Operation has >1 requestBodies'));
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody);
@@ -240,9 +240,6 @@ function processParameter(param,op,path,index,openapi) {
 		}
 		else if (path) {
 			var uniqueName = index ? index.toCamelCase()+'RequestBodyBase' : param.name;
-			if (!index) {
-				common.forceFailure(openapi,'Named requestBody needs name');
-			}
 			if (param.in == 'formData') {
 				result["x-s2o-partial"] = true;
 			}
@@ -250,9 +247,6 @@ function processParameter(param,op,path,index,openapi) {
 		}
 		else {
 			var uniqueName = index ? index : param.name;
-			if (!index) {
-				common.forceFailure(openapi,'Named requestBody needs name');
-			}
 			if (param.in == 'formData') {
 				result["x-s2o-partial"] = true;
 			}

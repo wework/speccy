@@ -24,7 +24,7 @@ function validateUrl(s,servers,context) {
 }
 
 function validateComponentName(name) {
-	return /^[a-zA-Z0-9\.\\\-_]+$/.test(name);
+	return /^[a-zA-Z0-9\.\-_]+$/.test(name);
 }
 
 function checkServers(servers) {

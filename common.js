@@ -26,8 +26,7 @@ String.prototype.toCamelCase = function camelize() {
 }
 
 function forceFailure(openapi,message) {
-	openapi.openapi = 'error';
-	openapi["x-s2o-error"] = message;
+	throw(new Error(message));
 }
 
 function recurse(object,parent,callback) {
@@ -95,7 +94,7 @@ const httpVerbs = [
 ];
 
 function sanitise(s) {
-    return s.replace(/[^A-Za-z0-9_\-\.\\]+|\s+/gm, '_');
+    return s.replace(/[^A-Za-z0-9_\-\.]+|\s+/gm, '_');
 }
 
 module.exports = {
@@ -104,7 +103,7 @@ module.exports = {
 	uniqueOnly : uniqueOnly,
 	recurse : recurse,
     sha256 : sha256,
-	forceFailure : forceFailure,
+	forceFailure : forceFailure, // TODO can be removed in v2.0.0
 	getVersion : getVersion,
 	resolve : resolve,
 	resolveSync : resolveSync,

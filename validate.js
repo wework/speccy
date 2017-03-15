@@ -53,6 +53,11 @@ function checkHeader(header,openapi,options) {
 	for (var prop of common.parameterTypeProperties) {
 		header.should.not.have.property(prop);
 	}
+	if (header.schema) header.should.not.have.property('content'); // TODO required mutex?
+	if (header.content) {
+		header.should.not.have.property('schema');
+		header.should.not.have.property('style');
+	}
 }
 
 function checkResponse(response,openapi,options) {
@@ -119,6 +124,11 @@ function checkParam(param,index,openapi,options){
 	}
 	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
 	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
+	if (param.schema) param.should.not.have.property('content'); // TODO required mutex?
+	if (param.content) {
+		param.should.not.have.property('schema');
+		param.should.not.have.property('style');
+	}
 	options.context.pop();
 	return true;
 }

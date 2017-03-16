@@ -10,6 +10,10 @@ var validator = require('./validate.js');
 
 var argv = require('yargs')
 	.usage('testRunner [options] [{path-to-specs}...]')
+	.string('encoding')
+	.alias('e','encoding')
+	.default('encoding','utf8')
+	.describe('encoding','encoding for input/output files')
 	.string('fail')
 	.describe('fail','path to specs expected to fail')
 	.alias('f','fail')
@@ -50,7 +54,7 @@ function check(file,force,expectFailure) {
 
 	if ((name.indexOf('.yaml')>=0) || (name.indexOf('.json')>=0) || force) {
 
-		var srcStr = fs.readFileSync(path.resolve(file),'utf8');
+		var srcStr = fs.readFileSync(path.resolve(file),options.encoding);
 		var src;
 		try {
 			if (name.indexOf('.yaml')>=0) {

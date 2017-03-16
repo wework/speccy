@@ -2,9 +2,13 @@ var url = require('url');
 var URL = url.URL;
 var util = require('util');
 var should = require('should');
+var ajv = require('ajv')();
 
 var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
+
+var jsonSchema = require('./schemas/json_v5.json');
+var validateMetaSchema = ajv.compile(jsonSchema);
 
 // TODO validate with ajv when schema published
 // TODO requestBody.content may become REQUIRED in RC1
@@ -25,6 +29,18 @@ function validateUrl(s,servers,context) {
 
 function validateComponentName(name) {
 	return /^[a-zA-Z0-9\.\-_]+$/.test(name);
+}
+
+function validateSchema(schema) {
+	validateMetaSchema(schema, {
+		allErrors: true,
+		verbose: true
+	});
+	var errors = validate.errors;
+	if (errors && errors.length) {
+		throw(new Error('schema invalid: '+util.inspect(errors)));
+	}
+	return !(errors && errors.length);
 }
 
 function checkServers(servers) {
@@ -53,7 +69,10 @@ function checkHeader(header,openapi,options) {
 	for (var prop of common.parameterTypeProperties) {
 		header.should.not.have.property(prop);
 	}
-	if (header.schema) header.should.not.have.property('content'); // TODO required mutex?
+	if (header.schema) {
+		header.should.not.have.property('content'); // TODO required mutex?
+		validateSchema(header.schema);
+	}
 	if (header.content) {
 		header.should.not.have.property('schema');
 		header.should.not.have.property('style');
@@ -124,7 +143,10 @@ function checkParam(param,index,openapi,options){
 	}
 	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
 	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
-	if (param.schema) param.should.not.have.property('content'); // TODO required mutex?
+	if (param.schema) {
+		param.should.not.have.property('content'); // TODO required mutex?
+		validateSchema(param.schema);
+	}
 	if (param.content) {
 		param.should.not.have.property('schema');
 		param.should.not.have.property('style');
@@ -354,6 +376,7 @@ function validate(openapi, options) {
 		for (var s in openapi.components.schemas) {
 			options.context.push('#/components/schemas/'+s);
 			validateComponentName(s).should.be.equal(true,'component name invalid');
+			validateSchema(openapi.components.schemas[s]);
 			options.context.pop();
 		}
 	}

@@ -22,6 +22,7 @@ Options:
   -e, --encoding encoding for input/output files      [string] [default: "utf8"]
   -h, --help     Show help                                             [boolean]
   -o, --outfile  the output file to write to                            [string]
+  -p, --patch    fix up small errors in the source definition          [boolean]
   -u, --url      url of original spec, creates x-origin entry           [string]
   -y, --yaml     read and write YAML, default JSON                     [boolean]
 ````

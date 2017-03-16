@@ -40,10 +40,11 @@ var failures = [];
 var warnings = [];
 
 var options = argv;
-options.context = [];
+options.patch = true;
 
 function check(file,force,expectFailure) {
 	var result = false;
+	options.context = [];
 	var components = file.split(path.sep);
 	var name = components[components.length-1];
 

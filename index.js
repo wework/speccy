@@ -297,8 +297,12 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 						var response = op.responses[r];
 						if (response.$ref) {
 							if (response.description) {
-								//delete response.description; // rebilly
-								throw(new Error('$ref object cannot be extended'));
+								if (options.patch) {
+									delete response.description;
+								}
+								else {
+									throw(new Error('$ref object cannot be extended: '+response.$ref));
+								}
 							}
 							if (response.$ref.indexOf('#/definitions/')>=0) {
 								//response.$ref = '#/components/schemas/'+common.sanitise(response.$ref.replace('#/definitions/',''));
@@ -309,7 +313,14 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 							}
 						}
 						else {
-							if (!response.description) response.description = '';
+							if (typeof response.description === 'undefined') {
+								if (options.patch) {
+									response.description = '';
+								}
+								else {
+									throw(new Error('response.description is mandatory'));
+								}
+							}
 							if (response.schema) {
 								common.recurse(response.schema,{},fixupSchema); // was response
 	
@@ -432,7 +443,14 @@ function convertSync(swagger, options) {
     delete openapi.basePath;
     delete openapi.schemes;
 
-	if (!openapi.info.version) openapi.info.version = '';
+	if (typeof openapi.info.version == 'undefined') {
+		if (options.patch) {
+			openapi.info.version = '';
+		}
+		else {
+			throw(new Error('info.version cannot be null'));
+		}
+	}
 
     openapi.components = {};
 	openapi.components.schemas = openapi.definitions||{};

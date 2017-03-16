@@ -1,5 +1,5 @@
-*.json
-*.yaml
+/*.json
+/*.yaml
 build.sh
 .coveralls.yml
 

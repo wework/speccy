@@ -306,7 +306,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 							}
 							if (response.$ref.indexOf('#/definitions/')>=0) {
 								//response.$ref = '#/components/schemas/'+common.sanitise(response.$ref.replace('#/definitions/',''));
-								throw(new Error('definition used as response'));
+								throw(new Error('definition used as response: '+response.$ref));
 							}
 							else {
 								response.$ref = '#/components/responses/'+common.sanitise(response.$ref.replace('#/responses/',''));
@@ -472,7 +472,7 @@ function convertSync(swagger, options) {
 		var sname = common.sanitise(s);
 		if (s != sname) {
 			if (openapi.components.securitySchemes[sname]) {
-				throw(new Error('Duplicate sanitised securityScheme name'));
+				throw(new Error('Duplicate sanitised securityScheme name '+sname));
 			}
 			openapi.components.securitySchemes[sname] = openapi.components.securitySchemes[s];
 			delete openapi.components.securitySchemes[s];
@@ -484,7 +484,7 @@ function convertSync(swagger, options) {
 		var sname = common.sanitise(s);
 		if (s != sname) {
 			if (openapi.components.schemas[sname]) {
-				throw(new Error('Duplicate sanitised schema name'));
+				throw(new Error('Duplicate sanitised schema name '+sname));
 			}
 			openapi.components.schemas[sname] = openapi.components.schemas[s];
 			delete openapi.components.schemas[s];
@@ -495,7 +495,7 @@ function convertSync(swagger, options) {
 		var sname = common.sanitise(p);
 		if (p != sname) {
 			if (openapi.components.parameters[sname]) {
-				throw(new Error('Duplicate sanitised parameter name'));
+				throw(new Error('Duplicate sanitised parameter name '+sname));
 			}
 			openapi.components.parameters[sname] = openapi.components.parameters[p];
 			delete openapi.components.parameters[p];
@@ -508,7 +508,7 @@ function convertSync(swagger, options) {
 		var sname = common.sanitise(r);
 		if (r != sname) {
 			if (openapi.components.responses[sname]) {
-				throw(new Error('Duplicate sanitised response name'));
+				throw(new Error('Duplicate sanitised response name '+sname));
 			}
 			openapi.components.responses[sname] = openapi.components.responses[r];
 			delete openapi.components.responses[r];

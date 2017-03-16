@@ -1,7 +1,7 @@
 {
   "name": "swagger2openapi",
   "version": "1.5.0",
-  "description": "Convert Swagger 2.0 specifications to OpenApi 3.0",
+  "description": "Convert Swagger 2.0 definitions to OpenApi 3.0",
   "main": "index.js",
   "bin": {
     "swagger2openapi": "./swagger2openapi.js"
@@ -27,7 +27,9 @@
     "openapi2",
     "openapi3",
     "converter",
-    "conversion"
+    "conversion",
+	"validator",
+	"validation"
   ],
   "devDependencies": {
     "coveralls": "^2.12.0"

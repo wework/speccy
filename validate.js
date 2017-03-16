@@ -1,13 +1,15 @@
+var path = require('path');
 var url = require('url');
 var URL = url.URL;
 var util = require('util');
+
 var should = require('should');
 var ajv = require('ajv')();
 
 var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
 
-var jsonSchema = require('./schemas/json_v5.json');
+var jsonSchema = require(path.join(__dirname,'/schemas/json_v5.json'));
 var validateMetaSchema = ajv.compile(jsonSchema);
 
 // TODO validate with ajv when schema published

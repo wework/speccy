@@ -443,7 +443,7 @@ function convertSync(swagger, options) {
     delete openapi.basePath;
     delete openapi.schemes;
 
-	if (typeof openapi.info.version == 'undefined') {
+	if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
 		if (options.patch) {
 			openapi.info.version = '';
 		}

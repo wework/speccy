@@ -45,6 +45,24 @@ function validateSchema(schema) {
 	return !(errors && errors.length);
 }
 
+function checkContent(content,options) {
+	contextAppend(options,'content');
+	for (var ct in content) {
+		contextAppend(options,ct);		
+		var contentType = content[ct];
+		if (contentType.example) {
+			contentType.should.not.have.property('examples');
+		}
+		if (contentType.examples) {
+			contentType.should.not.have.property('example');
+			contentType.examples.should.be.an.Array();
+		}
+		if (contentType.schema) validateSchema(contentType.schema);
+		options.context.pop();
+	}
+	options.context.pop();
+}
+
 function checkServers(servers) {
 	for (var server of servers) {
 		if (server.url) { // TODO may change to REQUIRED in RC1
@@ -78,6 +96,7 @@ function checkHeader(header,openapi,options) {
 	if (header.content) {
 		header.should.not.have.property('schema');
 		header.should.not.have.property('style');
+		checkContent(header.content,options);
 	}
 }
 
@@ -106,16 +125,7 @@ function checkResponse(response,openapi,options) {
 	}
 
 	if (response.content) {
-		for (var ct in response.content) {
-			var responseType = response.content[ct];
-			if (responseType.example) {
-				responseType.should.not.have.property('examples');
-			}
-			if (responseType.examples) {
-				responseType.should.not.have.property('example');
-				responseType.examples.should.be.an.Array();
-			}
-		}
+		checkContent(response.content,options);
 	}
 }
 
@@ -152,6 +162,7 @@ function checkParam(param,index,openapi,options){
 	if (param.content) {
 		param.should.not.have.property('schema');
 		param.should.not.have.property('style');
+		checkContent(param.content,options);
 	}
 	options.context.pop();
 	return true;

@@ -12,8 +12,7 @@ var common = require('./common.js');
 var jsonSchema = require(path.join(__dirname,'/schemas/json_v5.json'));
 var validateMetaSchema = ajv.compile(jsonSchema);
 
-// TODO validate with ajv when schema published
-// TODO requestBody.content may become REQUIRED in RC1
+// TODO validate with ajv when OpenAPI 3.0.x schema published
 
 function contextAppend(options,s) {
 	options.context.push((options.context[options.context.length-1]+'/'+s).split('//').join('/'));
@@ -196,6 +195,15 @@ function checkPathItem(pathItem,openapi,options) {
 			op.responses.should.not.be.empty();
 			if (op.summary) op.summary.should.have.type('string');
 			if (op.description) op.description.should.have.type('string');
+
+			if (op.requestBody && op.requestBody.content) {
+				contextAppend(options,'requestBody');
+				// TODO requestBody.content may become REQUIRED in RC1
+				if (op.requestBody.description) op.requestBody.description.should.have.type('string');
+				if (op.requestBody.required) op.requestBody.required.should.have.type('boolean');
+				checkContent(op.requestBody.content,options);
+				options.context.pop();
+			}
 
 			contextAppend(options,'responses');
 			for (var r in op.responses) {

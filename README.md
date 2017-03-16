@@ -61,7 +61,7 @@ x-not|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, 
 
 See also [Amazon API Gateway specification extensions](http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html)
 
-It is expected to be able to configure the process of vendor-extension modification using options or a plugin 
+It is expected to be able to configure the process of specification-extension modification using options or a plugin 
 mechanism in a future release.
 
 ## Tests
@@ -82,4 +82,4 @@ It can also be used as a simple validator if given an existing OpenAPI 3.x defin
 
 ## Metadata reporting
 
-Also included is a tool `reportExtensions` to gather a list of vendor (specification) extensions and formats used in a definition or corpus of definitions. For examples of output, see the [wiki](https://github.com/mermade/swagger2openapi/wiki)
+Also included is a tool `reportExtensions` to gather a list of specification (fka vendor) extensions and formats used in a definition or corpus of definitions. For examples of output, see the [wiki](https://github.com/mermade/swagger2openapi/wiki)

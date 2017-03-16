@@ -296,7 +296,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 					for (var r in op.responses) {
 						var response = op.responses[r];
 						if (response.$ref) {
-							if (response.description) {
+							if (typeof response.description !== 'undefined') {
 								if (options.patch) {
 									delete response.description;
 								}
@@ -313,7 +313,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 							}
 						}
 						else {
-							if (typeof response.description === 'undefined') {
+							if ((typeof response.description === 'undefined') || (response.description === null)) {
 								if (options.patch) {
 									response.description = '';
 								}

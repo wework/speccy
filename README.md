@@ -33,15 +33,20 @@ or use the APIs:
 var converter = require('swagger2openapi');
 var options = {};
 //options.debug = true; // sets various x-s2o- debugging properties
-var openapi = converter.convertSync(swagger, options);
-// also available are asynchronous convertObj, convertFile, convertUrl and convertStr functions
+converter.convertObj(swagger, options, function(err, openapi, options){
+  //
+});
+// also available are asynchronous convertFile, convertUrl and convertStr functions
 ````
 
 ````javascript
 var validator = require('swagger2openapi/validate.js');
 var options = {};
-var result = validator.validate(openapi, options); // returns boolean, throws on error
-// options.context now contains a stack (array) of JSON-Pointer strings
+validator.validate(openapi, options, function(err, openapi, options){
+  // options.valid contains the result of the validation
+  // options.context now contains a stack (array) of JSON-Pointer strings
+});
+// also available is a synchronous validateSync method which returns a boolean
 ````
 
 Or use the [online version](https://openapi-converter.herokuapp.com) which also includes its own [API](http://petstore.swagger.io/?url=https://openapi-converter.herokuapp.com/contract/swagger.json).

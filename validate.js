@@ -79,7 +79,7 @@ function checkHeader(header,openapi,options) {
 	if (header.$ref) {
 		var ref = header.$ref;
 		should(Object.keys(header).length).be.exactly(1,'Reference object cannot be extended');
-		header = common.resolveSync(openapi,ref);
+		header = common.resolveInternal(openapi,ref);
 		header.should.not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	header.should.not.have.property('name');
@@ -102,12 +102,8 @@ function checkHeader(header,openapi,options) {
 function checkResponse(response,openapi,options) {
 	if (response.$ref) {
 		var ref = response.$ref;
-		if (Object.keys(response).length>1) {
-			console.log(options.context[options.context.length-1]);
-			console.log('  '+ref);
-		}
-		//should(Object.keys(response).length).be.exactly(1,'Reference object cannot be extended');
-		response = common.resolveSync(openapi,ref);
+		should(Object.keys(response).length).be.exactly(1,'Reference object cannot be extended');
+		response = common.resolveInternal(openapi,ref);
 		response.should.not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	response.should.have.property('description');
@@ -133,7 +129,7 @@ function checkParam(param,index,openapi,options){
 	if (param.$ref) {
 		should(Object.keys(param).length).be.exactly(1,'Reference object cannot be extended');
 		var ref = param.$ref;
-		param = common.resolveSync(openapi,ref);
+		param = common.resolveInternal(openapi,ref);
 		param.should.not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	param.should.have.property('name');
@@ -235,8 +231,10 @@ function checkPathItem(pathItem,openapi,options) {
 	}
 }
 
-function validate(openapi, options) {
+function validateSync(openapi, options, callback) {
+	options.valid = false;
 	options.context = [];
+
 	options.context.push('#/');
     openapi.should.not.have.key('swagger');
 	openapi.should.have.key('openapi');
@@ -364,11 +362,12 @@ function validate(openapi, options) {
 
     should.ok(openapi.openapi.startsWith('3.0.'),'Must be an OpenAPI 3.0.x document');
 
-    common.recurse(openapi,{},'',function(obj,key,parent,path){
+    common.recurse(openapi,{},'','',function(obj,key,parent,pkey,path){
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
 			options.context.push(path);
             should(obj[key].indexOf('#/definitions/')).be.exactly(-1,'Reference to #/definitions');
 			should(Object.keys(obj).length).be.exactly(1,'Reference object cannot be extended');
+			should(jptr.jptr(openapi,obj[key])).not.be.exactly(false,'Cannot resolve reference: '+obj[key]);
 			options.context.pop();
         }
     });
@@ -423,9 +422,18 @@ function validate(openapi, options) {
 		}
 	}
 
+	options.valid = true;
+	if (callback) callback(null,openapi,options);
     return true;
 }
 
+function validate(openapi, options, callback) {
+	process.nextTick(function(){
+		validateSync(openapi, options, callback);
+	});
+}
+
 module.exports = {
+    validateSync : validateSync,
     validate : validate
 }

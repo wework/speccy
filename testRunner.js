@@ -5,6 +5,7 @@ var path = require('path');
 var rr = require('recursive-readdir');
 var yaml = require('js-yaml');
 
+var common = require('./common.js');
 var swagger2openapi = require('./index.js');
 var validator = require('./validate.js');
 
@@ -23,6 +24,9 @@ var argv = require('yargs')
 	.boolean('quiet')
 	.alias('q','quiet')
 	.describe('quiet','do not show test passes on console, for CI')
+	.boolean('resolve')
+	.alias('r','resolve')
+	.describe('resolve','resolve external references')
 	.count('verbose')
 	.alias('v','verbose')
 	.describe('verbose','increase verbosity')
@@ -46,9 +50,48 @@ var warnings = [];
 var options = argv;
 options.patch = true;
 
+function handleResult(err, result, options) {
+	if (err) {
+		console.log(red+'Converter: '+err.message);
+		result = false;
+	}
+	var resultStr = JSON.stringify(result);
+	var src = options.original;
+
+	if (typeof result !== 'boolean') try {
+		validator.validateSync(result,options);
+
+		resultStr = yaml.safeDump(result); // should be representable safely in yaml
+		resultStr.should.not.be.exactly('{}');
+
+		if (!argv.quiet) {
+			console.log(normal+options.file);
+			console.log(green+'  %s %s',src.info.title,src.info.version);
+			console.log('  %s',src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
+		}
+		result = true;
+	}
+	catch (ex) {
+		if (argv.quiet) console.log(normal+file);
+		console.log(red+options.context.pop()+'\n'+ex.message);
+		result = false;
+	}
+	if (options.expectFailure) result = !result;
+	if (result) {
+		pass++;
+	}
+	else {
+		fail++;
+		failures.push(options.file);
+		if (argv.stop) process.exit(1);
+	}
+}
+
 function check(file,force,expectFailure) {
 	var result = false;
 	options.context = [];
+	options.expectFailure = expectFailure;
+	options.file = file;
 	var components = file.split(path.sep);
 	var name = components[components.length-1];
 
@@ -71,43 +114,17 @@ function check(file,force,expectFailure) {
 		}
 
 		if (!src || ((!src.swagger && !src.openapi))) return true;
-		if (!argv.quiet) console.log(normal+file);
+
+		options.original = src;
+		options.source = file;
 
 		try {
-	        result = swagger2openapi.convert(src, options);
+	        swagger2openapi.convert(src, common.clone(options), handleResult);
 		}
 		catch (ex) {
 			console.log(red+'Converter threw an error: '+ex.message);
 			warnings.push('Converter failed '+file);
 			result = true;
-		}
-
-		var resultStr = JSON.stringify(result);
-
-		if (typeof result !== 'boolean') try {
-			validator.validate(result,options);
-
-			resultStr = yaml.safeDump(result); // should be representable safely in yaml
-			resultStr.should.not.be.exactly('{}');
-
-			if (!argv.quiet) {
-		  		console.log(green+'  %s %s',src.info.title,src.info.version);
-				console.log('  %s',src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
-			}
-			result = true;
-		}
-		catch (ex) {
-			if (argv.quiet) console.log(normal+file);
-			console.log(red+options.context.pop()+'\n'+ex.message);
-			result = false;
-		}
-		if (expectFailure) result = !result;
-		if (result) {
-			pass++;
-		}
-		else {
-			fail++;
-			if (argv.stop) process.exit(1);
 		}
 	}
 	else {
@@ -120,16 +137,12 @@ function processPathSpec(pathspec,expectFailure) {
 	pathspec = path.resolve(pathspec);
 	var stats = fs.statSync(pathspec);
 	if (stats.isFile()) {
-		if (!check(pathspec,true,expectFailure)) {
-			failures.push(pathspec);
-		}
+		check(pathspec,true,expectFailure)
 	}
 	else {
 		rr(pathspec, function (err, files) {
 			for (var i in files) {
-				if (!check(files[i],false,expectFailure)) {
-					failures.push(files[i]);
-				}
+				check(files[i],false,expectFailure);
 			}
 		});
 	}

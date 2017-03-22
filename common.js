@@ -1,8 +1,13 @@
 'use strict';
 
 var crypto = require('crypto');
+var fs = require('fs');
+var path = require('path');
 var util = require('util');
+var url = require('url');
 
+var fetch = require('node-fetch');
+var yaml = require('js-yaml');
 var jptr = require('jgexml/jpath.js');
 
 function clone(obj) {
@@ -29,15 +34,15 @@ function forceFailure(openapi,message) {
 	throw(new Error(message));
 }
 
-function recurse(object,parent,path,callback) {
+function recurse(object,parent,pkey,path,callback) {
 	if (!path) {
 		path = '#';
 	}
 	for (var key in object) {
 		var escKey = '/'+jptr.jpescape(key);
-		callback(object,key,parent,path+escKey);
+		callback(object,key,parent,pkey,path+escKey);
 		if (typeof object[key] == 'object') {
-			recurse(object[key],object,path+escKey,callback);
+			recurse(object[key],object,key,path+escKey,callback);
 		}
 	}
 }
@@ -46,24 +51,44 @@ function getVersion() {
 	return require('./package.json').version;
 }
 
-function* resolve(root,pointer,callback) {
-	// TODO to be extended to resolve external references
-	// use yield to wrap node-fetch for url refs ?
-	var result = yield jptr.jptr(root,pointer);
-	callback(null,result);
-	return result;
+fs.readFileAsync = function(filename, encoding) {
+    return new Promise(function(resolve, reject) {
+        fs.readFile(filename, encoding, function(err, data){
+            if (err)
+                reject(err);
+            else
+                resolve(data);
+        });
+    });
+};
+
+function resolveExternal(root,pointer,options,callback) {
+	var u = url.parse(options.source);
+	var base = options.source.split('/');
+	base.pop(); // drop the actual filename
+	base = base.join('/');
+	if (options.verbose) console.log((u.protocol ? 'GET ' : 'file://') + base+'/'+pointer);
+	if (u.protocol) {
+		return fetch(base+'/'+pointer)
+		.then(function(res){
+			return res.text();
+		})
+		.then(function(data){
+			try {
+				data = yaml.safeLoad(data);
+			}
+			catch (ex) {}
+			callback(data);
+			return data;
+		});
+	}
+	else {
+		return fs.readFileAsync(base+'/'+pointer,options.encoding||'utf8');
+	}
 }
 
-function resolveSync(root,pointer) {
-	var obj = false;
-	var r = resolve(root,pointer,function(err,data){
-		obj = data;
-	});
-	var result = r.next();
-    while (!result.done) {
-		result = r.next(result.value);
-    }
-	return obj; // just in case
+function resolveInternal(root,pointer,options) {
+	return jptr.jptr(root,pointer);
 }
 
 const parameterTypeProperties = [
@@ -109,8 +134,8 @@ module.exports = {
     sha256 : sha256,
 	forceFailure : forceFailure, // TODO can be removed in v2.0.0
 	getVersion : getVersion,
-	resolve : resolve,
-	resolveSync : resolveSync,
+	resolveExternal : resolveExternal,
+	resolveInternal : resolveInternal,
 	parameterTypeProperties : parameterTypeProperties,
 	httpVerbs : httpVerbs,
 	sanitise : sanitise

@@ -24,9 +24,15 @@ var argv = require('yargs')
 	.boolean('patch')
 	.alias('p','patch')
 	.describe('patch','fix up small errors in the source definition')
+	.boolean('resolve')
+	.alias('r','resolve')
+	.describe('resolve','resolve external references')
 	.string('url')
 	.describe('url','url of original spec, creates x-origin entry')
 	.alias('u','url')
+	.count('verbose')
+	.alias('v','verbose')
+	.describe('verbose','increase verbosity')
     .boolean('yaml')
     .alias('y','yaml')
     .describe('yaml', 'read and write YAML, default JSON')
@@ -62,13 +68,13 @@ function process(err, openapi, options) {
 	}
 }
 
-var source = argv._[0];
-var u = url.parse(source);
+argv.source = argv._[0];
+var u = url.parse(argv.source);
 if (u.protocol) {
-	converter.convertUrl(source,argv,process);
+	converter.convertUrl(argv.source,argv,process);
 }
 else {
 	argv.origin = argv.url;
-	converter.convertFile(source,argv,process);
+	converter.convertFile(argv.source,argv,process);
 }
 

@@ -44,7 +44,7 @@ var result = validator.validate(openapi, options); // returns boolean, throws on
 // options.context now contains a stack (array) of JSON-Pointer strings
 ````
 
-Or use the [online version](https://openapi-converter.herokuapp.com) which also includes an API
+Or use the [online version](https://openapi-converter.herokuapp.com) which also includes its own [API](http://petstore.swagger.io/?url=https://openapi-converter.herokuapp.com/contract/swagger.json).
 
 ## Specification extensions
 

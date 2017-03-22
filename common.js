@@ -30,10 +30,6 @@ String.prototype.toCamelCase = function camelize() {
     });
 }
 
-function forceFailure(openapi,message) {
-	throw(new Error(message));
-}
-
 function recurse(object,parent,pkey,path,callback) {
 	if (!path) {
 		path = '#';
@@ -132,7 +128,6 @@ module.exports = {
 	uniqueOnly : uniqueOnly,
 	recurse : recurse,
     sha256 : sha256,
-	forceFailure : forceFailure, // TODO can be removed in v2.0.0
 	getVersion : getVersion,
 	resolveExternal : resolveExternal,
 	resolveInternal : resolveInternal,

@@ -364,9 +364,12 @@ function validate(openapi, options) {
 
     should.ok(openapi.openapi.startsWith('3.0.'),'Must be an OpenAPI 3.0.x document');
 
-    common.recurse(openapi,{},function(obj,key,parent){
+    common.recurse(openapi,{},'',function(obj,key,parent,path){
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
+			options.context.push(path);
             should(obj[key].indexOf('#/definitions/')).be.exactly(-1,'Reference to #/definitions');
+			should(Object.keys(obj).length).be.exactly(1,'Reference object cannot be extended');
+			options.context.pop();
         }
     });
 

@@ -29,6 +29,9 @@ function fixupSchema(obj,key,parent){
 	}
 	if ((key == '$ref') && (typeof obj[key] === 'string') && (obj[key].indexOf('#/definitions/')>=0)) {
 		obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
+		Object.keys(obj).forEach(function(k){
+			if (k !== '$ref') delete obj[k];
+		});
 	}
 	if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
 		obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
@@ -135,7 +138,7 @@ function processParameter(param,op,path,index,openapi) {
 		}
 
 		if (param.schema) {
-			common.recurse(param.schema,{},fixupSchema);
+			common.recurse(param.schema,{},'',fixupSchema);
 		}
 		if (param.collectionFormat) {
 			if (param.collectionFormat == 'csv') {
@@ -322,7 +325,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 								}
 							}
 							if (response.schema) {
-								common.recurse(response.schema,{},fixupSchema); // was response
+								common.recurse(response.schema,{},'',fixupSchema); // was response
 	
 								var produces = (op.produces||[]).concat(openapi.produces||[]).filter(common.uniqueOnly);
 								if (!produces.length) produces.push('*/*'); // TODO verify default
@@ -364,7 +367,7 @@ function processPaths(container,containerName,options,requestBodyCache,openapi) 
 					delete op.consumes;
 					delete op.produces;
 
-					common.recurse(op,{},fixupSchema); // for x-ms-odata etc
+					common.recurse(op,{},'',fixupSchema); // for x-ms-odata etc
 
 					// TODO examples
 
@@ -431,6 +434,7 @@ function convertSync(swagger, options) {
 			server.url = s+'://'+swagger.host+(swagger.basePath ? swagger.basePath : '/');
 			server.url = server.url.split('{{').join('{');
 			server.url = server.url.split('}}').join('}');
+			// TODO server variables (:style parameters?)
         	openapi.servers.push(server);
     	}
 	}
@@ -540,8 +544,8 @@ function convertSync(swagger, options) {
 		}
 	}
 
-	common.recurse(openapi.components.schemas,{},fixupSchema);
-	common.recurse(openapi.components.schemas,{},fixupSchema); // second pass for fixed x-anyOf's etc
+	common.recurse(openapi.components.schemas,{},'',fixupSchema);
+	common.recurse(openapi.components.schemas,{},'',fixupSchema); // second pass for fixed x-anyOf's etc
 
 	if (options.debug) {
 		openapi["x-s2o-consumes"] = openapi.consumes||[];
@@ -569,7 +573,7 @@ function convertSync(swagger, options) {
 		}
 	}
 
-	common.recurse(openapi.components.responses,{},fixupSchema);
+	common.recurse(openapi.components.responses,{},'',fixupSchema);
 	for (var r in openapi.components.responses) {
 		var response = openapi.components.responses[r];
 		if (response.headers) {

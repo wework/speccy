@@ -29,11 +29,15 @@ function forceFailure(openapi,message) {
 	throw(new Error(message));
 }
 
-function recurse(object,parent,callback) {
+function recurse(object,parent,path,callback) {
+	if (!path) {
+		path = '#';
+	}
 	for (var key in object) {
-		callback(object,key,parent);
+		var escKey = '/'+jptr.jpescape(key);
+		callback(object,key,parent,path+escKey);
 		if (typeof object[key] == 'object') {
-			recurse(object[key],object,callback);
+			recurse(object[key],object,path+escKey,callback);
 		}
 	}
 }

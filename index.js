@@ -546,8 +546,13 @@ function main(openapi, options) {
 }
 
 function convertObj(swagger, options, callback) {
-	if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) return swagger;
-	if ((!swagger.swagger) || (swagger.swagger != "2.0")) return {}; // handle 1.2 later?
+	if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) {
+		callback(null, swagger, options);
+		return swagger;
+	}
+	if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
+		throw new Error('Unsupported swagger/OpenAPI version');
+	}
 
 	var openapi = {};
 	openapi.openapi = targetVersion; // semver

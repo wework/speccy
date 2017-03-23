@@ -163,18 +163,18 @@ if (argv.fail) {
 }
 
 process.on('exit', function(code) {
-	if (failures.length) {
-		failures.sort();
-		console.log(normal+'\nFailures:'+red);
-		for (var f in failures) {
-			console.log(failures[f]);
-		}
-	}
 	if (warnings.length) {
 		warnings.sort();
 		console.log(normal+'\nWarnings:'+red);
 		for (var w in warnings) {
 			console.log(warnings[w]);
+		}
+	}
+	if (failures.length) {
+		failures.sort();
+		console.log(normal+'\nFailures:'+red);
+		for (var f in failures) {
+			console.log(failures[f]);
 		}
 	}
 	console.log(normal);

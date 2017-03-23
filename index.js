@@ -10,9 +10,8 @@ var yaml = require('js-yaml');
 var common = require('./common.js');
 
 // TODO split out into params, security etc
-// TODO handle vendor-extensions with plugins?
-// TODO x-ms-parameterized-host https://github.com/Azure/azure-rest-api-specs/blob/master/documentation/swagger-extensions.md#x-ms-parameterized-host
-// https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html
+// TODO handle specification-extensions with plugins?
+// TODO https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html
 
 var targetVersion = '3.0.0-RC0';
 
@@ -175,6 +174,9 @@ function processParameter(param,op,path,index,openapi) {
 		result.content[contentType] = {};
 		if (param.schema) {
 			result.content[contentType].schema = param.schema;
+			if (param.schema.$ref) {
+				result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/','');
+			}
 		}
 		else {
 			result.content[contentType].schema = {};
@@ -208,6 +210,13 @@ function processParameter(param,op,path,index,openapi) {
 	if (param.in == 'body') {
 		result.content = {};
 
+		if (param.schema && param.schema.$ref) {
+			result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/','');
+		}
+		else if (param.schema && (param.schema.type == 'array') && param.schema.items && param.schema.items.$ref) {
+			result['x-s2o-name'] = param.schema.items.$ref.replace('#/components/schemas/','')+'Array';
+		}
+
 		if (!consumes.length) {
 			consumes.push('application/json'); // TODO verify default
 		}
@@ -228,7 +237,7 @@ function processParameter(param,op,path,index,openapi) {
 				throw(new Error('Operation has >1 requestBodies'));
 			}
 			else {
-				op.requestBody = Object.assign({},op.requestBody);
+				op.requestBody = Object.assign({},op.requestBody); // make sure we have one
 				if ((op.requestBody.content && op.requestBody.content["multipart/form-data"]) 
 					&& (result.content["multipart/form-data"])) {
 					op.requestBody.content["multipart/form-data"].schema.properties =
@@ -241,6 +250,14 @@ function processParameter(param,op,path,index,openapi) {
 				}
 				else {
 					op.requestBody = Object.assign(op.requestBody,result);
+					if (!op.requestBody['x-s2o-name']) {
+						if (op.requestBody.schema && op.requestBody.schema.$ref) {
+							op.requestBody['x-s2o-name'] = op.requestBody.schema.$ref.replace('#/components/schemas/','').split('/').join('');
+						}
+						else if (op.operationId) {
+							op.requestBody['x-s2o-name'] = op.operationId;
+						}
+					}
 				}
 			}
 		}
@@ -369,19 +386,19 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 
 				common.recurse(op, {}, '', '', fixupSchema); // for x-ms-odata etc
 
-				// TODO examples
-
 				if (op.requestBody) {
+					var rbName = op.requestBody['x-s2o-name']||'';
+					delete op.requestBody['x-s2o-name'];
 					var rbStr = JSON.stringify(op.requestBody);
 					var rbSha256 = common.sha256(rbStr);
 					if (!requestBodyCache[rbSha256]) {
 						var entry = {};
-						entry.name = '';
+						entry.name = rbName;
 						entry.body = op.requestBody;
 						entry.refs = [];
 						requestBodyCache[rbSha256] = entry;
 					}
-					requestBodyCache[rbSha256].refs.push(containerName + ' ' + method + ' ' + p);
+					requestBodyCache[rbSha256].refs.push(containerName + ' ' + method + ' ' + p); // might be easier to use a JSON Pointer here
 				}
 
 			}
@@ -486,21 +503,31 @@ function main(openapi, options) {
 	delete openapi.consumes;
 	delete openapi.produces;
 
+	var rbNamesGenerated = [];
+
 	openapi.components.requestBodies = {}; // for now as we've dereffed them
 	var counter = 1;
 	for (var e in requestBodyCache) {
 		var entry = requestBodyCache[e];
 		if (entry.refs.length>1) {
+			// create a shared requestBody
+			var suffix = '';
 			if (!entry.name) {
-				entry.name = 'requestBody'+counter++;
+				entry.name = 'requestBody';
+				suffix = counter++;
 			}
-			// we can reinstate
+			while (rbNamesGenerated.indexOf(entry.name+suffix)>=0) {
+				// this can happen if descriptions are not exactly the same (e.g. bitbucket)
+				suffix = (suffix ? suffix++ : '2');
+			}
+			entry.name = entry.name+suffix;
+			rbNamesGenerated.push(entry.name);
 			openapi.components.requestBodies[entry.name] = entry.body;
 			for (var r in entry.refs) {
 				var address = entry.refs[r].split(' ');
 				var ref = {};
 				ref.$ref = '#/components/requestBodies/'+entry.name;
-				openapi[address[0]][address[2]][address[1]].requestBody = ref;
+				openapi[address[0]][address[2]][address[1]].requestBody = ref; // might be easier to use a JSON Pointer here
 			}
 		}
 	}
@@ -563,6 +590,22 @@ function convertObj(swagger, options, callback) {
 	delete openapi.host;
 	delete openapi.basePath;
 	delete openapi.schemes;
+
+	if (swagger['x-ms-parameterized-host']) {
+		var xMsPHost = swagger['x-ms-parameterized-host'];
+		var server = {};
+		server.url = xMsPHost.hostTemplate;
+		server.parameters = xMsPHost.parameters;
+		for (var param of server.parameters) {
+			if (param.ref === false) param.required = true; // has a different meaning
+			delete param.type; // all strings
+			if (param.$ref) {
+				param.$ref = param.$ref.replace('#/parameters/','#/components/parameters/');
+			}
+		}
+		openapi.servers.push(server);
+		delete openapi['x-ms-parameterized-host'];
+	}
 
 	if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
 		if (options.patch) {

@@ -12,7 +12,7 @@
       "version": "2.0",
       "converter": {
         "url": "https://github.com/mermade/swagger2openapi",
-        "version": "1.2.1"
+        "version": "2.0.0"
       }
     }
   ],
@@ -75,7 +75,7 @@
           }
         ],
         "requestBody": {
-          "$ref": "#/components/requestBodies/requestBody1"
+          "$ref": "#/components/requestBodies/Pet"
         }
       },
       "put": {
@@ -106,7 +106,7 @@
           }
         ],
         "requestBody": {
-          "$ref": "#/components/requestBodies/requestBody1"
+          "$ref": "#/components/requestBodies/Pet"
         }
       }
     },
@@ -623,7 +623,7 @@
           }
         },
         "requestBody": {
-          "$ref": "#/components/requestBodies/requestBody2"
+          "$ref": "#/components/requestBodies/UserArray"
         }
       }
     },
@@ -642,7 +642,7 @@
           }
         },
         "requestBody": {
-          "$ref": "#/components/requestBodies/requestBody2"
+          "$ref": "#/components/requestBodies/UserArray"
         }
       }
     },
@@ -1018,7 +1018,7 @@
     "parameters": {},
     "examples": {},
     "requestBodies": {
-      "requestBody1": {
+      "Pet": {
         "content": {
           "application/json": {
             "description": "Pet object that needs to be added to the store",
@@ -1034,7 +1034,7 @@
           }
         }
       },
-      "requestBody2": {
+      "UserArray": {
         "content": {
           "application/json": {
             "description": "List of user object",

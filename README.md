@@ -60,7 +60,7 @@ Specification Extension|Vendor|Conversion Performed
 x-ms-paths|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|Treated as an analogue of the `openapi.paths` object
 x-ms-skip-url-encoding|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|For query parameters, converted to `allowReserved:true`
 x-ms-odata|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|References to `#/definitions/` are updated to `#/components/schemas`
-x-ms-parameterized-host|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|**TODO** Not seen in the wild
+x-ms-parameterized-host|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|Converted into server entry
 x-anyOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `anyOf`
 x-oneOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `oneOf`
 x-not|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `not`

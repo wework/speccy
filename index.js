@@ -586,7 +586,12 @@ function convertObj(swagger, options, callback) {
 				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
 				server.url = server.url.split('{{').join('{');
 				server.url = server.url.split('}}').join('}');
-				// TODO server variables (:style parameters?)
+				server.url.replace(/(\{.+?\})/g,function(match,group1){ // TODO extend to :parameters (not port)?
+					if (!server.variables) {
+						server.variables = {};
+					}
+					server.variables[group1] = {default: 'unknown'};
+				});
 				openapi.servers.push(server);
 			}
 		}
@@ -598,6 +603,13 @@ function convertObj(swagger, options, callback) {
 		delete openapi.host;
 		delete openapi.basePath;
 		delete openapi.schemes;
+
+		if (openapi['x-servers'] && Array.isArray(openapi['x-servers'])) {
+			openapi.servers = openapi['x-servers'].concat(openapi.servers);
+			delete openapi['x-servers'];
+		}
+
+		// TODO APIMatic ?
 
 		if (swagger['x-ms-parameterized-host']) {
 			var xMsPHost = swagger['x-ms-parameterized-host'];

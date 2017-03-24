@@ -59,7 +59,7 @@ Or use the [online version](https://openapi-converter.herokuapp.com) which also 
 
 ## Specification extensions
 
-swagger2openapi has support for a limited number of real-world specification extensions which have a direct bearing on the conversion. All other specification extensions are left untouched.
+swagger2openapi has support for a limited number of real-world specification extensions which have a direct bearing on the conversion. All other specification extensions are left untouched. swagger2openapi is [swaggerplusplus](https://github.com/mermade/swaggerplusplus)-compatible.
 
 Specification Extension|Vendor|Conversion Performed
 |---|---|---|
@@ -68,9 +68,12 @@ x-ms-skip-url-encoding|[Microsoft](https://github.com/Azure/autorest/tree/master
 x-ms-odata|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|References to `#/definitions/` are updated to `#/components/schemas`
 x-ms-parameterized-host|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|Converted into server entry
 x-amazon-apigateway-any-method|[Amazon](http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html)|Treated as an analogue of the `operation Object`
-x-anyOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `anyOf`
-x-oneOf|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `oneOf`
-x-not|[Open Nitro Project](https://github.com/mermade/bbcparse)|Within schemas, converted to `not`
+x-anyOf|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, converted to `anyOf`
+x-oneOf|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, converted to `oneOf`
+x-not|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, converted to `not`
+x-required|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, concatenated with `required`
+
+See also [APIMatic extensions](https://docs.apimatic.io/advanced/swagger-server-configuration-extensions/)
 
 It is expected to be able to configure the process of specification-extension modification using options or a plugin 
 mechanism in a future release.

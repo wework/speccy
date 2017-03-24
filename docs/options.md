@@ -1,7 +1,7 @@
 # Options documentation
 
 Parameter|Type|Input/Output|Description
-|---|---|---|
+|---|---|---|---|
 components|Boolean|Input|Command-line flag to indicate unresolve information should be displayed
 context|Array|Output|The context stack of associated with errors in a validation step, you normally want the last entry only
 debug|Boolean|Input|Flag to enable debug mode, adds specification-extensions

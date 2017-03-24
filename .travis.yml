@@ -10,7 +10,7 @@ before_script:
 script:
   - node testRunner -q openapi-directory/APIs/
   - node testRunner -q openapi-definitions/
-  - node testRunner -q hapi/apis/
+  - node testRunner -q hapi/APIs/
   - node testRunner -q openapi3-examples/pass
   - node testRunner -q -f openapi3-examples/fail
 

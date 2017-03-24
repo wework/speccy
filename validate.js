@@ -32,14 +32,19 @@ function validateComponentName(name) {
 	return /^[a-zA-Z0-9\.\-_]+$/.test(name);
 }
 
-function validateSchema(schema) {
+function validateSchema(schema,openapi) {
 	validateMetaSchema(schema, {
 		allErrors: true,
 		verbose: true
 	});
 	var errors = validate.errors;
 	if (errors && errors.length) {
-		throw(new Error('schema invalid: '+util.inspect(errors)));
+		throw(new Error('Schema invalid: '+util.inspect(errors)));
+	}
+	if (schema.externalDocs) {
+		schema.externalDocs.should.have.key('url');
+		schema.externalDocs.url.should.have.type('string');
+		validateUrl(schema.externalDocs.url,openapi.servers,'externalDocs').should.not.throw();
 	}
 	return !(errors && errors.length);
 }
@@ -56,7 +61,7 @@ function checkContent(content,options) {
 			contentType.should.not.have.property('example');
 			contentType.examples.should.be.an.Array();
 		}
-		if (contentType.schema) validateSchema(contentType.schema);
+		if (contentType.schema) validateSchema(contentType.schema,options);
 		options.context.pop();
 	}
 	options.context.pop();
@@ -90,7 +95,7 @@ function checkHeader(header,openapi,options) {
 	}
 	if (header.schema) {
 		header.should.not.have.property('content'); // TODO required mutex?
-		validateSchema(header.schema);
+		validateSchema(header.schema,openapi);
 	}
 	if (header.content) {
 		header.should.not.have.property('schema');
@@ -152,7 +157,7 @@ function checkParam(param,index,openapi,options){
 	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
 	if (param.schema) {
 		param.should.not.have.property('content'); // TODO required mutex?
-		validateSchema(param.schema);
+		validateSchema(param.schema,openapi);
 	}
 	if (param.content) {
 		param.should.not.have.property('schema');
@@ -166,6 +171,8 @@ function checkParam(param,index,openapi,options){
 function checkPathItem(pathItem,openapi,options) {
 
 	var contextServers = [];
+	contextServers.push(openapi.servers);
+	if (pathItem.servers) contextServers.push(pathItem.servers);
 
 	for (var o in pathItem) {
 		contextAppend(options,o);
@@ -219,12 +226,12 @@ function checkPathItem(pathItem,openapi,options) {
 			}
 			if (op.servers) {
 				checkServers(op.servers);
+				contextServers.push(op.servers);
 			}
 			if (op.externalDocs) {
 				op.externalDocs.should.have.key('url');
 				op.externalDocs.url.should.have.type('string');
-				// TODO process path/op servers before HTTP verbs and pass correct context in here
-				validateUrl(op.externalDocs.url,openapi.servers,'externalDocs').should.not.throw();
+				validateUrl(op.externalDocs.url,contextServers[contextServers.length-1],'externalDocs').should.not.throw();
 			}
 		}
 		options.context.pop();
@@ -363,9 +370,9 @@ function validateSync(openapi, options, callback) {
 
     should.ok(openapi.openapi.startsWith('3.0.'),'Must be an OpenAPI 3.0.x document');
 
-    common.recurse(openapi,{},'','',function(obj,key,parent,pkey,path){
+    common.recurse(openapi,null,function(obj,key,state){
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
-			options.context.push(path);
+			options.context.push(state.path);
             should(obj[key].indexOf('#/definitions/')).be.exactly(-1,'Reference to #/definitions');
 			should(Object.keys(obj).length).be.exactly(1,'Reference object cannot be extended');
 			should(jptr.jptr(openapi,obj[key])).not.be.exactly(false,'Cannot resolve reference: '+obj[key]);
@@ -400,7 +407,7 @@ function validateSync(openapi, options, callback) {
 		for (var s in openapi.components.schemas) {
 			options.context.push('#/components/schemas/'+s);
 			validateComponentName(s).should.be.equal(true,'component name invalid');
-			validateSchema(openapi.components.schemas[s]);
+			validateSchema(openapi.components.schemas[s],openapi);
 			options.context.pop();
 		}
 	}

@@ -15,7 +15,7 @@ var common = require('./common.js');
 
 var targetVersion = '3.0.0-RC0';
 
-function fixupSchema(obj,key,parent){
+function fixupSchema(obj,key,state){
 	if (key == 'x-anyOf') {
 		obj.anyOf = obj[key];
 		delete obj[key];
@@ -142,7 +142,7 @@ function processParameter(param,op,path,index,openapi) {
 		}
 
 		if (param.schema) {
-			common.recurse(param.schema,{},'','',fixupSchema);
+			common.recurse(param.schema,null,fixupSchema);
 		}
 		if (param.collectionFormat) {
 			if (param.collectionFormat == 'csv') {
@@ -344,7 +344,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 							}
 						}
 						if (response.schema) {
-							common.recurse(response.schema, {}, '', '', fixupSchema); // was response
+							common.recurse(response.schema, null, fixupSchema);
 
 							var produces = (op.produces || []).concat(openapi.produces || []).filter(common.uniqueOnly);
 							if (!produces.length) produces.push('*/*'); // TODO verify default
@@ -386,7 +386,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				delete op.consumes;
 				delete op.produces;
 
-				common.recurse(op, {}, '', '', fixupSchema); // for x-ms-odata etc
+				common.recurse(op, null, fixupSchema); // for x-ms-odata etc
 
 				if (op.requestBody) {
 					var rbName = op.requestBody['x-s2o-name']||'';
@@ -495,8 +495,8 @@ function main(openapi, options) {
 		}
 	}
 
-	common.recurse(openapi.components.schemas,{},'','',fixupSchema);
-	common.recurse(openapi.components.schemas,{},'','',fixupSchema); // second pass for fixed x-anyOf's etc
+	common.recurse(openapi.components.schemas,null,fixupSchema);
+	common.recurse(openapi.components.schemas,null,fixupSchema); // second pass for fixed x-anyOf's etc
 
 	if (options.debug) {
 		openapi["x-s2o-consumes"] = openapi.consumes||[];
@@ -534,7 +534,7 @@ function main(openapi, options) {
 		}
 	}
 
-	common.recurse(openapi.components.responses,{},'','',fixupSchema);
+	common.recurse(openapi.components.responses,null,fixupSchema);
 	for (var r in openapi.components.responses) {
 		var response = openapi.components.responses[r];
 		if (response.headers) {
@@ -551,10 +551,10 @@ function convertObj(swagger, options, callback) {
 	return maybe(callback, new Promise(function(resolve, reject) {
 		if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) {
 			options.openapi = swagger;
-			resolve(options);
+			return resolve(options);
 		}
 		if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
-			reject(new Error('Unsupported swagger/OpenAPI version'));
+			return reject(new Error('Unsupported swagger/OpenAPI version'));
 		}
 
 		var openapi = options.openapi = {};
@@ -620,7 +620,7 @@ function convertObj(swagger, options, callback) {
 				openapi.info.version = '';
 			}
 			else {
-				reject(new Error('info.version cannot be null'));
+				return reject(new Error('info.version cannot be null'));
 			}
 		}
 
@@ -642,19 +642,19 @@ function convertObj(swagger, options, callback) {
 		options.externals = [];
 
 		if (options.resolve) {
-			common.recurse(openapi,{},'','',function(obj,key,parent,pkey,path){
+			common.recurse(openapi,null,function(obj,key,state){
 				if ((key === '$ref') && (typeof obj[key] === 'string')) {
 					if (!obj[key].startsWith('#/')) {
 						actions.push(common.resolveExternal(openapi,obj[key],options,function(data){
 							var external = {};
-							var route = path.split('/');
+							var route = state.path.split('/');
 							route.pop();
 							external.context = route.join('/'); 
 							external.$ref = obj[key];
 							external.original = common.clone(data);
 							external.updated = data;
 							options.externals.push(external);
-							parent[pkey] = data;
+							state.parent[state.pkey] = data;
 						}));
 					}
 				}

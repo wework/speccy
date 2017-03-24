@@ -60,24 +60,23 @@ function handleResult(err, options) {
 	var src = options.original;
 
 	if (typeof result !== 'boolean') try {
-		validator.validateSync(result,options);
-
 		resultStr = yaml.safeDump(result); // should be representable safely in yaml
 		resultStr.should.not.be.exactly('{}');
 
+		result = validator.validateSync(result,options);
+
 		if (!argv.quiet) {
 			console.log(normal+options.file);
-			console.log(green+'  %s %s',src.info.title,src.info.version);
+			var colour = ((options.expectFailure ? !result : result) ? green : red);
+			console.log(colour+'  %s %s',src.info.title,src.info.version);
 			console.log('  %s',src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
 		}
-		result = true;
 	}
 	catch (ex) {
-		if (argv.quiet) console.log(normal+file);
+		console.log(normal+options.file);
 		console.log(red+options.context.pop()+'\n'+ex.message);
-		result = false;
+		result = !!options.expectFailure;
 	}
-	result = !result;
 	if (result) {
 		pass++;
 	}

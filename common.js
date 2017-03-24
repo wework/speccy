@@ -30,16 +30,29 @@ String.prototype.toCamelCase = function camelize() {
     });
 }
 
-function recurse(object,parent,pkey,path,callback) {
-	if (!path) {
-		path = '#';
+function recurse(object,state,callback) {
+	if (!state) {
+		state = {};
+		state.path = '#';
+		state.depth = 0;
+		state.pkey = '';
+		state.parent = {};
 	}
 	for (var key in object) {
 		var escKey = '/'+jptr.jpescape(key);
-		callback(object,key,parent,pkey,path+escKey);
+		state.key = key;
+		var oPath = state.path;
+		state.path = state.path+escKey;
+		callback(object,key,state);
 		if (typeof object[key] == 'object') {
-			recurse(object[key],object,key,path+escKey,callback);
+			var newState = {};
+		 	newState.parent = object;
+			newState.path = state.path;
+			newState.depth = state.depth++;
+			newState.pkey = key;
+			recurse(object[key],newState,callback);
 		}
+		state.path = oPath;
 	}
 }
 

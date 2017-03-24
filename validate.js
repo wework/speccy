@@ -229,6 +229,7 @@ function checkPathItem(pathItem,openapi,options) {
 		}
 		options.context.pop();
 	}
+	return true;
 }
 
 function validateSync(openapi, options, callback) {
@@ -422,9 +423,9 @@ function validateSync(openapi, options, callback) {
 		}
 	}
 
-	options.valid = true;
-	if (callback) callback(null,openapi,options);
-    return true;
+	options.valid = !options.expectFailure;
+	if (callback) callback(null,options);
+    return options.valid;
 }
 
 function validate(openapi, options, callback) {

@@ -50,7 +50,8 @@ var warnings = [];
 var options = argv;
 options.patch = true;
 
-function handleResult(err, result, options) {
+function handleResult(err, options) {
+	var result = options.openapi;
 	if (err) {
 		console.log(red+'Converter: '+err.message);
 		result = false;
@@ -76,7 +77,7 @@ function handleResult(err, result, options) {
 		console.log(red+options.context.pop()+'\n'+ex.message);
 		result = false;
 	}
-	if (options.expectFailure) result = !result;
+	result = !result;
 	if (result) {
 		pass++;
 	}
@@ -119,7 +120,7 @@ function check(file,force,expectFailure) {
 		options.source = file;
 
 		try {
-	        swagger2openapi.convert(src, common.clone(options), handleResult);
+	        swagger2openapi.convertObj(src, common.clone(options), handleResult);
 		}
 		catch (ex) {
 			console.log(red+'Converter threw an error: '+ex.message);

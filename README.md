@@ -18,13 +18,16 @@ Usage:
 ````
 swagger2openapi [options] [filename|url]
 Options:
-  -d, --debug    enable debug mode, adds specification-extensions      [boolean]
-  -e, --encoding encoding for input/output files      [string] [default: "utf8"]
-  -h, --help     Show help                                             [boolean]
-  -o, --outfile  the output file to write to                            [string]
-  -p, --patch    fix up small errors in the source definition          [boolean]
-  -u, --url      url of original spec, creates x-origin entry           [string]
-  -y, --yaml     read and write YAML, default JSON                     [boolean]
+  -c, --components  output information to unresolve a definition       [boolean]
+  -d, --debug       enable debug mode, adds specification-extensions   [boolean]
+  -e, --encoding    encoding for input/output files   [string] [default: "utf8"]
+  -h, --help        Show help                                          [boolean]
+  -o, --outfile     the output file to write to                         [string]
+  -p, --patch       fix up small errors in the source definition       [boolean]
+  -r, --resolve     resolve external references                        [boolean]
+  -u, --url         url of original spec, creates x-origin entry        [string]
+  -v, --verbose     increase verbosity                                   [count]
+  -y, --yaml        read and write YAML, default JSON                  [boolean]
 ````
 
 or use the APIs:
@@ -33,21 +36,24 @@ or use the APIs:
 var converter = require('swagger2openapi');
 var options = {};
 //options.debug = true; // sets various x-s2o- debugging properties
-converter.convertObj(swagger, options, function(err, openapi, options){
-  //
+converter.convertObj(swagger, options, function(err, options){
+  // options.openapi contains the converted definition
 });
-// also available are asynchronous convertFile, convertUrl and convertStr functions
+// also available are asynchronous convertFile, convertUrl, convertStr and convertStream functions
+// if you omit the callback parameter, you will instead receive a Promise
 ````
 
 ````javascript
 var validator = require('swagger2openapi/validate.js');
 var options = {};
-validator.validate(openapi, options, function(err, openapi, options){
+validator.validate(openapi, options, function(err, options){
   // options.valid contains the result of the validation
   // options.context now contains a stack (array) of JSON-Pointer strings
 });
 // also available is a synchronous validateSync method which returns a boolean
 ````
+
+See here for complete [documentation](docs/options.md) of the `options` object.
 
 Or use the [online version](https://openapi-converter.herokuapp.com) which also includes its own [API](http://petstore.swagger.io/?url=https://openapi-converter.herokuapp.com/contract/swagger.json).
 

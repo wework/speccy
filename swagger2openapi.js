@@ -9,6 +9,9 @@ var yaml = require('js-yaml');
 var converter = require('./index.js');
 
 var argv = require('yargs')
+	.boolean('components')
+	.alias('c','components')
+	.describe('components','output information to unresolve a definition')
 	.boolean('debug')
 	.alias('d','debug')
 	.describe('debug','enable debug mode, adds specification-extensions')
@@ -40,24 +43,24 @@ var argv = require('yargs')
     .strict()
     .argv;
 
-function process(err, openapi, options) {
+function processResult(err, options) {
 	if (err) {
 		console.log(err.message);
 		return process.exitCode = 1;
 	}
 	if (options.yaml && options.outfile && options.outfile.indexOf('.json') > 0) {
-		options.yaml = false;
+        options.yaml = false;
 	}
 	if (!options.yaml && options.outfile && options.outfile.indexOf('.yaml') > 0) {
-		options.yaml = true;
+        options.yaml = true;
 	}
 
 	var s;
 	if (options.yaml) {
-   		s = options.debug ? yaml.dump(openapi) : yaml.safeDump(openapi);
+   		s = options.debug ? yaml.dump(options.openapi) : yaml.safeDump(options.openapi);
 	}
 	else {
-   		s = JSON.stringify(openapi, null, 2);
+   		s = JSON.stringify(options.openapi, null, 2);
 	}
 
 	if (argv.outfile) {
@@ -66,15 +69,19 @@ function process(err, openapi, options) {
 	else {
   		console.log(s);
 	}
+
+	if (argv.components) {
+		console.log(JSON.stringify(options.externals,null,2));
+	}
 }
 
 argv.source = argv._[0];
 var u = url.parse(argv.source);
 if (u.protocol) {
-	converter.convertUrl(argv.source,argv,process);
+	converter.convertUrl(argv.source,argv,processResult);
 }
 else {
 	argv.origin = argv.url;
-	converter.convertFile(argv.source,argv,process);
+	converter.convertFile(argv.source,argv,processResult);
 }
 

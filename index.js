@@ -4,6 +4,7 @@ var fs = require('fs');
 var util = require('util');
 
 var co = require('co');
+var maybe = require('call-me-maybe');
 var fetch = require('node-fetch');
 var yaml = require('js-yaml');
 
@@ -11,7 +12,6 @@ var common = require('./common.js');
 
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
-// TODO https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html
 
 var targetVersion = '3.0.0-RC0';
 
@@ -548,167 +548,195 @@ function main(openapi, options) {
 }
 
 function convertObj(swagger, options, callback) {
-	if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) {
-		callback(null, swagger, options);
-		return swagger;
-	}
-	if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
-		throw new Error('Unsupported swagger/OpenAPI version');
-	}
-
-	var openapi = {};
-	openapi.openapi = targetVersion; // semver
-	openapi.servers = [];
-
-	if (options.origin) {
-		if (!openapi["x-origin"]) {
-			openapi["x-origin"] = [];
+	return maybe(callback, new Promise(function(resolve, reject) {
+		if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) {
+			options.openapi = swagger;
+			resolve(options);
 		}
-		var origin = {};
-		origin.url = options.origin;
-		origin.format = 'swagger';
-		origin.version = swagger.swagger;
-		origin.converter = {};
-		origin.converter.url = 'https://github.com/mermade/swagger2openapi';
-		origin.converter.version = common.getVersion();
-		openapi["x-origin"].push(origin);
-	}
+		if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
+			reject(new Error('Unsupported swagger/OpenAPI version'));
+		}
 
-	// we want the new and existing properties to appear in a sensible order. Not guaranteed
-    openapi = Object.assign(openapi,common.clone(swagger));
-    delete openapi.swagger;
+		var openapi = options.openapi = {};
+		openapi.openapi = targetVersion; // semver
+		openapi.servers = [];
 
-	var server;
-	if (swagger.host && swagger.schemes) {
-		for (var s of swagger.schemes) {
+		if (options.origin) {
+			if (!openapi["x-origin"]) {
+				openapi["x-origin"] = [];
+			}
+			var origin = {};
+			origin.url = options.origin;
+			origin.format = 'swagger';
+			origin.version = swagger.swagger;
+			origin.converter = {};
+			origin.converter.url = 'https://github.com/mermade/swagger2openapi';
+			origin.converter.version = common.getVersion();
+			openapi["x-origin"].push(origin);
+		}
+
+		// we want the new and existing properties to appear in a sensible order. Not guaranteed
+		openapi = Object.assign(openapi,common.clone(swagger));
+		delete openapi.swagger;
+
+		var server;
+		if (swagger.host && swagger.schemes) {
+			for (var s of swagger.schemes) {
+				server = {};
+				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
+				server.url = server.url.split('{{').join('{');
+				server.url = server.url.split('}}').join('}');
+				// TODO server variables (:style parameters?)
+				openapi.servers.push(server);
+			}
+		}
+		else if (swagger.basePath) {
 			server = {};
-			server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
-			server.url = server.url.split('{{').join('{');
-			server.url = server.url.split('}}').join('}');
-			// TODO server variables (:style parameters?)
+			server.url = swagger.basePath;
 			openapi.servers.push(server);
 		}
-	}
-	else if (swagger.basePath) {
-		server = {};
-		server.url = swagger.basePath;
-		openapi.servers.push(server);
-	}
-	delete openapi.host;
-	delete openapi.basePath;
-	delete openapi.schemes;
+		delete openapi.host;
+		delete openapi.basePath;
+		delete openapi.schemes;
 
-	if (swagger['x-ms-parameterized-host']) {
-		var xMsPHost = swagger['x-ms-parameterized-host'];
-		var server = {};
-		server.url = xMsPHost.hostTemplate;
-		server.parameters = xMsPHost.parameters;
-		for (var param of server.parameters) {
-			if (param.ref === false) param.required = true; // has a different meaning
-			delete param.type; // all strings
-			if (param.$ref) {
-				param.$ref = param.$ref.replace('#/parameters/','#/components/parameters/');
-			}
-		}
-		openapi.servers.push(server);
-		delete openapi['x-ms-parameterized-host'];
-	}
-
-	if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
-		if (options.patch) {
-			openapi.info.version = '';
-		}
-		else {
-			throw(new Error('info.version cannot be null'));
-		}
-	}
-
-    openapi.components = {};
-	openapi.components.schemas = openapi.definitions||{};
-	openapi.components.responses = openapi.responses||{};
-	openapi.components.parameters = openapi.parameters||{};
-	openapi.components.examples = {};
-	openapi.components.requestBodies = {};
-	openapi.components.securitySchemes = openapi.securityDefinitions||{};
-	openapi.components.headers = {};
-    delete openapi.definitions;
-	delete openapi.responses;
-	delete openapi.parameters;
-	delete openapi.securityDefinitions;
-    // new are [ callbacks, links ]
-
-	var actions = [];
-
-	if (options.resolve) {
-		common.recurse(openapi,{},'','',function(obj,key,parent,pkey,path){
-			if ((key === '$ref') && (typeof obj[key] === 'string')) {
-				if (!obj[key].startsWith('#/')) {
-					actions.push(common.resolveExternal(openapi,obj[key],options,function(data){
-						parent[pkey] = data;
-					}));
+		if (swagger['x-ms-parameterized-host']) {
+			var xMsPHost = swagger['x-ms-parameterized-host'];
+			var server = {};
+			server.url = xMsPHost.hostTemplate;
+			server.parameters = xMsPHost.parameters;
+			for (var param of server.parameters) {
+				if (param.ref === false) param.required = true; // has a different meaning
+				delete param.type; // all strings
+				if (param.$ref) {
+					param.$ref = param.$ref.replace('#/parameters/','#/components/parameters/');
 				}
 			}
+			openapi.servers.push(server);
+			delete openapi['x-ms-parameterized-host'];
+		}
+
+		if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
+			if (options.patch) {
+				openapi.info.version = '';
+			}
+			else {
+				reject(new Error('info.version cannot be null'));
+			}
+		}
+
+		openapi.components = {};
+		openapi.components.schemas = openapi.definitions||{};
+		openapi.components.responses = openapi.responses||{};
+		openapi.components.parameters = openapi.parameters||{};
+		openapi.components.examples = {};
+		openapi.components.requestBodies = {};
+		openapi.components.securitySchemes = openapi.securityDefinitions||{};
+		openapi.components.headers = {};
+		delete openapi.definitions;
+		delete openapi.responses;
+		delete openapi.parameters;
+		delete openapi.securityDefinitions;
+		// new are [ callbacks, links ]
+
+		var actions = [];
+		options.externals = [];
+
+		if (options.resolve) {
+			common.recurse(openapi,{},'','',function(obj,key,parent,pkey,path){
+				if ((key === '$ref') && (typeof obj[key] === 'string')) {
+					if (!obj[key].startsWith('#/')) {
+						actions.push(common.resolveExternal(openapi,obj[key],options,function(data){
+							var external = {};
+							var route = path.split('/');
+							route.pop();
+							external.context = route.join('/'); 
+							external.$ref = obj[key];
+							external.original = common.clone(data);
+							external.updated = data;
+							options.externals.push(external);
+							parent[pkey] = data;
+						}));
+					}
+				}
+			});
+		}
+
+		co(function* () {
+			// resolve multiple promises in parallel
+			var res = yield actions;
+			main(openapi, options);
+			resolve(options);
+		})
+		.catch(function(err){
+			reject(err);
 		});
-	}
-
-	co(function* () {
-		// resolve multiple promises in parallel
-		var res = yield actions;
-		main(openapi, options);
-		callback(null, openapi, options);
-	})
-	.catch(function(err){
-		callback(err, openapi, options);
-	});
-
+	}));
 }
 
 function convertStr(str,options,callback) {
-	var obj = null;
-	try {
-		obj = JSON.parse(str);
-	}
-	catch (ex) {
+	return maybe(callback, new Promise(function(resolve, reject) {
+		var obj = null;
 		try {
-			obj = yaml.safeLoad(str);
-			options.sourceYaml = true;
+			obj = JSON.parse(str);
 		}
-		catch (ex) {}
-	}
-	if (obj) {
-		convertObj(obj,options,callback);
-	}
-	else {
-		callback(new Error('Could not resolve url'),null,options);
-	}
+		catch (ex) {
+			try {
+				obj = yaml.safeLoad(str);
+				options.sourceYaml = true;
+			}
+			catch (ex) {}
+		}
+		if (obj) {
+			return convertObj(obj,options,callback)
+		}
+		else {
+			reject(new Error('Could not resolve url'));
+		}
+	}));
 }
 
 function convertUrl(url,options,callback) {
-	if (!options.origin) {
-		options.origin = url;
-	}
-	if (options.verbose) {
-		console.log('GET '+url);
-	}
-	fetch(url).then(function(res) {
-    	return res.text();
-	}).then(function(body) {
-		convertStr(body,options,callback);
-	}).catch(function(err){
-		callback(err,null,options);
-	});
+	return maybe(callback, new Promise(function(resolve, reject) {
+		if (!options.origin) {
+			options.origin = url;
+		}
+		if (options.verbose) {
+			console.log('GET '+url);
+		}
+		fetch(url).then(function(res) {
+			return res.text();
+		}).then(function(body) {
+			return convertStr(body,options,callback);
+		}).catch(function(err){
+			reject(err);
+		});
+	}));
 }
 
 function convertFile(filename,options,callback) {
-	fs.readFile(filename,options.encoding||'utf8',function(err,s){
-		if (err) {
-			callback(err,null,options);
-		}
-		else {
-			options.sourceFile = filename;
-			convertStr(s,options,callback);
-		}
-	});
+	return maybe(callback, new Promise(function(resolve, reject) {
+		fs.readFile(filename,options.encoding||'utf8',function(err,s){
+			if (err) {
+				reject(err);
+			}
+			else {
+				options.sourceFile = filename;
+				return convertStr(s,options,callback)
+			}
+		});
+	}));
+}
+
+function convertStream(readable,options,callback) {
+	return maybe(callback, new Promise(function(resolve, reject) {
+		var data = '';
+		readable.on('data',function(chunk){
+			data += chunk;
+		})
+		.on('end',function(){
+			return convertStr(data,options,callback);
+		});
+	}));
 }
 
 module.exports = {
@@ -718,6 +746,7 @@ module.exports = {
 	convertObj : convertObj,
 	convertUrl : convertUrl,
 	convertStr : convertStr,
-	convertFile : convertFile
+	convertFile : convertFile,
+	convertStream : convertStream
 
 };

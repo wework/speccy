@@ -28,8 +28,10 @@ function fixupSchema(obj,key,parent){
 		obj.not = obj[key];
 		delete obj[key];
 	}
-	if ((key == '$ref') && (typeof obj[key] === 'string') && (obj[key].indexOf('#/definitions/')>=0)) {
-		obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
+	if ((key == '$ref') && (typeof obj[key] === 'string')) {
+		if (obj[key].indexOf('#/definitions/')>=0) {
+			obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
+		}
 		Object.keys(obj).forEach(function(k){
 			if (k !== '$ref') delete obj[k];
 		});
@@ -291,7 +293,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 		var path = container[p];
 		// path.$ref is external only
 		for (var method in path) {
-			if (common.httpVerbs.indexOf((method) > 0)) {
+			if ((common.httpVerbs.indexOf((method) > 0)) || (method === 'x-amazon-apigateway-any-method')) {
 				var op = path[method];
 
 				if (op.parameters) {

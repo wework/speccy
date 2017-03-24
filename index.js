@@ -647,9 +647,7 @@ function convertObj(swagger, options, callback) {
 					if (!obj[key].startsWith('#/')) {
 						actions.push(common.resolveExternal(openapi,obj[key],options,function(data){
 							var external = {};
-							var route = state.path.split('/');
-							route.pop();
-							external.context = route.join('/'); 
+							external.context = state.path;
 							external.$ref = obj[key];
 							external.original = common.clone(data);
 							external.updated = data;

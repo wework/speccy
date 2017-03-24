@@ -3,11 +3,11 @@
 Parameter|Type|Input/Output|Description
 |---|---|---|
 components|Boolean|Input|Command-line flag to indicate unresolve information should be displayed
-context|Array|Output|The context stack of associated with errors in a validation step
+context|Array|Output|The context stack of associated with errors in a validation step, you normally want the last entry only
 debug|Boolean|Input|Flag to enable debug mode, adds specification-extensions
 encoding|String|Input|Encoding to use when reading/writing files
 expectFailure|Boolean|Input|Flag to invert the status of a validation step
-externals|Array|Output|Information required to unresolve a resolved definition back into its component parts
+externals|[Array](externals.md)|Output|Information required to unresolve a resolved definition back into its component parts
 fail|Boolean|Input|Command-line flag used by `testRunner`
 file|String|Input|Used to pass filename back to `testRunner`
 help|Boolean|Reserved|Command-line flag to display help
@@ -19,7 +19,7 @@ patch|Boolean|Input|Flag to fix-up minor errors in the source definition before 
 quiet|Boolean|Input|Command-line flag used by `testRunner`
 resolve|Boolean|Input|Flag to enable resolution of external `$ref`s.
 stop|Boolean|Input|Command-line flag used by `testRunner`
-source|String|Output|
+source|String|Output|The source filename or url of the definition
 sourceYaml|Boolean|Output|Flag set if the source string, URL or stream contained a YAML formatted definition
 url|String|Input|URL of the original definition, used when reading a file to create `x-origin` extension 
 valid|Boolean|Output|The result of a validation step

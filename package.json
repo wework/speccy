@@ -31,7 +31,8 @@
     "converter",
     "conversion",
     "validator",
-    "validation"
+    "validation",
+	"resolver"
   ],
   "devDependencies": {
     "coveralls": "^2.12.0"

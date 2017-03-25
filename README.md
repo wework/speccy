@@ -5,7 +5,7 @@
 [![OpenAPI Validation](https://openapi-converter.herokuapp.com/api/v1/badge?url=https://openapi-converter.herokuapp.com/examples/openapi.json)](https://openapi-converter.herokuapp.com/api/v1/validate?url=https://openapi-converter.herokuapp.com/examples/openapi.json)
 ![Build](https://img.shields.io/travis/Mermade/swagger2openapi.svg)
 [![Tested on APIs.guru](https://api.apis.guru/badges/tested_on.svg)](https://APIs.guru)
-[![Tested on Mermade OpenAPIs](https://img.shields.io/badge/Additional%20Specs-1258-brightgreen.svg)](https://github.com/mermade/openapi-definitions)
+[![Tested on Mermade OpenAPIs](https://img.shields.io/badge/Additional%20Specs-882-brightgreen.svg)](https://github.com/mermade/openapi-definitions)
 [![Coverage Status](https://coveralls.io/repos/github/Mermade/swagger2openapi/badge.svg?branch=master)](https://coveralls.io/github/Mermade/swagger2openapi?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/npm/swagger2openapi/badge.svg)](https://snyk.io/test/npm/swagger2openapi)
 
@@ -59,24 +59,9 @@ Or use the [online version](https://openapi-converter.herokuapp.com) which also 
 
 ## Specification extensions
 
-swagger2openapi has support for a limited number of real-world specification extensions which have a direct bearing on the conversion. All other specification extensions are left untouched. swagger2openapi is [swaggerplusplus](https://github.com/mermade/swaggerplusplus)-compatible.
+swagger2openapi has support for a limited number of real-world [specification extensions](/docs/extensions.md) which have a direct bearing on the conversion. All other specification extensions are left untouched. swagger2openapi is [swaggerplusplus](https://github.com/mermade/swaggerplusplus)-compatible.
 
-Specification Extension|Vendor|Conversion Performed
-|---|---|---|
-x-ms-paths|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|Treated as an analogue of the `openapi.paths` object
-x-ms-skip-url-encoding|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|For query parameters, converted to `allowReserved:true`
-x-ms-odata|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|References to `#/definitions/` are updated to `#/components/schemas`
-x-ms-parameterized-host|[Microsoft](https://github.com/Azure/autorest/tree/master/docs/extensions)|Converted into server entry
-x-amazon-apigateway-any-method|[Amazon](http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html)|Treated as an analogue of the `operation Object`
-x-anyOf|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, converted to `anyOf`
-x-oneOf|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, converted to `oneOf`
-x-not|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, converted to `not`
-x-required|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within schemas, concatenated with `required`
-
-See also [APIMatic extensions](https://docs.apimatic.io/advanced/swagger-server-configuration-extensions/)
-
-It is expected to be able to configure the process of specification-extension modification using options or a plugin 
-mechanism in a future release.
+It is expected to be able to configure the process of specification-extension modification using options or a plugin mechanism in a future release.
 
 ## Tests
 
@@ -90,7 +75,7 @@ The test harness currently expects files with a `.json` or `.yaml` extension, or
 
 * [APIs.guru](https://github.com/APIs-guru/openapi-directory)
 * [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)
-* [SOM-Research collection](https://github.com/SOM-Research/hapi) (overlaps with APIs.guru)
+* [SOM-Research collection](https://github.com/SOM-Research/hapi)
 
 It can also be used as a simple validator if given an existing OpenAPI 3.x definition. The validator (however it is called) uses [WHATWG](https://whatwg.org/) URL parsing if available (node 7.x and above).
 

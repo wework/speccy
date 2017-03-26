@@ -16,6 +16,21 @@ var common = require('./common.js');
 const targetVersion = '3.0.0-RC0';
 
 function fixupSchema(obj,key,state){
+	if ((key == 'type') && (Array.isArray(obj[key]))) {
+		obj.oneOf = [];
+		for (var type of obj[key]) {
+			var schema = {};
+			schema.type = type;
+			if (type == 'array') {
+				if (obj.items) {
+					schema.items = obj.items;
+					delete obj.items; // TODO and other array properties
+				}
+			}
+			obj.oneOf.push(schema);
+		}
+		delete obj[key];
+	}
 	if (key == 'x-anyOf') {
 		obj.anyOf = obj[key];
 		delete obj[key];

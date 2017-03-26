@@ -10,9 +10,9 @@ var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
 
 var jsonSchema = require(path.join(__dirname,'/schemas/json_v5.json'));
+var openapi3Schema = require(path.join(__dirname,'/schemas/openapi-3.json'));
 var validateMetaSchema = ajv.compile(jsonSchema);
-
-// TODO validate with ajv when OpenAPI 3.0.x schema published
+var validateOpenAPI3 = ajv.compile(openapi3Schema);
 
 function contextAppend(options,s) {
 	options.context.push((options.context[options.context.length-1]+'/'+s).split('//').join('/'));
@@ -37,7 +37,7 @@ function validateSchema(schema,openapi) {
 		allErrors: true,
 		verbose: true
 	});
-	var errors = validate.errors;
+	var errors = validateSchema.errors;
 	if (errors && errors.length) {
 		throw(new Error('Schema invalid: '+util.inspect(errors)));
 	}
@@ -429,6 +429,15 @@ function validateSync(openapi, options, callback) {
 			options.context.pop();
 		}
 	}
+
+    validateOpenAPI3(openapi, {
+		allErrors: true,
+	    verbose: true
+    });
+    var errors = validateOpenAPI3.errors;
+    if (errors && errors.length) {
+	    throw(new Error('Failed OpenAPI3 schema validation: '+util.inspect(errors)));
+    }
 
 	options.valid = !options.expectFailure;
 	if (callback) callback(null,options);

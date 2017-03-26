@@ -37,19 +37,21 @@ function recurse(object,state,callback) {
 		state.depth = 0;
 		state.pkey = '';
 		state.parent = {};
+		state.payload = {};
 	}
 	for (var key in object) {
 		var escKey = '/'+jptr.jpescape(key);
 		state.key = key;
 		var oPath = state.path;
-		state.path = state.path+escKey;
+		state.path = (state.path ? state.path : '#')+escKey;
 		callback(object,key,state);
 		if (typeof object[key] == 'object') {
 			var newState = {};
 		 	newState.parent = object;
 			newState.path = state.path;
-			newState.depth = state.depth++;
+			newState.depth = (state.depth ? state.depth++ : state.depth=1);
 			newState.pkey = key;
+			newState.payload = state.payload;
 			recurse(object[key],newState,callback);
 		}
 		state.path = oPath;

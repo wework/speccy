@@ -4,7 +4,11 @@ var URL = url.URL;
 var util = require('util');
 
 var should = require('should');
-var ajv = require('ajv')();
+var ajv = require('ajv')({
+	allErrors: true,
+	verbose: true,
+	jsonPointers: true
+});
 
 var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
@@ -33,10 +37,7 @@ function validateComponentName(name) {
 }
 
 function validateSchema(schema,openapi) {
-	validateMetaSchema(schema, {
-		allErrors: true,
-		verbose: true
-	});
+	validateMetaSchema(schema);
 	var errors = validateSchema.errors;
 	if (errors && errors.length) {
 		throw(new Error('Schema invalid: '+util.inspect(errors)));
@@ -430,13 +431,10 @@ function validateSync(openapi, options, callback) {
 		}
 	}
 
-    validateOpenAPI3(openapi, {
-		allErrors: true,
-	    verbose: true
-    });
+    validateOpenAPI3(openapi);
     var errors = validateOpenAPI3.errors;
     if (errors && errors.length) {
-	    throw(new Error('Failed OpenAPI3 schema validation: '+util.inspect(errors)));
+	    throw(new Error('Failed OpenAPI3 schema validation: '+JSON.stringify(errors,null,2)));
     }
 
 	options.valid = !options.expectFailure;

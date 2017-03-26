@@ -328,11 +328,12 @@
           "uniqueItems": true
         },
         "requestBody": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/requestBodyOrReference"
-          },
-          "uniqueItems": true
+          "type": "object",
+          "properties": {
+              "content": {
+                  "$ref": "#/definitions/content"
+              }
+          }
         },
         "responses": {
           "$ref": "#/definitions/responses"
@@ -456,8 +457,10 @@
     "content": {
       "type": "object",
       "description": "Describes a set of supported media types. A Content Object can be used in Request Body Object, Parameter Objects, Header Objects, and Response Objects.  Each key in the Content Object is the media type of the Media Type Object.",
-      "additionalProperties": {
-        "$ref": "#/definitions/mediaType"
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/definitions/mediaType"
+        }
       }
     },
     "mediaType": {
@@ -469,6 +472,9 @@
         }
       },
       "properties": {
+        "description": {
+            "type": "string"
+        },
         "schema": {
           "$ref": "#/definitions/schemaOrReference"
         },
@@ -815,9 +821,6 @@
         "enum": {
           "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
         },
-        "$ref": {
-          "type": "string"
-        },
         "type": {
           "type": "string"
         },
@@ -1092,7 +1095,7 @@
       ]
     },
     "schemaOrReference": {
-      "oneOf": [
+      "anyOf": [
         {
           "$ref": "#/definitions/schema"
         },
@@ -1131,7 +1134,6 @@
       "additionalItems": true
     },
     "any": {
-      "type": "object",
       "additionalProperties": true,
       "additionalItems": true
     },

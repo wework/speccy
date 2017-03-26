@@ -51,15 +51,18 @@ var options = argv;
 options.patch = true;
 
 function handleResult(err, options) {
-	var result = options.openapi;
+	var result = false;
 	if (err) {
 		console.log(red+'Converter: '+err.message);
-		result = false;
+		options = {file:'unknown'};
+	}
+	else {
+		result = options.openapi;
 	}
 	var resultStr = JSON.stringify(result);
-	var src = options.original;
 
 	if (typeof result !== 'boolean') try {
+		var src = options.original;
 		resultStr = yaml.safeDump(result); // should be representable safely in yaml
 		resultStr.should.not.be.exactly('{}');
 
@@ -149,6 +152,7 @@ function processPathSpec(pathspec,expectFailure) {
 }
 
 process.exitCode = 1;
+console.log('Gathering...');
 if ((!argv._.length) && (!argv.fail)) {
 	argv._.push('../openapi-directory/APIs/');
 }

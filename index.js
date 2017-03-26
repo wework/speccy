@@ -31,6 +31,9 @@ function fixupSchema(obj,key,state){
 		}
 		delete obj[key];
 	}
+	if (state.payload.targetted && (key == 'required') && (typeof obj[key] === 'boolean')) {
+		delete obj[key]; // TODO check we're at the right level(s) if poss.
+	}
 	if (key == 'x-anyOf') {
 		obj.anyOf = obj[key];
 		delete obj[key];
@@ -119,7 +122,10 @@ function processHeader(header) {
 	}
 }
 
-function processParameter(param,op,path,index,openapi) {
+/**
+ * @returns requestBody?
+ */
+function processParameter(param,op,path,index,openapi,options) {
 	var result = {};
 	var singularRequestBody = true;
 
@@ -174,8 +180,9 @@ function processParameter(param,op,path,index,openapi) {
 		}
 
 		if (param.schema) {
-			common.recurse(param.schema,null,fixupSchema);
+			common.recurse(param.schema,{payload:{targetted:true}},fixupSchema);
 		}
+
 		if (param.collectionFormat) {
 			if (param.collectionFormat == 'csv') {
 				param.style = 'form';
@@ -224,7 +231,10 @@ function processParameter(param,op,path,index,openapi) {
 			for (var prop of common.parameterTypeProperties) {
 				if (typeof param[prop] !== 'undefined') target[prop] = param[prop];
 			}
-			if (typeof param.required !== 'undefined') target.required = param.required;
+			if (typeof param.required !== 'undefined') {
+				if (!target.required) target.required = [];
+				target.required.push(param.name);
+			}
 			if (typeof param.default !== 'undefined') target.default = param.default;
 			if (target.properties) target.properties = param.properties;
 			if (param.allOf) target.allOf = param.allOf; // new are anyOf, oneOf, not, x- vendor extensions?
@@ -259,6 +269,7 @@ function processParameter(param,op,path,index,openapi) {
 			result.content[mimetype] = {};
 			if (param.description) result.content[mimetype].description = param.description;
 			result.content[mimetype].schema = common.clone(param.schema)||{};
+			common.recurse(result.content[mimetype].schema,{payload:{targetted:true}},fixupSchema);
 		}
 	}
 
@@ -317,6 +328,15 @@ function processParameter(param,op,path,index,openapi) {
 		delete param[prop];
 	}
 
+	/*if ((param.in == 'path') && (typeof param.required === 'undefined') || (!param.required)) {
+		if (options.patch) {
+			param.required = true;
+		}
+		else {
+			throw new Error('Path parameters must be required:true');
+		}
+	}*/
+
 	return result;
 }
 
@@ -348,7 +368,7 @@ function processResponse(response, op, openapi, options) {
 			}
 		}
 		if (response.schema) {
-			common.recurse(response.schema, null, fixupSchema);
+			common.recurse(response.schema, {payload:{targetted:true}}, fixupSchema);
 
 			var produces = ((op && op.produces) || []).concat(openapi.produces || []).filter(common.uniqueOnly);
 			if (!produces.length) produces.push('*/*'); // TODO verify default
@@ -406,7 +426,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 
 				if (op.parameters) {
 					for (var param of op.parameters) {
-						processParameter(param, op, path, null, openapi);
+						processParameter(param, op, path, null, openapi, options);
 					}
 					if (!options.debug) {
 						op.parameters = op.parameters.filter(deleteParameters);
@@ -435,7 +455,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				delete op.consumes;
 				delete op.produces;
 
-				common.recurse(op, null, fixupSchema); // for x-ms-odata etc
+				common.recurse(op, {payload:{targetted:false}}, fixupSchema); // for x-ms-odata etc
 
 				if (op.requestBody) {
 					var rbName = op.requestBody['x-s2o-name']||'';
@@ -457,7 +477,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 		if (path.parameters) {
 			for (var p2 in path.parameters) {
 				var param = path.parameters[p2];
-				processParameter(param, null, path, p, openapi); // index here is the path string
+				processParameter(param, null, path, p, openapi, options); // index here is the path string
 			}
 			if (!options.debug) {
 				path.parameters = path.parameters.filter(deleteParameters);
@@ -505,10 +525,10 @@ function main(openapi, options) {
 			delete openapi.components.parameters[p];
 		}
 		var param = openapi.components.parameters[sname];
-		processParameter(param,null,null,sname,openapi);
+		processParameter(param,null,null,sname,openapi,options);
 	}
 
-	common.recurse(openapi.components.responses,null,fixupSchema);
+	common.recurse(openapi.components.responses,{payload:{targetted:false}},fixupSchema);
 	for (var r in openapi.components.responses) {
 		var sname = common.sanitise(r);
 		if (r != sname) {
@@ -552,8 +572,8 @@ function main(openapi, options) {
 		}
 	}
 
-	common.recurse(openapi.components.schemas,null,fixupSchema);
-	common.recurse(openapi.components.schemas,null,fixupSchema); // second pass for fixed x-anyOf's etc
+	common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema);
+	common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema); // second pass for fixed x-anyOf's etc
 
 	if (options.debug) {
 		openapi["x-s2o-consumes"] = openapi.consumes||[];

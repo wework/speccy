@@ -82,3 +82,7 @@ It can also be used as a simple validator if given an existing OpenAPI 3.x defin
 ## Metadata reporting
 
 Also included is a tool `reportExtensions` to gather a list of specification (fka vendor) extensions and formats used in a definition or corpus of definitions. For examples of output, see the [wiki](https://github.com/mermade/swagger2openapi/wiki)
+
+## License 
+
+[BSD-3-Clause](LICENSE) except the OpenAPI3 schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json) and is licensed under the [Apache-2](https://github.com/googleapis/gnostic/blob/master/LICENSE) license.

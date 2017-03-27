@@ -418,6 +418,14 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 			path.trace = path['x-trace'];
 			delete path['x-trace'];
 		}
+		if ((path['x-summary']) && (typeof path['x-summary'] === 'string')) {
+			path.summary = path['x-summary'];
+			delete path['x-summary'];
+		}
+		if ((path['x-description']) && (typeof path['x-description'] === 'string')) {
+			path.description = path['x-description'];
+			delete path['x-description'];
+		}
 		if ((path['x-servers']) && (Array.isArray(path['x-servers']))) {
 			path.servers = path['x-servers'];
 			delete path['x-servers'];

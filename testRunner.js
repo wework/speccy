@@ -83,6 +83,9 @@ function handleResult(err, options) {
 		console.log(normal+options.file);
 		console.log(red+options.context.pop()+'\n'+ex.message);
 		result = !!options.expectFailure;
+		if (ex.stack && ex.name !== 'AssertionError') {
+			console.log(ex.stack);
+		}
 	}
 	if (result) {
 		pass++;
@@ -102,7 +105,7 @@ function genStackNext() {
 	return true;
 }
 
-function* wrapConvert(src,options,processor,callback){
+function* wrapConvert(src,options,processor){
 	try {
 		swagger2openapi.convertObj(src, common.clone(options), processor);
 	}
@@ -110,6 +113,7 @@ function* wrapConvert(src,options,processor,callback){
 		console.log(red+'Converter threw an error: '+ex.message);
 		warnings.push('Converter failed '+options.source);
 		result = true;
+		genStackNext();
 	}
 }
 

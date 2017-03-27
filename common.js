@@ -99,7 +99,7 @@ function resolveExternal(root,pointer,options,callback) {
 }
 
 function resolveInternal(root,pointer,options) {
-	return jptr.jptr(root,pointer);
+	return jptr.jptr(root,pointer)||false;
 }
 
 const parameterTypeProperties = [

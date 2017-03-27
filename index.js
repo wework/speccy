@@ -168,6 +168,15 @@ function processParameter(param,op,path,index,openapi,options) {
 			delete param['x-deprecated'];
 		}
 
+		if ((param.in != 'body') && (!param.type)) {
+			if (options.patch) {
+				param.type = 'string';
+			}
+			else {
+				throwError('Parameter type is mandatory for non-body parameters',options);
+			}
+		}
+
 		if (param.type && (param.type != 'object') && (param.type != 'body') && (param.in != 'formData')) {
 			if (param.items && param.schema) {
 				throwError('parameter has array,items and schema',options);

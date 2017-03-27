@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 
 var fs = require('fs');
@@ -55,8 +57,10 @@ function check(file) {
 			return true; // skip it
 		}
 
-		if ((src.info["x-origin"]) && (src.info["x-origin"].format)) {
+		var url = '';
+		if (src.info && (src.info["x-origin"]) && (src.info["x-origin"].format)) {
 			delete src.info["x-origin"].format; // contaminates format list below
+			if (src.info['x-origin'].url) url = src.info['x-origin'].url;
 		}
 
 		try {
@@ -73,6 +77,7 @@ function check(file) {
 					if (extensions[key].lastSpec != file) {
 						extensions[key].specs++;
 						extensions[key].lastSpec = file;
+						extensions[key].lastUrl = url;
 					}
 					if (extensions[key].type != typeof obj[key]) {
 						extensions[key].type = 'multiple';
@@ -91,6 +96,7 @@ function check(file) {
 					if (formats[fmt].lastSpec != file) {
 						formats[fmt].specs++;
 						formats[fmt].lastSpec = file;
+						formats[fmt].lastUrl = url;
 					}
 				}
 			});
@@ -142,10 +148,14 @@ process.on('exit', function(code) {
 	});
 
 	console.log();
-	console.log('|key|specs|type|count|example|');
+	console.log('|key|definitions|type|instances|example|');
 	console.log('|---|---|---|---|---|');
 	for (var entry of ext) {
-		console.log(entry.key+'|'+entry.specs+'|'+entry.type+'|'+entry.count+'|'+entry.lastSpec);
+		var example = entry.lastSpec;
+		if (entry.lastUrl) {
+			example = '['+example+']('+entry.lastUrl+')';
+		}
+		console.log(entry.key+'|'+entry.specs+'|'+entry.type+'|'+entry.count+'|'+example);
 	}
 
 	var fmt = [];
@@ -165,11 +175,15 @@ process.on('exit', function(code) {
 	});
 
 	console.log();
-	console.log('|format|specs|count|example|');
+	console.log('|format|definitions|instances|example|');
 	console.log('|---|---|---|---|');
 
 	for (var format of fmt) {
-		console.log(format.key+'|'+format.specs+'|'+format.count+'|'+format.lastSpec);
+		var example = format.lastSpec;
+		if (format.lastUrl) {
+			example = '['+example+']('+entry.lastUrl+')';
+		}
+		console.log(format.key+'|'+format.specs+'|'+format.count+'|'+example);
 	}
 
 	if (failures.length>0) {

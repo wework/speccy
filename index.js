@@ -13,7 +13,7 @@ var common = require('./common.js');
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
 
-const targetVersion = '3.0.0-RC0';
+const targetVersion = '3.0.0-RC1';
 
 function throwError(message,options) {
 	var err = new Error(message);
@@ -97,7 +97,7 @@ function processSecurityScheme(scheme) {
 		if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl||'/';
 		if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl||'/';
 		flow.scopes = scheme.scopes||{};
-		scheme.flow = {}; // may become flows in RC1
+		scheme.flow = {}; // may become flows in RC2
 		scheme.flow[flowName] = flow;
 		delete scheme.authorizationUrl;
 		delete scheme.tokenUrl;

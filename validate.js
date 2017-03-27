@@ -70,12 +70,12 @@ function checkContent(content,options) {
 
 function checkServers(servers) {
 	for (var server of servers) {
-		if (server.url) { // TODO may change to REQUIRED in RC1
+		if (server.url) { // TODO may change to REQUIRED in RC2
 			validateUrl(server.url,[],'server.url').should.not.throw();
 		}
 		if (server.variables) {
 			for (var v in server.variables) {
-				server.variables[v].should.have.key('default'); // may be always type string in RC1
+				server.variables[v].should.have.key('default'); // may be always type string in RC2
 			}
 		}
 	}
@@ -95,13 +95,16 @@ function checkHeader(header,openapi,options) {
 		header.should.not.have.property(prop);
 	}
 	if (header.schema) {
-		header.should.not.have.property('content'); // TODO required mutex?
+		header.should.not.have.property('content');
 		validateSchema(header.schema,openapi);
 	}
 	if (header.content) {
 		header.should.not.have.property('schema');
 		header.should.not.have.property('style');
 		checkContent(header.content,options);
+	}
+	if (!header.schema && !header.content) {
+		header.should.have.property('schema','Header should have schema or content');
 	}
 }
 
@@ -157,13 +160,16 @@ function checkParam(param,index,openapi,options){
 	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
 	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
 	if (param.schema) {
-		param.should.not.have.property('content'); // TODO required mutex?
+		param.should.not.have.property('content');
 		validateSchema(param.schema,openapi);
 	}
 	if (param.content) {
 		param.should.not.have.property('schema');
 		param.should.not.have.property('style');
 		checkContent(param.content,options);
+	}
+	if (!param.schema && !param.content) {
+		param.should.have.property('schema','Parameter should have schema or content');
 	}
 	options.context.pop();
 	return true;
@@ -202,7 +208,7 @@ function checkPathItem(pathItem,openapi,options) {
 
 			if (op.requestBody && op.requestBody.content) {
 				contextAppend(options,'requestBody');
-				// TODO requestBody.content may become REQUIRED in RC1
+				// TODO requestBody.content may become REQUIRED in RC2
 				if (op.requestBody.description) op.requestBody.description.should.have.type('string');
 				if (op.requestBody.required) op.requestBody.required.should.have.type('boolean');
 				checkContent(op.requestBody.content,options);
@@ -333,7 +339,7 @@ function validateSync(openapi, options, callback) {
 				scheme.should.not.have.property('in');
 			}
 			if (scheme.type == 'oauth2') {
-				scheme.should.have.property('flow'); // TODO may change to flows in RC1
+				scheme.should.have.property('flow'); // TODO may change to flows in RC2
 				for (var f in scheme.flow) {
 					var flow = scheme.flow[f];
 					if ((f == 'implicit') || (f == 'authorizationCode')) {

@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0-RC0",
+  "openapi": "3.0.0-RC1",
   "servers": [
     {
       "url": "http://petstore.swagger.io/v2"
@@ -323,12 +323,16 @@
                   "name": {
                     "description": "Updated name of the pet",
                     "type": "string",
-                    "required": false
+                    "required": [
+                      "name"
+                    ]
                   },
                   "status": {
                     "description": "Updated status of the pet",
                     "type": "string",
-                    "required": false
+                    "required": [
+                      "status"
+                    ]
                   }
                 }
               }

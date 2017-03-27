@@ -47,6 +47,9 @@ var fail = 0;
 var failures = [];
 var warnings = [];
 
+var genStack = [];
+var genStackCount = 0;
+
 var options = argv;
 options.patch = true;
 
@@ -54,7 +57,7 @@ function handleResult(err, options) {
 	var result = false;
 	if (err) {
 		console.log(red+'Converter: '+err.message);
-		options = {file:'unknown'};
+		options = err.options||{file:'unknown',src:{info:{version:'',title:''}}};
 	}
 	else {
 		result = options.openapi;
@@ -85,8 +88,27 @@ function handleResult(err, options) {
 	}
 	else {
 		fail++;
-		failures.push(options.file);
+		if (options.file != 'unknown') failures.push(options.file);
 		if (argv.stop) process.exit(1);
+	}
+	if (!genStackNext()) process.exit(0);
+}
+
+function genStackNext() {
+	if (!genStack.length) return false;
+	var gen = genStack.pop();
+	gen.next();
+	return true;
+}
+
+function* wrapConvert(src,options,processor,callback){
+	try {
+		swagger2openapi.convertObj(src, common.clone(options), processor);
+	}
+	catch (ex) {
+		console.log(red+'Converter threw an error: '+ex.message);
+		warnings.push('Converter failed '+options.source);
+		result = true;
 	}
 }
 
@@ -103,17 +125,17 @@ function check(file,force,expectFailure) {
 		var srcStr = fs.readFileSync(path.resolve(file),options.encoding);
 		var src;
 		try {
-			if (name.indexOf('.yaml')>=0) {
-				src = yaml.safeLoad(srcStr);
-			}
-			else {
-				src = JSON.parse(srcStr);
-			}
+			src = JSON.parse(srcStr);
 		}
 		catch (ex) {
-			var warning = 'Could not parse file '+file;
-			console.log(red+warning);
-			warnings.push(warning);
+			try {
+				src = yaml.safeLoad(srcStr);
+			}
+			catch (ex) {
+				var warning = 'Could not parse file '+file;
+				console.log(red+warning);
+				warnings.push(warning);
+			}
 		}
 
 		if (!src || ((!src.swagger && !src.openapi))) return true;
@@ -121,18 +143,13 @@ function check(file,force,expectFailure) {
 		options.original = src;
 		options.source = file;
 
-		try {
-	        swagger2openapi.convertObj(src, common.clone(options), handleResult);
-		}
-		catch (ex) {
-			console.log(red+'Converter threw an error: '+ex.message);
-			warnings.push('Converter failed '+file);
-			result = true;
-		}
+		genStack.push(wrapConvert(src, common.clone(options), handleResult));
+		genStackCount++;
 	}
 	else {
 		result = true;
 	}
+	if (genStackCount === 1) genStackNext(); // start the testing process
 	return result;
 }
 

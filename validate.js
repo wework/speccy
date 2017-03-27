@@ -262,7 +262,7 @@ function validateSync(openapi, options, callback) {
 	openapi.should.have.key('info');
 	contextAppend(options,'info');
 	openapi.info.should.have.key('title');
-	openapi.info.title.should.have.type('string');
+	should(openapi.info.title).be.type('string','title should be of type string');
 	openapi.info.should.have.key('version');
 	should(openapi.info.version).be.type('string','version should be of type string');
 	if (openapi.info.license) {
@@ -278,9 +278,11 @@ function validateSync(openapi, options, callback) {
 		checkServers(openapi.servers);
 	}
 	if (openapi.externalDocs) {
+		contextAppend(options,'externalDocs');
 		openapi.externalDocs.should.have.key('url');
 		openapi.externalDocs.url.should.have.type('string');
 		validateUrl(openapi.externalDocs.url,openapi.servers,'externalDocs').should.not.throw();
+		options.context.pop();
 	}
 
 	// TODO externalDocs.url in schemas?

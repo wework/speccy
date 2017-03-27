@@ -15,6 +15,12 @@ var common = require('./common.js');
 
 const targetVersion = '3.0.0-RC0';
 
+function throwError(message,options) {
+	var err = new Error(message);
+	err.options = options;
+	throw err;
+}
+
 function fixupSchema(obj,key,state){
 	if ((key == 'type') && (Array.isArray(obj[key]))) {
 		obj.oneOf = [];
@@ -149,8 +155,9 @@ function processParameter(param,op,path,index,openapi,options) {
 		// we dereference all op.requestBody's then hash them and pull out common ones later
 
 		if (rbody) {
+			var ref = param.$ref;
 			param = common.resolveInternal(openapi,param.$ref);
-			if (!param) throw(new Error('Could not resolve reference '+param.ref));
+			if (!param) throwError('Could not resolve reference '+ref,options);
 		}
 	}
 
@@ -163,10 +170,10 @@ function processParameter(param,op,path,index,openapi,options) {
 
 		if (param.type && (param.type != 'object') && (param.type != 'body') && (param.in != 'formData')) {
 			if (param.items && param.schema) {
-				throw(new Error('parameter has array,items and schema'));
+				throwError('parameter has array,items and schema',options);
 			}
 			else {
-				if (!param.schema) param.schema = {};
+				if ((!param.schema) || (typeof param.schema !== 'object')) param.schema = {};
 				param.schema.type = param.type;
 				if (param.items) {
 					param.schema.items = param.items;
@@ -279,7 +286,7 @@ function processParameter(param,op,path,index,openapi,options) {
 		if (op) {
 			if (op.requestBody && singularRequestBody) {
 				op.requestBody["x-s2o-overloaded"] = true;
-				throw(new Error('Operation has >1 requestBodies'));
+				throwError('Operation has >1 requestBodies',options);
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody); // make sure we have one
@@ -328,14 +335,14 @@ function processParameter(param,op,path,index,openapi,options) {
 		delete param[prop];
 	}
 
-	/*if ((param.in == 'path') && (typeof param.required === 'undefined') || (!param.required)) {
+	if ((param.in == 'path') && ((typeof param.required === 'undefined') || (param.required !== true))) {
 		if (options.patch) {
 			param.required = true;
 		}
 		else {
-			throw new Error('Path parameters must be required:true');
+			throwError('Path parameters must be required:true',options);
 		}
-	}*/
+	}
 
 	return result;
 }
@@ -347,12 +354,12 @@ function processResponse(response, op, openapi, options) {
 				delete response.description;
 			}
 			else {
-				throw (new Error('$ref object cannot be extended: ' + response.$ref));
+				throwError('$ref object cannot be extended: ' + response.$ref,options);
 			}
 		}
 		if (response.$ref.indexOf('#/definitions/') >= 0) {
 			//response.$ref = '#/components/schemas/'+common.sanitise(response.$ref.replace('#/definitions/',''));
-			throw (new Error('definition used as response: ' + response.$ref));
+			throwError('definition used as response: ' + response.$ref,options);
 		}
 		else {
 			response.$ref = '#/components/responses/' + common.sanitise(response.$ref.replace('#/responses/', ''));
@@ -364,7 +371,7 @@ function processResponse(response, op, openapi, options) {
 				response.description = '';
 			}
 			else {
-				throw (new Error('response.description is mandatory'));
+				throwError('response.description is mandatory',options);
 			}
 		}
 		if (response.schema) {
@@ -416,7 +423,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 			delete path['x-servers'];
 		}
 		for (var method in path) {
-			if ((common.httpVerbs.indexOf((method) > 0)) || (method === 'x-amazon-apigateway-any-method')) {
+			if ((common.httpVerbs.indexOf(method) >= 0) || (method === 'x-amazon-apigateway-any-method')) {
 				var op = path[method];
 
 				if ((op['x-servers']) && (Array.isArray(op['x-servers']))) {
@@ -496,7 +503,7 @@ function main(openapi, options) {
 		var sname = common.sanitise(s);
 		if (s != sname) {
 			if (openapi.components.securitySchemes[sname]) {
-				throw(new Error('Duplicate sanitised securityScheme name '+sname));
+				throwError('Duplicate sanitised securityScheme name '+sname,options);
 			}
 			openapi.components.securitySchemes[sname] = openapi.components.securitySchemes[s];
 			delete openapi.components.securitySchemes[s];
@@ -508,7 +515,7 @@ function main(openapi, options) {
 		var sname = common.sanitise(s);
 		if (s != sname) {
 			if (openapi.components.schemas[sname]) {
-				throw(new Error('Duplicate sanitised schema name '+sname));
+				throwError('Duplicate sanitised schema name '+sname,options);
 			}
 			openapi.components.schemas[sname] = openapi.components.schemas[s];
 			delete openapi.components.schemas[s];
@@ -519,7 +526,7 @@ function main(openapi, options) {
 		var sname = common.sanitise(p);
 		if (p != sname) {
 			if (openapi.components.parameters[sname]) {
-				throw(new Error('Duplicate sanitised parameter name '+sname));
+				throwError('Duplicate sanitised parameter name '+sname,options);
 			}
 			openapi.components.parameters[sname] = openapi.components.parameters[p];
 			delete openapi.components.parameters[p];
@@ -533,7 +540,7 @@ function main(openapi, options) {
 		var sname = common.sanitise(r);
 		if (r != sname) {
 			if (openapi.components.responses[sname]) {
-				throw(new Error('Duplicate sanitised response name '+sname));
+				throwError('Duplicate sanitised response name '+sname,options);
 			}
 			openapi.components.responses[sname] = openapi.components.responses[r];
 			delete openapi.components.responses[r];
@@ -694,6 +701,14 @@ function convertObj(swagger, options, callback) {
 			delete openapi['x-ms-parameterized-host'];
 		}
 
+		if (!openapi.info) {
+			if (options.patch) {
+				openapi.info = {version:'',title:''};
+			}
+			else {
+				return reject(new Error('info is mandatory'));
+			}
+		}
 		if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
 			if (options.patch) {
 				openapi.info.version = '';

@@ -23,7 +23,7 @@ function contextAppend(options,s) {
 }
 
 function validateUrl(s,servers,context) {
-	if (s === '') throw(new Error('Invalid URL: '+context));
+	s.should.not.be.exactly('','Invalid empty URL');
 	var base = 'http://localhost/'; // could be anything, including options.origin
 	if (servers && servers.length) {
 		base = servers[0].url;

@@ -1,6 +1,7 @@
 /*.json
 /*.yaml
 build.sh
+schemas/*gnostic*
 .coveralls.yml
 
 # Logs

@@ -33,7 +33,7 @@ var failures = [];
 var extensions = {};
 var formats = {};
 
-var pathspec = argv._.length>0 ? argv._[0] : '../openapi-directory/APIs/';
+var pathspec = argv._.length>0 ? argv._ : ['../openapi-directory/APIs/'];
 
 var options = argv;
 
@@ -51,9 +51,12 @@ function check(file) {
 			src = yaml.safeLoad(srcStr);
 		}
 		else {
-			src = JSON.parse(srcStr);
+			try {
+				src = JSON.parse(srcStr);
+			}
+			catch (ex) {}
 		}
-		if (!src.swagger && !src.openapi) {
+		if (!src || (!src.swagger && !src.openapi)) {
 			return true; // skip it
 		}
 
@@ -120,14 +123,16 @@ function check(file) {
 }
 
 process.exitCode = 1;
-pathspec = path.resolve(pathspec);
-rr(pathspec, function (err, files) {
-	for (var i in files) {
-		if (!check(files[i])) {
-			failures.push(files[i]);
+for (var pathEntry of pathspec) {
+	pathEntry = path.resolve(pathEntry);
+	rr(pathEntry, function (err, files) {
+		for (var i in files) {
+			if (!check(files[i])) {
+				failures.push(files[i]);
+			}
 		}
-	}
-});
+	});
+}
 
 process.on('exit', function(code) {
 
@@ -147,16 +152,15 @@ process.on('exit', function(code) {
 		return 0;
 	});
 
-	console.log();
-	console.log('|key|definitions|type|instances|example|');
-	console.log('|---|---|---|---|---|');
+	var extStr = 'key\tdefinitions\ttype\tinstances\texample\n';
 	for (var entry of ext) {
 		var example = entry.lastSpec;
 		if (entry.lastUrl) {
-			example = '['+example+']('+entry.lastUrl+')';
+			example = entry.lastUrl;
 		}
-		console.log(entry.key+'|'+entry.specs+'|'+entry.type+'|'+entry.count+'|'+example);
+		extStr += entry.key+'\t'+entry.specs+'\t'+entry.type+'\t'+entry.count+'\t'+example+'\n';
 	}
+	fs.writeFileSync('extensions.tsv',extStr,'utf8');
 
 	var fmt = [];
 	for (var f in formats) {
@@ -174,17 +178,15 @@ process.on('exit', function(code) {
 		return 0;
 	});
 
-	console.log();
-	console.log('|format|definitions|instances|example|');
-	console.log('|---|---|---|---|');
-
+	var formatStr = 'format\tdefinitions\tinstances\texample\n';
 	for (var format of fmt) {
 		var example = format.lastSpec;
 		if (format.lastUrl) {
-			example = '['+example+']('+entry.lastUrl+')';
+			example = entry.lastUrl;
 		}
-		console.log(format.key+'|'+format.specs+'|'+format.count+'|'+example);
+		formatStr += format.key+'\t'+format.specs+'\t'+format.count+'\t'+example+'\n';
 	}
+	fs.writeFileSync('formats.tsv',formatStr,'utf8');
 
 	if (failures.length>0) {
 		failures.sort();
@@ -194,6 +196,5 @@ process.on('exit', function(code) {
 		}
 	}
 	console.log(normal);
-	//console.log('Specs: %s passing, %s failing', pass, fail);
 	process.exitCode = ((fail === 0) && (pass > 0)) ? 0 : 1;
 });

@@ -53,7 +53,7 @@ function validateSchema(schema,openapi) {
 function checkContent(content,options) {
 	contextAppend(options,'content');
 	for (var ct in content) {
-		contextAppend(options,ct);		
+		contextAppend(options,ct);
 		var contentType = content[ct];
 		if (contentType.example) {
 			contentType.should.not.have.property('examples');
@@ -86,7 +86,7 @@ function checkHeader(header,openapi,options) {
 		var ref = header.$ref;
 		should(Object.keys(header).length).be.exactly(1,'Reference object cannot be extended');
 		header = common.resolveInternal(openapi,ref);
-		header.should.not.be.exactly(false,'Could not resolve reference '+ref);
+		should(header).not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	header.should.not.have.property('name');
 	header.should.not.have.property('in');
@@ -110,7 +110,7 @@ function checkResponse(response,openapi,options) {
 		var ref = response.$ref;
 		should(Object.keys(response).length).be.exactly(1,'Reference object cannot be extended');
 		response = common.resolveInternal(openapi,ref);
-		response.should.not.be.exactly(false,'Could not resolve reference '+ref);
+		should(response).not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	response.should.have.property('description');
 	should(response.description).have.type('string','response description should be of type string');
@@ -136,7 +136,7 @@ function checkParam(param,index,openapi,options){
 		should(Object.keys(param).length).be.exactly(1,'Reference object cannot be extended');
 		var ref = param.$ref;
 		param = common.resolveInternal(openapi,ref);
-		param.should.not.be.exactly(false,'Could not resolve reference '+ref);
+		should(param).not.be.exactly(false,'Could not resolve reference '+ref);
 	}
 	param.should.have.property('name');
 	param.name.should.have.type('string');
@@ -266,10 +266,13 @@ function validateSync(openapi, options, callback) {
 	openapi.info.should.have.key('version');
 	should(openapi.info.version).be.type('string','version should be of type string');
 	if (openapi.info.license) {
+		contextAppend(options,'license');
 		openapi.info.license.should.have.key('name');
 		openapi.info.license.name.should.have.type('string');
+		options.context.pop();
 	}
-	if (openapi.info.termsOfService) {
+	if (typeof openapi.info.termsOfService !== 'undefined') {
+		should(openapi.info.termsOfService).not.be.Null();
 		validateUrl(openapi.info.termsOfService,openapi.servers,'termsOfService').should.not.throw();
 	}
 	options.context.pop();

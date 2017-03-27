@@ -56,8 +56,9 @@ options.patch = true;
 function handleResult(err, options) {
 	var result = false;
 	if (err) {
-		console.log(red+'Converter: '+err.message);
 		options = err.options||{file:'unknown',src:{info:{version:'',title:''}}};
+		console.log(normal+options.file);
+		console.log(red+'Converter: '+err.message);
 	}
 	else {
 		result = options.openapi;

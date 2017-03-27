@@ -151,7 +151,7 @@ function processParameter(param,op,path,index,openapi,options) {
 			rbody = true;
 		}
 
-		// shared formData parameters from swagger or path level could be used in any combination. 
+		// shared formData parameters from swagger or path level could be used in any combination.
 		// we dereference all op.requestBody's then hash them and pull out common ones later
 
 		if (rbody) {
@@ -218,7 +218,7 @@ function processParameter(param,op,path,index,openapi,options) {
 		if ((consumes.length) && (consumes[0] == 'multipart/form-data')) {
 			contentType = 'multipart/form-data';
 		}
-		
+
 		result.content[contentType] = {};
 		if (param.schema) {
 			result.content[contentType].schema = param.schema;
@@ -290,12 +290,12 @@ function processParameter(param,op,path,index,openapi,options) {
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody); // make sure we have one
-				if ((op.requestBody.content && op.requestBody.content["multipart/form-data"]) 
+				if ((op.requestBody.content && op.requestBody.content["multipart/form-data"])
 					&& (result.content["multipart/form-data"])) {
 					op.requestBody.content["multipart/form-data"].schema.properties =
 						Object.assign(op.requestBody.content["multipart/form-data"].schema.properties,result.content["multipart/form-data"].schema.properties);
 				}
-				else if ((op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"]) 
+				else if ((op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"])
 					&& (result.content["application/x-www-form-urlencoded"])) {
 					op.requestBody.content["application/x-www-form-urlencoded"].schema.properties =
 						Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].schema.properties,result.content["application/x-www-form-urlencoded"].schema.properties);
@@ -431,7 +431,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 					delete op['x-servers'];
 				}
 
-				if (op.parameters) {
+				if (op.parameters && Array.isArray(op.parameters)) {
 					for (var param of op.parameters) {
 						processParameter(param, op, path, null, openapi, options);
 					}
@@ -706,7 +706,15 @@ function convertObj(swagger, options, callback) {
 				openapi.info = {version:'',title:''};
 			}
 			else {
-				return reject(new Error('info is mandatory'));
+				return reject(new Error('info object is mandatory'));
+			}
+		}
+		if ((typeof openapi.info.title === 'undefined') || (openapi.info.title === null)) {
+			if (options.patch) {
+				openapi.info.title = '';
+			}
+			else {
+				return reject(new Error('info.title cannot be null'));
 			}
 		}
 		if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
@@ -715,6 +723,24 @@ function convertObj(swagger, options, callback) {
 			}
 			else {
 				return reject(new Error('info.version cannot be null'));
+			}
+		}
+		if (typeof openapi.info.version !== 'string') {
+			if (options.patch) {
+				openapi.info.version = openapi.info.version.toString();
+			}
+			else {
+				return reject(new Error('info.version cannot be null'));
+			}
+		}
+		if (typeof openapi.info.termsOfService !== 'undefined') {
+			if (openapi.info.termsOfService === null) {
+				if (options.patch) {
+					openapi.info.termsOfService = '';
+				}
+				else {
+					return reject(new Error('info.termsOfService cannot be null'));
+				}
 			}
 		}
 
@@ -839,7 +865,7 @@ function convertStream(readable,options,callback) {
 }
 
 module.exports = {
-	
+
 	targetVersion : targetVersion,
     convert : convertObj,
 	convertObj : convertObj,

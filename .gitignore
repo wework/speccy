@@ -3,6 +3,7 @@
 build.sh
 schemas/*gnostic*
 .coveralls.yml
+scratchpad.txt
 
 # Logs
 logs

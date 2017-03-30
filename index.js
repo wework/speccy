@@ -30,7 +30,7 @@ function fixupSchema(obj,key,state){
 			if (type == 'array') {
 				if (obj.items) {
 					schema.items = obj.items;
-					delete obj.items; // TODO and other array properties
+					delete obj.items; // TODO and other array properties?
 				}
 			}
 			obj.oneOf.push(schema);
@@ -241,7 +241,7 @@ function processParameter(param,op,path,index,openapi,options) {
 			result.content[contentType].schema.properties = {};
 			result.content[contentType].schema.properties[param.name] = {};
 			var target = result.content[contentType].schema.properties[param.name];
-			if (param.description) target.description = param.description;
+			if (param.description) result.description = param.description;
 			if (param.type) target.type = param.type;
 
 			for (var prop of common.parameterTypeProperties) {

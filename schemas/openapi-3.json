@@ -328,12 +328,7 @@
           "uniqueItems": true
         },
         "requestBody": {
-          "type": "object",
-          "properties": {
-              "content": {
-                  "$ref": "#/definitions/content"
-              }
-          }
+          "$ref": "#/definitions/requestBodyOrReference"
         },
         "responses": {
           "$ref": "#/definitions/responses"
@@ -458,7 +453,7 @@
       "type": "object",
       "description": "Describes a set of supported media types. A Content Object can be used in Request Body Object, Parameter Objects, Header Objects, and Response Objects.  Each key in the Content Object is the media type of the Media Type Object.",
       "patternProperties": {
-        ".*": {
+        "{media-type}": {
           "$ref": "#/definitions/mediaType"
         }
       }
@@ -472,9 +467,6 @@
         }
       },
       "properties": {
-        "description": {
-            "type": "string"
-        },
         "schema": {
           "$ref": "#/definitions/schemaOrReference"
         },
@@ -514,7 +506,7 @@
         "contentType": {
           "type": "string"
         },
-        "Headers": {
+        "headers": {
           "$ref": "#/definitions/object"
         },
         "style": {
@@ -651,7 +643,7 @@
     },
     "header": {
       "type": "object",
-      "description": "The Header Object follows the structure of the Parameter Object, with the following changes:  1. `name` MUST NOT be specified, it is given in the Headers Object. 1. `in` MUST NOT be specified, it is implicitly in `header`. 1. All traits that are affected by the location MUST follow the location of `header` (for example, `style`).",
+      "description": "The Header Object follows the structure of the Parameter Object, with the following changes:  1. `name` MUST NOT be specified, it is given in the Headers Object. 1. `in` MUST NOT be specified, it is implicitly in `header`. 1. All traits that are affected by the location MUST be applicable to a location of `header` (for example, `style`).",
       "properties": {
         "name": {
           "type": "string"
@@ -827,21 +819,21 @@
         "allOf": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/schema"
+            "$ref": "#/definitions/schemaOrReference"
           },
           "minItems": 1
         },
         "oneOf": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/schema"
+            "$ref": "#/definitions/schemaOrReference"
           },
           "minItems": 1
         },
         "anyOf": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/schema"
+            "$ref": "#/definitions/schemaOrReference"
           },
           "minItems": 1
         },
@@ -851,12 +843,12 @@
         "items": {
           "anyOf": [
             {
-              "$ref": "#/definitions/schema"
+              "$ref": "#/definitions/schemaOrReference"
             },
             {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/schema"
+                "$ref": "#/definitions/schemaOrReference"
               },
               "minItems": 1
             }
@@ -966,9 +958,6 @@
     "oauthFlow": {
       "type": "object",
       "description": "Configuration details for a supported OAuth Flow",
-      "required": [
-        "scopes"
-      ],
       "patternProperties": {
         "^x-": {
           "$ref": "#/definitions/specificationExtension"
@@ -1143,6 +1132,7 @@
       "additionalItems": true
     },
     "specificationExtension": {
+      "description": "Any property starting with x- is valid.",
       "oneOf": [
         {
           "type": "integer"
@@ -1162,10 +1152,7 @@
         {
           "type": "array"
         }
-      ],
-      "description": "Any property starting with x- is valid.",
-      "additionalProperties": true,
-      "additionalItems": true
+      ]
     },
     "primitive": {
       "oneOf": [
@@ -1185,3 +1172,4 @@
     }
   }
 }
+

@@ -823,7 +823,7 @@ function convertStr(str,options,callback) {
 		}
 		catch (ex) {
 			try {
-				obj = yaml.safeLoad(str);
+				obj = yaml.safeLoad(str,{json:true});
 				options.sourceYaml = true;
 			}
 			catch (ex) {}

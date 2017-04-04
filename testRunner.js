@@ -134,7 +134,7 @@ function check(file,force,expectFailure) {
 		}
 		catch (ex) {
 			try {
-				src = yaml.safeLoad(srcStr);
+				src = yaml.safeLoad(srcStr,{json:true});
 			}
 			catch (ex) {
 				var warning = 'Could not parse file '+file;

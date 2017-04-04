@@ -86,7 +86,7 @@ function resolveExternal(root,pointer,options,callback) {
 		})
 		.then(function(data){
 			try {
-				data = yaml.safeLoad(data);
+				data = yaml.safeLoad(data,{json:true});
 			}
 			catch (ex) {}
 			callback(data);

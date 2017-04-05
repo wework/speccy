@@ -22,7 +22,7 @@ function throwError(message,options) {
 }
 
 function fixupSchema(obj,key,state){
-	if ((key == 'type') && (Array.isArray(obj[key]))) {
+	if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
 		obj.oneOf = [];
 		for (var type of obj[key]) {
 			var schema = {};
@@ -140,7 +140,9 @@ function processParameter(param,op,path,index,openapi,options) {
 
 	if (param.$ref) {
 		// if we still have a ref here, it must be an internal one
-		param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
+		if (param.$ref.indexOf('#/parameters/')==0) {
+			param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
+		}
 		var ptr = param.$ref.replace('#/components/parameters/','');
 		var rbody = false;
 		var target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
@@ -187,6 +189,11 @@ function processParameter(param,op,path,index,openapi,options) {
 				if (param.items) {
 					param.schema.items = param.items;
 					delete param.items;
+					common.recurse(param.schema.items,null,function(obj,key,state){
+						if ((key == 'collectionFormat') && (typeof obj[key] == 'string')) {
+							delete obj[key]; // TODO if collectionFormats differ, this is not lossless
+						};
+					});
 				}
 				for (var prop of common.parameterTypeProperties) {
 					if (typeof param[prop] !== 'undefined') param.schema[prop] = param[prop];
@@ -373,7 +380,9 @@ function processResponse(response, op, openapi, options) {
 			throwError('definition used as response: ' + response.$ref,options);
 		}
 		else {
-			response.$ref = '#/components/responses/' + common.sanitise(response.$ref.replace('#/responses/', ''));
+			if (response.$ref.startsWith('#/responses/')) {
+				response.$ref = '#/components/responses/' + common.sanitise(response.$ref.replace('#/responses/', ''));
+			}
 		}
 	}
 	else {
@@ -386,6 +395,11 @@ function processResponse(response, op, openapi, options) {
 			}
 		}
 		if (response.schema) {
+
+			if (response.schema.$ref) {
+				response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
+			}
+
 			common.recurse(response.schema, {payload:{targetted:true}}, fixupSchema);
 
 			var produces = ((op && op.produces) || []).concat(openapi.produces || []).filter(common.uniqueOnly);
@@ -601,6 +615,7 @@ function main(openapi, options) {
 
 	common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema);
 	common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema); // second pass for fixed x-anyOf's etc
+	common.recurse(openapi,{payload:{targetted:false}},fixupSchema); // pass across whole definition for $refs in vendor extensions
 
 	if (options.debug) {
 		openapi["x-s2o-consumes"] = openapi.consumes||[];

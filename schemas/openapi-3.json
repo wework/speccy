@@ -437,6 +437,7 @@
           "$ref": "#/definitions/specificationExtension"
         }
       },
+	  "additionalProperties": false,
       "properties": {
         "description": {
           "type": "string"
@@ -1149,6 +1150,9 @@
       "description": "Any property starting with x- is valid.",
       "oneOf": [
         {
+          "type": "null"
+        },
+        {
           "type": "number"
         },
         {
@@ -1167,6 +1171,9 @@
     },
     "defaultType": {
       "oneOf": [
+        {
+          "type": "null"
+        },
         {
           "type": "array"
         },

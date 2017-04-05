@@ -12,7 +12,7 @@
       "version": "2.0",
       "converter": {
         "url": "https://github.com/mermade/swagger2openapi",
-        "version": "2.0.2"
+        "version": "2.0.3"
       }
     }
   ],
@@ -321,16 +321,10 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string",
-                    "required": [
-                      "name"
-                    ]
+                    "type": "string"
                   },
                   "status": {
-                    "type": "string",
-                    "required": [
-                      "status"
-                    ]
+                    "type": "string"
                   }
                 }
               }

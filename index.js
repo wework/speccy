@@ -60,7 +60,7 @@ function fixupSchema(obj,key,state){
 		delete obj[key];
 	}
 	if ((key == '$ref') && (typeof obj[key] === 'string')) {
-		if (obj[key].indexOf('#/definitions/')>=0) {
+		if (obj[key].indexOf('#/definitions/') == 0) {
 			obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
 		}
 		Object.keys(obj).forEach(function(k){
@@ -396,11 +396,11 @@ function processResponse(response, op, openapi, options) {
 		}
 		if (response.schema) {
 
-			if (response.schema.$ref) {
+			common.recurse(response.schema, {payload:{targetted:true}}, fixupSchema);
+
+			if (response.schema.$ref && response.schema.$ref.startsWith('#/responses/')) {
 				response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
 			}
-
-			common.recurse(response.schema, {payload:{targetted:true}}, fixupSchema);
 
 			var produces = ((op && op.produces) || []).concat(openapi.produces || []).filter(common.uniqueOnly);
 			if (!produces.length) produces.push('*/*'); // TODO verify default

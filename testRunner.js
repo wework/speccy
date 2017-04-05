@@ -49,7 +49,6 @@ var failures = [];
 var warnings = [];
 
 var genStack = [];
-var genStackCount = 0;
 
 var options = argv;
 options.patch = true;
@@ -100,7 +99,7 @@ function handleResult(err, options) {
 		if (options.file != 'unknown') failures.push(options.file);
 		if (argv.stop) process.exit(1);
 	}
-	if (!genStackNext()) process.exit(0);
+	genStackNext();
 }
 
 function genStackNext() {
@@ -110,19 +109,7 @@ function genStackNext() {
 	return true;
 }
 
-function* wrapConvert(src,options,processor){
-	try {
-		swagger2openapi.convertObj(src, common.clone(options), processor);
-	}
-	catch (ex) {
-		console.log(red+'Converter threw an error: '+ex.message);
-		warnings.push('Converter failed '+options.source);
-		result = true;
-		genStackNext();
-	}
-}
-
-function check(file,force,expectFailure) {
+function* check(file,force,expectFailure) {
 	var result = false;
 	options.context = [];
 	options.expectFailure = expectFailure;
@@ -148,18 +135,29 @@ function check(file,force,expectFailure) {
 			}
 		}
 
-		if (!src || ((!src.swagger && !src.openapi))) return true;
+		if (!src || ((!src.swagger && !src.openapi))) {
+			genStackNext();
+			return true;
+		}
 
 		options.original = src;
 		options.source = file;
 
-		genStack.push(wrapConvert(src, common.clone(options), handleResult));
-		genStackCount++;
+        try {
+	        swagger2openapi.convertObj(src, common.clone(options), handleResult);
+	    }
+	    catch (ex) {
+	        console.log(red+'Converter threw an error: '+ex.message);
+	        warnings.push('Converter failed '+options.source);
+			genStackNext();
+	        result = false;
+	    }
+
 	}
 	else {
+		genStackNext();
 		result = true;
 	}
-	if (genStackCount === 1) genStackNext(); // start the testing process
 	return result;
 }
 
@@ -167,15 +165,22 @@ function processPathSpec(pathspec,expectFailure) {
 	pathspec = path.resolve(pathspec);
 	var stats = fs.statSync(pathspec);
 	if (stats.isFile()) {
-		check(pathspec,true,expectFailure)
+		genStack.push(check(pathspec,true,expectFailure));
+		genStackNext();
 	}
 	else {
 		readfiles(pathspec, {readContents: false, filenameFormat: readfiles.FULL_PATH}, function (err, filename, content) {
 		})
 		.then(files => {
+			files = files.sort(function(a,b){
+				if (a<b) return +1;
+				if (a>b) return -1;
+				return 0;
+			});
 			for (var file of files) {
-				check(file,false,expectFailure);
+				genStack.push(check(file,false,expectFailure));
 			}
+			genStackNext();
 		})
 		.catch(err => {
 			console.log(util.inspect(err));

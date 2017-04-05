@@ -1149,9 +1149,6 @@
       "description": "Any property starting with x- is valid.",
       "oneOf": [
         {
-          "type": "integer"
-        },
-        {
           "type": "number"
         },
         {
@@ -1189,9 +1186,6 @@
     },
     "primitive": {
       "oneOf": [
-        {
-          "type": "integer"
-        },
         {
           "type": "number"
         },

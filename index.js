@@ -140,8 +140,11 @@ function processParameter(param,op,path,index,openapi,options) {
 
 	if (param.$ref) {
 		// if we still have a ref here, it must be an internal one
-		if (param.$ref.indexOf('#/parameters/')==0) {
+		if (param.$ref.startsWith('#/parameters/')) {
 			param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
+		}
+		if (param.$ref.startsWith('#/definitions/')) {
+			throwError('Definition used as parameter',options);
 		}
 		var ptr = param.$ref.replace('#/components/parameters/','');
 		var rbody = false;

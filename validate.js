@@ -159,6 +159,9 @@ function checkParam(param,index,openapi,options){
 	}
 	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
 	param.in.should.not.be.exactly('formData','Parameter type formData is no-longer valid');
+	if (param.description) {
+		param.description.should.have.type('string');
+	}
 	if (param.schema) {
 		param.should.not.have.property('content');
 		validateSchema(param.schema,openapi,options);

@@ -2,7 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var rr = require('recursive-readdir');
+var readfiles = require('node-readfiles');
 var yaml = require('js-yaml');
 
 var common = require('./common.js');
@@ -40,6 +40,7 @@ var argv = require('yargs')
 
 var red = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[31m';
 var green = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[32m';
+var yellow = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[33;1m';
 var normal = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[0m';
 
 var pass = 0;
@@ -71,6 +72,10 @@ function handleResult(err, options) {
 		resultStr.should.not.be.exactly('{}');
 
 		result = validator.validateSync(result,options);
+
+		for (var warning of options.warnings) {
+			warnings.push(options.file+' '+warning);
+		}
 
 		if (!argv.quiet) {
 			console.log(normal+options.file);
@@ -165,10 +170,15 @@ function processPathSpec(pathspec,expectFailure) {
 		check(pathspec,true,expectFailure)
 	}
 	else {
-		rr(pathspec, function (err, files) {
-			for (var i in files) {
-				check(files[i],false,expectFailure);
+		readfiles(pathspec, {readContents: false, filenameFormat: readfiles.FULL_PATH}, function (err, filename, content) {
+		})
+		.then(files => {
+			for (var file of files) {
+				check(file,false,expectFailure);
 			}
+		})
+		.catch(err => {
+			console.log(util.inspect(err));
 		});
 	}
 }
@@ -191,7 +201,7 @@ if (argv.fail) {
 process.on('exit', function(code) {
 	if (warnings.length) {
 		warnings.sort();
-		console.log(normal+'\nWarnings:'+red);
+		console.log(normal+'\nWarnings:'+yellow);
 		for (var w in warnings) {
 			console.log(warnings[w]);
 		}

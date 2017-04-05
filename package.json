@@ -19,7 +19,7 @@
     "jgexml": "^0.3.6",
     "js-yaml": "^3.6.1",
     "node-fetch": "^1.6.3",
-    "recursive-readdir": "^2.1.1",
+    "node-readfiles": "^0.2.0",
     "should": "^11.2.0",
     "yargs": "^6.2.0"
   },

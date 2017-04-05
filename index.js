@@ -240,6 +240,7 @@ function processParameter(param,op,path,index,openapi,options) {
 			result.content[contentType].schema.type = 'object';
 			result.content[contentType].schema.properties = {};
 			result.content[contentType].schema.properties[param.name] = {};
+			var schema = result.content[contentType].schema;
 			var target = result.content[contentType].schema.properties[param.name];
 			if (param.description) result.description = param.description;
 			if (param.type) target.type = param.type;
@@ -247,9 +248,9 @@ function processParameter(param,op,path,index,openapi,options) {
 			for (var prop of common.parameterTypeProperties) {
 				if (typeof param[prop] !== 'undefined') target[prop] = param[prop];
 			}
-			if (typeof param.required !== 'undefined') {
-				if (!target.required) target.required = [];
-				target.required.push(param.name);
+			if (param.required === true) {
+				if (!schema.required) schema.required = [];
+				schema.required.push(param.name);
 			}
 			if (typeof param.default !== 'undefined') target.default = param.default;
 			if (target.properties) target.properties = param.properties;
@@ -269,6 +270,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	}
 	if (param.in == 'body') {
 		result.content = {};
+		if (param.name) result['x-s2o-name'] = param.name;
 
 		if (param.schema && param.schema.$ref) {
 			result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/','');
@@ -482,7 +484,8 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				common.recurse(op, {payload:{targetted:false}}, fixupSchema); // for x-ms-odata etc
 
 				if (op.requestBody) {
-					var rbName = op.requestBody['x-s2o-name']||'';
+					var effectiveOperationId = op.operationId||common.sanitise(method+p).toCamelCase();
+					var rbName = common.sanitise(op.requestBody['x-s2o-name']||effectiveOperationId||'');
 					delete op.requestBody['x-s2o-name'];
 					var rbStr = JSON.stringify(op.requestBody);
 					var rbSha256 = common.sha256(rbStr);
@@ -621,7 +624,7 @@ function main(openapi, options) {
 			}
 			while (rbNamesGenerated.indexOf(entry.name+suffix)>=0) {
 				// this can happen if descriptions are not exactly the same (e.g. bitbucket)
-				suffix = (suffix ? suffix++ : '2');
+				suffix = (suffix ? ++suffix : 2);
 			}
 			entry.name = entry.name+suffix;
 			rbNamesGenerated.push(entry.name);

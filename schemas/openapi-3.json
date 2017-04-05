@@ -737,6 +737,7 @@
           "$ref": "#/definitions/specificationExtension"
         }
       },
+      "additionalProperties": false,
       "properties": {
         "nullable": {
           "type": "boolean"
@@ -857,8 +858,21 @@
         "properties": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "#/definitions/schema"
+            "$ref": "#/definitions/schemaOrReference"
           }
+        },
+        "additionalProperties": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/schemaOrReference"
+                },
+                {
+                    "type": "boolean"
+                }
+            ]
+        },
+        "default": {
+          "$ref": "#/definitions/defaultType"
         },
         "description": {
           "type": "string"
@@ -1084,7 +1098,7 @@
       ]
     },
     "schemaOrReference": {
-      "anyOf": [
+      "oneOf": [
         {
           "$ref": "#/definitions/schema"
         },
@@ -1108,7 +1122,7 @@
     "schemas": {
       "type": "object",
       "additionalProperties": {
-        "$ref": "#/definitions/schema"
+        "$ref": "#/definitions/schemaOrReference"
       }
     },
     "securitySchemes": {
@@ -1151,6 +1165,25 @@
         },
         {
           "type": "array"
+        }
+      ]
+    },
+    "defaultType": {
+      "oneOf": [
+        {
+          "type": "array"
+        },
+        {
+          "type": "object"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "string"
         }
       ]
     },

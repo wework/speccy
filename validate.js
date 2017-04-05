@@ -249,6 +249,7 @@ function checkPathItem(pathItem,openapi,options) {
 function validateSync(openapi, options, callback) {
 	options.valid = false;
 	options.context = [];
+	options.warnings = [];
 
 	options.context.push('#/');
     openapi.should.not.have.key('swagger');
@@ -441,6 +442,19 @@ function validateSync(openapi, options, callback) {
 			options.context.pop();
 		}
 	}
+
+	if (openapi.components && openapi.components.requestBodies) {
+		for (var r in openapi.components.requestBodies) {
+			options.context.push('#/components/requestBodies/'+r);
+			validateComponentName(r).should.be.equal(true,'component name invalid');
+			if (r.startsWith('requestBody')) {
+				options.warnings.push('Anonymous requestBody: '+r);
+			}
+			options.context.pop();
+		}
+	}
+
+    validateOpenAPI3(openapi);
 
     validateOpenAPI3(openapi);
     var errors = validateOpenAPI3.errors;

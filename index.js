@@ -28,9 +28,11 @@ function fixupSchema(obj,key,state){
 			var schema = {};
 			schema.type = type;
 			if (type == 'array') {
-				if (obj.items) {
-					schema.items = obj.items;
-					delete obj.items; // TODO and other array properties?
+				for (var prop of common.arrayProperties) {
+					if (typeof obj[prop] !== 'undefined') {
+						schema[prop] = obj[prop];
+						delete obj[prop];
+					}
 				}
 			}
 			obj.oneOf.push(schema);

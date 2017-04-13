@@ -298,7 +298,6 @@ function validateSync(openapi, options, callback) {
 		options.context.pop();
 	}
 
-	// TODO externalDocs.url in schemas?
 	if (openapi.tags) {
 		for (var tag of openapi.tags) {
 			tag.should.have.property('name');

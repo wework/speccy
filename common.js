@@ -122,6 +122,13 @@ const parameterTypeProperties = [
 	'default'
 ];
 
+const arrayProperties = [
+	'items',
+	'minItems',
+	'maxItems',
+	'uniqueItems'
+];
+
 const httpVerbs = [
 	'get',
 	'post',
@@ -147,6 +154,7 @@ module.exports = {
 	resolveExternal : resolveExternal,
 	resolveInternal : resolveInternal,
 	parameterTypeProperties : parameterTypeProperties,
+	arrayProperties : arrayProperties,
 	httpVerbs : httpVerbs,
 	sanitise : sanitise
 

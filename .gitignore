@@ -2,8 +2,9 @@
 /*.yaml
 build.sh
 schemas/*gnostic*
+schemas/*diff*
 .coveralls.yml
-scratchpad.txt
+*.txt
 
 # Logs
 logs

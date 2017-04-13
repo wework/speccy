@@ -57,7 +57,14 @@ See here for complete [documentation](docs/options.md) of the `options` object.
 
 Or use the [online version](https://openapi-converter.herokuapp.com) which also includes its own [API](http://petstore.swagger.io/?url=https://openapi-converter.herokuapp.com/contract/swagger.json).
 
-## Specification extensions
+## Features
+
+### Reference preservation
+
+swagger2openapi preserves `$ref` JSON references in your API definition, and does not dereference
+every item, as with some model-based parsers.
+
+### Specification extensions
 
 swagger2openapi has support for a limited number of real-world [specification extensions](/docs/extensions.md) which have a direct bearing on the conversion. All other specification extensions are left untouched. swagger2openapi is [swaggerplusplus](https://github.com/mermade/swaggerplusplus)-compatible.
 

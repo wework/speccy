@@ -59,6 +59,10 @@ Or use the [online version](https://openapi-converter.herokuapp.com) which also 
 
 ## Features
 
+### OpenAPI 3.0.x validation
+
+The `testRunner` harness can also be used as a simple validator if given one or more existing OpenAPI 3.x definitions. The validator (however it is called) uses [WHATWG](https://whatwg.org/) URL parsing if available (node 7.x and above).
+
 ### Reference preservation
 
 swagger2openapi preserves `$ref` JSON references in your API definition, and does not dereference
@@ -84,7 +88,8 @@ The test harness currently expects files with a `.json` or `.yaml` extension, or
 * [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)
 * [SOM-Research collection](https://github.com/SOM-Research/hapi)
 
-It can also be used as a simple validator if given an existing OpenAPI 3.x definition. The validator (however it is called) uses [WHATWG](https://whatwg.org/) URL parsing if available (node 7.x and above).
+Additionally swagger2openapi has been tested on a corpus of 34,679 real-world valid Swagger 2.0 definitions from GitHub and [SwaggerHub](https://swaggerhub.com/). However, if you have a definition which causes errors in the converter or does not pass validation, please do not hesitate to [raise an issue](https://github.com/Mermade/swagger2openapi/issues).
+
 
 ## License 
 

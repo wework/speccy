@@ -99,8 +99,8 @@ function processSecurityScheme(scheme) {
 		if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl||'/';
 		if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl||'/';
 		flow.scopes = scheme.scopes||{};
-		scheme.flow = {}; // may become flows in RC2
-		scheme.flow[flowName] = flow;
+		scheme.flows = {};
+		scheme.flows[flowName] = flow;
 		delete scheme.authorizationUrl;
 		delete scheme.tokenUrl;
 		delete scheme.scopes;

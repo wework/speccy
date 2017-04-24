@@ -12,7 +12,7 @@
       "version": "2.0",
       "converter": {
         "url": "https://github.com/mermade/swagger2openapi",
-        "version": "2.0.3"
+        "version": "2.0.4"
       }
     }
   ],
@@ -1049,7 +1049,8 @@
     "securitySchemes": {
       "petstore_auth": {
         "type": "oauth2",
-        "flow": {
+        "flow": "implicit",
+        "flows": {
           "implicit": {
             "authorizationUrl": "http://petstore.swagger.io/oauth/dialog",
             "scopes": {

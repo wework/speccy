@@ -70,9 +70,8 @@ function checkContent(content,openapi,options) {
 
 function checkServers(servers,options) {
 	for (var server of servers) {
-		if (server.url) { // TODO may change to REQUIRED in RC2
-			validateUrl(server.url,[],'server.url',options).should.not.throw();
-		}
+		server.should.have.property('url');
+		validateUrl(server.url,[],'server.url',options).should.not.throw();
 		if (server.variables) {
 			for (var v in server.variables) {
 				server.variables[v].should.have.key('default'); // may be always type string in RC2
@@ -211,7 +210,7 @@ function checkPathItem(pathItem,openapi,options) {
 
 			if (op.requestBody && op.requestBody.content) {
 				contextAppend(options,'requestBody');
-				// TODO requestBody.content may become REQUIRED in RC2
+				op.requestBody.should.have.property('content');
 				if (op.requestBody.description) op.requestBody.description.should.have.type('string');
 				if (op.requestBody.required) op.requestBody.required.should.have.type('boolean');
 				checkContent(op.requestBody.content,openapi,options);
@@ -342,9 +341,9 @@ function validateSync(openapi, options, callback) {
 				scheme.should.not.have.property('in');
 			}
 			if (scheme.type == 'oauth2') {
-				scheme.should.have.property('flow'); // TODO may change to flows in RC2
-				for (var f in scheme.flow) {
-					var flow = scheme.flow[f];
+				scheme.should.have.property('flows');
+				for (var f in scheme.flows) {
+					var flow = scheme.flows[f];
 					if ((f == 'implicit') || (f == 'authorizationCode')) {
 						flow.should.have.property('authorizationUrl');
 						flow.authorizationUrl.should.have.type('string');
@@ -369,7 +368,7 @@ function validateSync(openapi, options, callback) {
 				}
 			}
 			else {
-				scheme.should.not.have.property('flow');
+				scheme.should.not.have.property('flows');
 			}
 			if (scheme.type == 'openIdConnect') {
 				scheme.should.have.property('openIdConnectUrl');

@@ -939,7 +939,7 @@
         "bearerFormat": {
           "type": "string"
         },
-        "flow": {
+        "flows": {
           "$ref": "#/definitions/oauthFlows"
         },
         "openIdConnectUrl": {

@@ -5,6 +5,7 @@ Parameter|Type|Input/Output|Description
 components|Boolean|Input|Command-line flag to indicate unresolve information should be displayed
 context|Array|Output|The context stack of associated with errors in a validation step, you normally want the last entry only
 debug|Boolean|Input|Flag to enable debug mode, adds specification-extensions
+direct|Boolean|Input|Flag to indicate that only the converted OpenApi definition should be returned, not wrapped in options
 encoding|String|Input|Encoding to use when reading/writing files
 expectFailure|Boolean|Input|Flag to invert the status of a validation step
 externals|[Array](externals.md)|Output|Information required to unresolve a resolved definition back into its component parts

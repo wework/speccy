@@ -830,7 +830,12 @@ function convertObj(swagger, options, callback) {
 			// resolve multiple promises in parallel
 			var res = yield actions;
 			main(openapi, options);
-			resolve(options);
+			if (options.direct) {
+				resolve(options.openapi);
+			}
+			else {
+				resolve(options);
+			}
 		})
 		.catch(function(err){
 			reject(err);

@@ -184,6 +184,26 @@ function processParameter(param,op,path,index,openapi,options) {
 			}
 		}
 
+		var oldCollectionFormat = param.collectionFormat;
+		if (param.collectionFormat) {
+			if (param.collectionFormat == 'csv') {
+				param.style = 'form';
+			}
+			if (param.collectionFormat == 'ssv') {
+				param.style = 'spaceDelimited';
+			}
+			if (param.collectionFormat == 'pipes') {
+				param.style = 'pipeDelimited';
+			}
+			if (param.collectionFormat == 'multi') {
+				param.explode = true;
+			}
+			if (param.collectionFormat == 'tsv') {
+				throwError('collectionFormat:tsv is not supported', options); // not lossless
+			}
+			delete param.collectionFormat;
+		}
+
 		if (param.type && (param.type != 'object') && (param.type != 'body') && (param.in != 'formData')) {
 			if (param.items && param.schema) {
 				throwError('parameter has array,items and schema',options);
@@ -196,7 +216,10 @@ function processParameter(param,op,path,index,openapi,options) {
 					delete param.items;
 					common.recurse(param.schema.items,null,function(obj,key,state){
 						if ((key == 'collectionFormat') && (typeof obj[key] == 'string')) {
-							delete obj[key]; // TODO if collectionFormats differ, this is not lossless
+							if (oldCollectionFormat && obj[key] !== oldCollectionFormat) {
+								throwError('Nested collectionFormats are not supported', options);
+							}
+							delete obj[key]; // not lossless
 						};
 					});
 				}
@@ -211,18 +234,6 @@ function processParameter(param,op,path,index,openapi,options) {
 			common.recurse(param.schema,{payload:{targetted:true}},fixupSchema);
 		}
 
-		if (param.collectionFormat) {
-			if (param.collectionFormat == 'csv') {
-				param.style = 'form';
-			}
-			if (param.collectionFormat == 'ssv') {
-				param.style = 'spaceDelimited';
-			}
-			if (param.collectionFormat == 'pipes') {
-				param.style = 'pipeDelimited';
-			}
-			delete param.collectionFormat;
-		}
 		if (param["x-ms-skip-url-encoding"]) {
 			param.allowReserved = true;
 			if (param.in == 'query') {

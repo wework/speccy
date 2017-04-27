@@ -144,7 +144,10 @@
         "variables": {
           "$ref": "#/definitions/serverVariables"
         }
-      }
+      },
+      "required": [
+        "url"
+      ]
     },
     "serverVariables": {
       "type": "object",
@@ -437,7 +440,7 @@
           "$ref": "#/definitions/specificationExtension"
         }
       },
-	  "additionalProperties": false,
+      "additionalProperties": false,
       "properties": {
         "description": {
           "type": "string"
@@ -448,7 +451,10 @@
         "required": {
           "type": "boolean"
         }
-      }
+      },
+      "required": [
+        "content"
+      ]
     },
     "content": {
       "type": "object",

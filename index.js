@@ -101,6 +101,7 @@ function processSecurityScheme(scheme) {
 		flow.scopes = scheme.scopes||{};
 		scheme.flows = {};
 		scheme.flows[flowName] = flow;
+		delete scheme.flow;
 		delete scheme.authorizationUrl;
 		delete scheme.tokenUrl;
 		delete scheme.scopes;
@@ -236,7 +237,7 @@ function processParameter(param,op,path,index,openapi,options) {
 
 		if (param["x-ms-skip-url-encoding"]) {
 			param.allowReserved = true;
-			if (param.in == 'query') {
+			if (param.in === 'query') {
 				delete param["x-ms-skip-url-encoding"]; // might be in:path, not allowed in OAS3
 			}
 		}

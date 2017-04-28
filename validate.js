@@ -69,12 +69,21 @@ function checkContent(content,openapi,options) {
 }
 
 function checkServers(servers,options) {
+	servers.should.be.an.Array();
 	for (var server of servers) {
 		server.should.have.property('url');
 		validateUrl(server.url,[],'server.url',options).should.not.throw();
 		if (server.variables) {
 			for (var v in server.variables) {
-				server.variables[v].should.have.key('default'); // may be always type string in RC2
+				server.variables[v].should.have.key('default');
+				server.variables[v].should.be.type('string');
+				if (typeof server.variables[v].enum !== 'undefined') {
+					server.variables[v].enum.should.be.an.Array();
+					should(server.variables[v].enum.length).not.be.exactly(0,'Server variables enum should not be empty');
+					for (var enumValue of server.variables[v].enum) {
+						enumValue.should.be.type('string');
+					}
+				}
 			}
 		}
 	}
@@ -192,7 +201,7 @@ function checkPathItem(pathItem,openapi,options) {
 			}
 		}
 		else if (o == 'servers') {
-			checkServers(op,options); // won't be here in converted specs
+			checkServers(op,options); // won't be here in converted definitions
 		}
 		else if (o == 'summary') {
 			pathItem.summary.should.have.type('string');
@@ -234,7 +243,7 @@ function checkPathItem(pathItem,openapi,options) {
 				options.context.pop();
 			}
 			if (op.servers) {
-				checkServers(op.servers,options);
+				checkServers(op.servers,options); // won't be here in converted definitions
 				contextServers.push(op.servers);
 			}
 			if (op.externalDocs) {
@@ -341,6 +350,7 @@ function validateSync(openapi, options, callback) {
 				scheme.should.not.have.property('in');
 			}
 			if (scheme.type == 'oauth2') {
+				scheme.should.not.have.property('flow');
 				scheme.should.have.property('flows');
 				for (var f in scheme.flows) {
 					var flow = scheme.flows[f];

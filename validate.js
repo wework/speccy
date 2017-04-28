@@ -1,3 +1,5 @@
+'use strict';
+
 var path = require('path');
 var url = require('url');
 var URL = url.URL;
@@ -210,6 +212,7 @@ function checkPathItem(pathItem,openapi,options) {
 			pathItem.description.should.have.type('string');
 		}
 		else if (common.httpVerbs.indexOf(o)>=0) {
+			op.should.not.be.empty();
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
 			op.should.have.property('responses');
@@ -307,6 +310,7 @@ function validateSync(openapi, options, callback) {
 	}
 
 	if (openapi.tags) {
+		contextAppend(options,'tags');
 		for (var tag of openapi.tags) {
 			tag.should.have.property('name');
 			tag.name.should.have.type('string');
@@ -316,6 +320,7 @@ function validateSync(openapi, options, callback) {
 				validateUrl(tag.externalDocs.url,openapi.servers,'tag.externalDocs',options).should.not.throw();
 			}
 		}
+		options.context.pop();
 	}
 
     if (openapi.components && openapi.components.securitySchemes) {
@@ -416,12 +421,14 @@ function validateSync(openapi, options, callback) {
     }
     for (var p in openapi.paths) {
 		options.context.push('#/paths/'+jptr.jpescape(p));
+		p.should.startWith('/');
         checkPathItem(openapi.paths[p],openapi,options);
 		options.context.pop();
     }
     if (openapi["x-ms-paths"]) {
         for (var p in openapi["x-ms-paths"]) {
 			options.context.push('#/x-ms-paths/'+jptr.jpescape(p));
+			p.should.startWith('/');
             checkPathItem(openapi["x-ms-paths"][p],openapi,options);
 			options.context.pop();
         }
@@ -464,8 +471,6 @@ function validateSync(openapi, options, callback) {
 			options.context.pop();
 		}
 	}
-
-    validateOpenAPI3(openapi);
 
     validateOpenAPI3(openapi);
     var errors = validateOpenAPI3.errors;

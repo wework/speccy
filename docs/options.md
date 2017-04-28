@@ -13,6 +13,7 @@ fail|Boolean|Input|Command-line flag used by `testRunner`
 file|String|Input|Used to pass filename back to `testRunner`
 help|Boolean|Reserved|Command-line flag to display help
 laxurls|Boolean|Input|Flag to validation step to ignore empty URLs
+nopatch|Boolean|Input|Command-line flag by `testRunner` to unset `patch`
 openapi|Object|Output|The OpenApi 3.x definition returned from a conversion step
 origin|String|Input|The URL of the definition, set by convertUrl method
 original|Object|Input|Used by `testRunner` to round-trip the original definition

@@ -21,15 +21,18 @@ var argv = require('yargs')
 	.boolean('laxurls')
 	.alias('l','laxurls')
 	.describe('laxurls','lax checking of empty urls')
-	.boolean('stop')
-	.alias('s','stop')
-	.describe('stop','stop on first error')
+	.boolean('nopatch')
+	.alias('n','nopatch')
+	.describe('nopatch','do not patch minor errors in the source definition')
 	.boolean('quiet')
 	.alias('q','quiet')
 	.describe('quiet','do not show test passes on console, for CI')
 	.boolean('resolve')
 	.alias('r','resolve')
 	.describe('resolve','resolve external references')
+	.boolean('stop')
+	.alias('s','stop')
+	.describe('stop','stop on first error')
 	.count('verbose')
 	.alias('v','verbose')
 	.describe('verbose','increase verbosity')
@@ -54,7 +57,7 @@ var warnings = [];
 var genStack = [];
 
 var options = argv;
-options.patch = true;
+options.patch = !argv.nopatch;
 
 function handleResult(err, options) {
 	var result = false;
@@ -129,10 +132,10 @@ function* check(file,force,expectFailure) {
 		}
 		catch (ex) {
 			try {
-				src = yaml.safeLoad(srcStr,{json:true});
+				src = yaml.safeLoad(srcStr,{schema:yaml.JSON_SCHEMA,json:true});
 			}
 			catch (ex) {
-				var warning = 'Could not parse file '+file;
+				var warning = 'Could not parse file '+file+'\n'+ex.message;
 				console.log(red+warning);
 				warnings.push(warning);
 			}

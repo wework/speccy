@@ -76,7 +76,7 @@ function checkServers(servers,options) {
 		if (server.variables) {
 			for (var v in server.variables) {
 				server.variables[v].should.have.key('default');
-				server.variables[v].should.be.type('string');
+				server.variables[v].default.should.be.type('string');
 				if (typeof server.variables[v].enum !== 'undefined') {
 					server.variables[v].enum.should.be.an.Array();
 					should(server.variables[v].enum.length).not.be.exactly(0,'Server variables enum should not be empty');

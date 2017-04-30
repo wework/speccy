@@ -1,6 +1,5 @@
 'use strict';
 
-var path = require('path');
 var url = require('url');
 var URL = url.URL;
 var util = require('util');
@@ -54,7 +53,7 @@ function validateSchema(schema,openapi,options) {
 
 function checkContent(content,openapi,options) {
 	contextAppend(options,'content');
-	for (var ct in content) {
+	for (let ct in content) {
 		contextAppend(options,ct);
 		var contentType = content[ct];
 		if (contentType.example) {
@@ -72,17 +71,17 @@ function checkContent(content,openapi,options) {
 
 function checkServers(servers,options) {
 	servers.should.be.an.Array();
-	for (var server of servers) {
+	for (let server of servers) {
 		server.should.have.property('url');
 		validateUrl(server.url,[],'server.url',options).should.not.throw();
 		if (server.variables) {
-			for (var v in server.variables) {
+			for (let v in server.variables) {
 				server.variables[v].should.have.key('default');
 				server.variables[v].default.should.be.type('string');
 				if (typeof server.variables[v].enum !== 'undefined') {
 					server.variables[v].enum.should.be.an.Array();
 					should(server.variables[v].enum.length).not.be.exactly(0,'Server variables enum should not be empty');
-					for (var enumValue of server.variables[v].enum) {
+					for (let enumValue of server.variables[v].enum) {
 						enumValue.should.be.type('string');
 					}
 				}
@@ -101,7 +100,7 @@ function checkHeader(header,openapi,options) {
 	header.should.not.have.property('name');
 	header.should.not.have.property('in');
 	header.should.not.have.property('type');
-	for (var prop of common.parameterTypeProperties) {
+	for (let prop of common.parameterTypeProperties) {
 		header.should.not.have.property(prop);
 	}
 	if (header.schema) {
@@ -130,7 +129,7 @@ function checkResponse(response,openapi,options) {
 	response.should.not.have.property('examples');
 	if (response.headers) {
 		contextAppend(options,'headers');
-		for (var h in response.headers) {
+		for (let h in response.headers) {
 			contextAppend(options,h);
 			checkHeader(response.headers[h],openapi);
 			options.context.pop();
@@ -164,7 +163,7 @@ function checkParam(param,index,openapi,options){
 	param.should.not.have.property('items');
 	param.should.not.have.property('collectionFormat');
 	param.should.not.have.property('type');
-	for (var prop of common.parameterTypeProperties) {
+	for (let prop of common.parameterTypeProperties) {
 		param.should.not.have.property(prop);
 	}
 	param.in.should.not.be.exactly('body','Parameter type body is no-longer valid');
@@ -194,11 +193,11 @@ function checkPathItem(pathItem,openapi,options) {
 	contextServers.push(openapi.servers);
 	if (pathItem.servers) contextServers.push(pathItem.servers);
 
-	for (var o in pathItem) {
+	for (let o in pathItem) {
 		contextAppend(options,o);
 		var op = pathItem[o];
 		if (o == 'parameters') {
-			for (var p in pathItem.parameters) {
+			for (let p in pathItem.parameters) {
 				checkParam(pathItem.parameters[p],p,openapi,options);
 			}
 		}
@@ -230,7 +229,7 @@ function checkPathItem(pathItem,openapi,options) {
 			}
 
 			contextAppend(options,'responses');
-			for (var r in op.responses) {
+			for (let r in op.responses) {
 				contextAppend(options,r);
 				var response = op.responses[r];
 				checkResponse(response,openapi,options);
@@ -240,7 +239,7 @@ function checkPathItem(pathItem,openapi,options) {
 
 			if (op.parameters) {
 				contextAppend(options,'parameters');
-				for (var p in op.parameters) {
+				for (let p in op.parameters) {
 					checkParam(op.parameters[p],p,openapi,options);
 				}
 				options.context.pop();
@@ -311,7 +310,7 @@ function validateSync(openapi, options, callback) {
 
 	if (openapi.tags) {
 		contextAppend(options,'tags');
-		for (var tag of openapi.tags) {
+		for (let tag of openapi.tags) {
 			tag.should.have.property('name');
 			tag.name.should.have.type('string');
 			if (tag.externalDocs) {
@@ -324,7 +323,7 @@ function validateSync(openapi, options, callback) {
 	}
 
     if (openapi.components && openapi.components.securitySchemes) {
-        for (var s in openapi.components.securitySchemes) {
+        for (let s in openapi.components.securitySchemes) {
 			options.context.push('#/components/securitySchemes/'+s);
 			validateComponentName(s).should.be.equal(true,'component name invalid');
             var scheme = openapi.components.securitySchemes[s];
@@ -357,7 +356,7 @@ function validateSync(openapi, options, callback) {
 			if (scheme.type == 'oauth2') {
 				scheme.should.not.have.property('flow');
 				scheme.should.have.property('flows');
-				for (var f in scheme.flows) {
+				for (let f in scheme.flows) {
 					var flow = scheme.flows[f];
 					if ((f == 'implicit') || (f == 'authorizationCode')) {
 						flow.should.have.property('authorizationUrl');
@@ -411,7 +410,7 @@ function validateSync(openapi, options, callback) {
 
     if (openapi.components && openapi.components.parameters) {
 		options.context.push('#/components/parameters/');
-        for (var p in openapi.components.parameters) {
+        for (let p in openapi.components.parameters) {
             checkParam(openapi.components.parameters[p],p,openapi,options);
 			contextAppend(options, p);
 			validateComponentName(p).should.be.equal(true,'component name invalid');
@@ -419,14 +418,14 @@ function validateSync(openapi, options, callback) {
         }
 		options.context.pop();
     }
-    for (var p in openapi.paths) {
+    for (let p in openapi.paths) {
 		options.context.push('#/paths/'+jptr.jpescape(p));
 		p.should.startWith('/');
         checkPathItem(openapi.paths[p],openapi,options);
 		options.context.pop();
     }
     if (openapi["x-ms-paths"]) {
-        for (var p in openapi["x-ms-paths"]) {
+        for (let p in openapi["x-ms-paths"]) {
 			options.context.push('#/x-ms-paths/'+jptr.jpescape(p));
 			p.should.startWith('/');
             checkPathItem(openapi["x-ms-paths"][p],openapi,options);
@@ -435,7 +434,7 @@ function validateSync(openapi, options, callback) {
     }
 
 	if (openapi.components && openapi.components.schemas) {
-		for (var s in openapi.components.schemas) {
+		for (let s in openapi.components.schemas) {
 			options.context.push('#/components/schemas/'+s);
 			validateComponentName(s).should.be.equal(true,'component name invalid');
 			validateSchema(openapi.components.schemas[s],openapi,options);
@@ -444,7 +443,7 @@ function validateSync(openapi, options, callback) {
 	}
 
 	if (openapi.components && openapi.components.responses) {
-		for (var r in openapi.components.responses) {
+		for (let r in openapi.components.responses) {
 			options.context.push('#/components/responses/'+r);
 			validateComponentName(r).should.be.equal(true,'component name invalid');
 			checkResponse(openapi.components.responses[r],openapi,options);
@@ -453,7 +452,7 @@ function validateSync(openapi, options, callback) {
 	}
 
 	if (openapi.components && openapi.components.headers) {
-		for (var h in openapi.components.headers) {
+		for (let h in openapi.components.headers) {
 			options.context.push('#/components/headers/'+h);
 			validateComponentName(h).should.be.equal(true,'component name invalid');
 			checkHeader(openapi.components.headers[h],openapi,options);
@@ -462,7 +461,7 @@ function validateSync(openapi, options, callback) {
 	}
 
 	if (openapi.components && openapi.components.requestBodies) {
-		for (var r in openapi.components.requestBodies) {
+		for (let r in openapi.components.requestBodies) {
 			options.context.push('#/components/requestBodies/'+r);
 			validateComponentName(r).should.be.equal(true,'component name invalid');
 			if (r.startsWith('requestBody')) {
@@ -475,7 +474,7 @@ function validateSync(openapi, options, callback) {
     validateOpenAPI3(openapi);
     var errors = validateOpenAPI3.errors;
     if (errors && errors.length) {
-	    throw(new Error('Failed OpenAPI3 schema validation: '+JSON.stringify(errors,null,2)));
+		throw(new Error('Failed OpenAPI3 schema validation: '+JSON.stringify(errors,null,2)));
     }
 
 	options.valid = !options.expectFailure;

@@ -1,7 +1,6 @@
 'use strict';
 
 var fs = require('fs');
-var util = require('util');
 
 var co = require('co');
 var maybe = require('call-me-maybe');
@@ -24,11 +23,11 @@ function throwError(message,options) {
 function fixupSchema(obj,key,state){
 	if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
 		obj.oneOf = [];
-		for (var type of obj[key]) {
+		for (let type of obj[key]) {
 			var schema = {};
 			schema.type = type;
 			if (type == 'array') {
-				for (var prop of common.arrayProperties) {
+				for (let prop of common.arrayProperties) {
 					if (typeof obj[prop] !== 'undefined') {
 						schema[prop] = obj[prop];
 						delete obj[prop];
@@ -75,8 +74,8 @@ function fixupSchema(obj,key,state){
 }
 
 function processSecurity(securityObject) {
-	for (var s in securityObject) {
-		for (var k in securityObject[s]) {
+	for (let s in securityObject) {
+		for (let k in securityObject[s]) {
 			var sname = common.sanitise(k);
 			if (k != sname) {
 				securityObject[s][sname] = securityObject[s][k];
@@ -108,7 +107,7 @@ function processSecurityScheme(scheme) {
 	}
 }
 
-function deleteParameters(value, index, self) {
+function deleteParameters(value) {
 	return !value["x-s2o-delete"];
 }
 
@@ -122,7 +121,7 @@ function processHeader(header) {
 		}
 		if (header.type) header.schema.type = header.type;
 		delete header.type;
-		for (var prop of common.parameterTypeProperties) {
+		for (let prop of common.parameterTypeProperties) {
 			if (typeof header[prop] !== 'undefined') {
 				header.schema[prop] = header[prop];
 				delete header[prop];
@@ -151,7 +150,7 @@ function processParameter(param,op,path,index,openapi,options) {
 		}
 		var ptr = param.$ref.replace('#/components/parameters/','');
 		var rbody = false;
-		var target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
+		let target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
 
 		if ((!target) || (target["x-s2o-delete"])) {
 			// if it's gone, chances are it's a requestBody component now unless spec was broken
@@ -221,10 +220,10 @@ function processParameter(param,op,path,index,openapi,options) {
 								throwError('Nested collectionFormats are not supported', options);
 							}
 							delete obj[key]; // not lossless
-						};
+						}
 					});
 				}
-				for (var prop of common.parameterTypeProperties) {
+				for (let prop of common.parameterTypeProperties) {
 					if (typeof param[prop] !== 'undefined') param.schema[prop] = param[prop];
 					delete param.prop;
 				}
@@ -265,11 +264,11 @@ function processParameter(param,op,path,index,openapi,options) {
 			result.content[contentType].schema.properties = {};
 			result.content[contentType].schema.properties[param.name] = {};
 			var schema = result.content[contentType].schema;
-			var target = result.content[contentType].schema.properties[param.name];
+			let target = result.content[contentType].schema.properties[param.name];
 			if (param.description) result.description = param.description;
 			if (param.type) target.type = param.type;
 
-			for (var prop of common.parameterTypeProperties) {
+			for (let prop of common.parameterTypeProperties) {
 				if (typeof param[prop] !== 'undefined') target[prop] = param[prop];
 			}
 			if (param.required === true) {
@@ -307,7 +306,7 @@ function processParameter(param,op,path,index,openapi,options) {
 			consumes.push('application/json'); // TODO verify default
 		}
 
-		for (var mimetype of consumes) {
+		for (let mimetype of consumes) {
 			result.content[mimetype] = {};
 			if (param.description) result.content[mimetype].description = param.description;
 			result.content[mimetype].schema = common.clone(param.schema)||{};
@@ -349,14 +348,14 @@ function processParameter(param,op,path,index,openapi,options) {
 			}
 		}
 		else if (path) {
-			var uniqueName = index ? index.toCamelCase()+'RequestBodyBase' : param.name;
+			let uniqueName = index ? index.toCamelCase()+'RequestBodyBase' : param.name;
 			if (param.in == 'formData') {
 				result["x-s2o-partial"] = true;
 			}
 			openapi.components.requestBodies[uniqueName] = result;
 		}
 		else {
-			var uniqueName = index ? index : param.name;
+			let uniqueName = index ? index : param.name;
 			if (param.in == 'formData') {
 				result["x-s2o-partial"] = true;
 			}
@@ -366,7 +365,7 @@ function processParameter(param,op,path,index,openapi,options) {
 
 	// tidy up
 	delete param.type;
-	for (var prop of common.parameterTypeProperties) {
+	for (let prop of common.parameterTypeProperties) {
 		delete param[prop];
 	}
 
@@ -422,7 +421,7 @@ function processResponse(response, op, openapi, options) {
 			var produces = ((op && op.produces) || []).concat(openapi.produces || []).filter(common.uniqueOnly);
 			if (!produces.length) produces.push('*/*'); // TODO verify default
 			response.content = {};
-			for (var mimetype of produces) {
+			for (let mimetype of produces) {
 				response.content[mimetype] = {};
 				response.content[mimetype].schema = common.clone(response.schema);
 				if (response.examples && response.examples[mimetype]) {
@@ -437,7 +436,7 @@ function processResponse(response, op, openapi, options) {
 			delete response.schema;
 		}
 		// examples for other types
-		for (var mimetype in response.examples) {
+		for (let mimetype in response.examples) {
 			if (!response.content) response.content = {};
 			if (!response.content[mimetype]) response.content[mimetype] = {};
 			response.content[mimetype].examples = [];
@@ -445,7 +444,7 @@ function processResponse(response, op, openapi, options) {
 		}
 		delete response.examples;
 		if (response.headers) {
-			for (var h in response.headers) {
+			for (let h in response.headers) {
 				processHeader(response.headers[h]);
 			}
 		}
@@ -453,7 +452,7 @@ function processResponse(response, op, openapi, options) {
 }
 
 function processPaths(container, containerName, options, requestBodyCache, openapi) {
-	for (var p in container) {
+	for (let p in container) {
 		var path = container[p];
 		// path.$ref is external only
 		if ((path['x-trace']) && (typeof path['x-trace'] === 'object')) {
@@ -472,7 +471,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 			path.servers = path['x-servers'];
 			delete path['x-servers'];
 		}
-		for (var method in path) {
+		for (let method in path) {
 			if ((common.httpVerbs.indexOf(method) >= 0) || (method === 'x-amazon-apigateway-any-method')) {
 				var op = path[method];
 
@@ -482,7 +481,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				}
 
 				if (op.parameters && Array.isArray(op.parameters)) {
-					for (var param of op.parameters) {
+					for (let param of op.parameters) {
 						processParameter(param, op, path, null, openapi, options);
 					}
 					if (!options.debug) {
@@ -500,7 +499,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 					defaultResp.description = 'Default response';
 					op.responses = { default: defaultResp };
 				}
-				for (var r in op.responses) {
+				for (let r in op.responses) {
 					var response = op.responses[r];
 					processResponse(response,op,openapi,options);
 				}
@@ -533,7 +532,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 			}
 		}
 		if (path.parameters) {
-			for (var p2 in path.parameters) {
+			for (let p2 in path.parameters) {
 				var param = path.parameters[p2];
 				processParameter(param, null, path, p, openapi, options); // index here is the path string
 			}
@@ -550,8 +549,8 @@ function main(openapi, options) {
 
 	if (openapi.security) processSecurity(openapi.security);
 
-	for (var s in openapi.components.securitySchemes) {
-		var sname = common.sanitise(s);
+	for (let s in openapi.components.securitySchemes) {
+		let sname = common.sanitise(s);
 		if (s != sname) {
 			if (openapi.components.securitySchemes[sname]) {
 				throwError('Duplicate sanitised securityScheme name '+sname,options);
@@ -562,8 +561,8 @@ function main(openapi, options) {
 		processSecurityScheme(openapi.components.securitySchemes[sname]);
 	}
 
-	for (var s in openapi.components.schemas) {
-		var sname = common.sanitise(s);
+	for (let s in openapi.components.schemas) {
+		let sname = common.sanitise(s);
 		if (s != sname) {
 			if (openapi.components.schemas[sname]) {
 				throwError('Duplicate sanitised schema name '+sname,options);
@@ -573,8 +572,8 @@ function main(openapi, options) {
 		}
 	}
 
-	for (var p in openapi.components.parameters) {
-		var sname = common.sanitise(p);
+	for (let p in openapi.components.parameters) {
+		let sname = common.sanitise(p);
 		if (p != sname) {
 			if (openapi.components.parameters[sname]) {
 				throwError('Duplicate sanitised parameter name '+sname,options);
@@ -587,8 +586,8 @@ function main(openapi, options) {
 	}
 
 	common.recurse(openapi.components.responses,{payload:{targetted:false}},fixupSchema);
-	for (var r in openapi.components.responses) {
-		var sname = common.sanitise(r);
+	for (let r in openapi.components.responses) {
+		let sname = common.sanitise(r);
 		if (r != sname) {
 			if (openapi.components.responses[sname]) {
 				throwError('Duplicate sanitised response name '+sname,options);
@@ -599,17 +598,17 @@ function main(openapi, options) {
 		var response = openapi.components.responses[sname];
 		processResponse(response,null,openapi,options);
 		if (response.headers) {
-			for (var h in response.headers) {
+			for (let h in response.headers) {
 				processHeader(response.headers[h]);
 			}
 		}
 	}
 
-	for (var r in openapi.components.requestBodies) { // converted ones
+	for (let r in openapi.components.requestBodies) { // converted ones
 		var rb = openapi.components.requestBodies[r];
 		var rbStr = JSON.stringify(rb);
 		var rbSha256 = common.sha256(rbStr);
-		var entry = {};
+		let entry = {};
 		entry.name = r;
 		entry.body = rb;
 		entry.refs = [];
@@ -622,7 +621,7 @@ function main(openapi, options) {
 	}
 
 	if (!options.debug) {
-		for (var p in openapi.components.parameters) {
+		for (let p in openapi.components.parameters) {
 			param = openapi.components.parameters[p];
 			if (param["x-s2o-delete"]) {
 				delete openapi.components.parameters[p];
@@ -645,8 +644,8 @@ function main(openapi, options) {
 
 	openapi.components.requestBodies = {}; // for now as we've dereffed them
 	var counter = 1;
-	for (var e in requestBodyCache) {
-		var entry = requestBodyCache[e];
+	for (let e in requestBodyCache) {
+		let entry = requestBodyCache[e];
 		if (entry.refs.length>1) {
 			// create a shared requestBody
 			var suffix = '';
@@ -661,7 +660,7 @@ function main(openapi, options) {
 			entry.name = entry.name+suffix;
 			rbNamesGenerated.push(entry.name);
 			openapi.components.requestBodies[entry.name] = entry.body;
-			for (var r in entry.refs) {
+			for (let r in entry.refs) {
 				var address = entry.refs[r].split(' ');
 				var ref = {};
 				ref.$ref = '#/components/requestBodies/'+entry.name;
@@ -705,10 +704,9 @@ function convertObj(swagger, options, callback) {
 		openapi = Object.assign(openapi,common.clone(swagger));
 		delete openapi.swagger;
 
-		var server;
 		if (swagger.host && swagger.schemes) {
-			for (var s of swagger.schemes) {
-				server = {};
+			for (let s of swagger.schemes) {
+				let server = {};
 				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
 				server.url = server.url.split('{{').join('{');
 				server.url = server.url.split('}}').join('}');
@@ -722,7 +720,7 @@ function convertObj(swagger, options, callback) {
 			}
 		}
 		else if (swagger.basePath) {
-			server = {};
+			let server = {};
 			server.url = swagger.basePath;
 			openapi.servers.push(server);
 		}
@@ -735,14 +733,14 @@ function convertObj(swagger, options, callback) {
 			delete openapi['x-servers'];
 		}
 
-		// TODO APIMatic ?
+		// TODO APIMatic extensions ?
 
 		if (swagger['x-ms-parameterized-host']) {
 			var xMsPHost = swagger['x-ms-parameterized-host'];
-			var server = {};
+			let server = {};
 			server.url = xMsPHost.hostTemplate;
 			server.parameters = xMsPHost.parameters;
-			for (var param of server.parameters) {
+			for (let param of server.parameters) {
 				if (param.ref === false) param.required = true; // has a different meaning
 				delete param.type; // all strings
 				if (param.$ref) {

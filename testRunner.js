@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var util = require('util');
 var readfiles = require('node-readfiles');
 var yaml = require('js-yaml');
 
@@ -149,15 +150,15 @@ function* check(file,force,expectFailure) {
 		options.original = src;
 		options.source = file;
 
-        try {
-	        swagger2openapi.convertObj(src, common.clone(options), handleResult);
-	    }
-	    catch (ex) {
-	        console.log(red+'Converter threw an error: '+ex.message);
-	        warnings.push('Converter failed '+options.source);
+		try {
+			swagger2openapi.convertObj(src, common.clone(options), handleResult);
+		}
+		catch (ex) {
+			console.log(red+'Converter threw an error: '+ex.message);
+			warnings.push('Converter failed '+options.source);
 			genStackNext();
-	        result = false;
-	    }
+			result = false;
+		}
 
 	}
 	else {
@@ -175,7 +176,8 @@ function processPathSpec(pathspec,expectFailure) {
 		genStackNext();
 	}
 	else {
-		readfiles(pathspec, {readContents: false, filenameFormat: readfiles.FULL_PATH}, function (err, filename, content) {
+		readfiles(pathspec, {readContents: false, filenameFormat: readfiles.FULL_PATH}, function (err) {
+			if (err) console.log(util.inspect(err));
 		})
 		.then(files => {
 			files = files.sort(function(a,b){
@@ -199,17 +201,17 @@ console.log('Gathering...');
 if ((!argv._.length) && (!argv.fail)) {
 	argv._.push('../openapi-directory/APIs/');
 }
-for (var pathspec of argv._) {
+for (let pathspec of argv._) {
 	processPathSpec(pathspec,false);
 }
 if (argv.fail) {
 	if (!Array.isArray(argv.fail)) argv.fail = [argv.fail];
-	for (var pathspec of argv.fail) {
+	for (let pathspec of argv.fail) {
 		processPathSpec(pathspec,true);
 	}
 }
 
-process.on('exit', function(code) {
+process.on('exit', function() {
 	if (warnings.length) {
 		warnings.sort();
 		console.log(normal+'\nWarnings:'+yellow);

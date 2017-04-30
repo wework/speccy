@@ -2,8 +2,6 @@
 
 var crypto = require('crypto');
 var fs = require('fs');
-var path = require('path');
-var util = require('util');
 var url = require('url');
 
 var fetch = require('node-fetch');
@@ -47,7 +45,7 @@ function recurse(object,state,callback) {
 		callback(object,key,state);
 		if (typeof object[key] == 'object') {
 			var newState = {};
-		 	newState.parent = object;
+			newState.parent = object;
 			newState.path = state.path;
 			newState.depth = (state.depth ? state.depth++ : state.depth=1);
 			newState.pkey = key;
@@ -98,7 +96,7 @@ function resolveExternal(root,pointer,options,callback) {
 	}
 }
 
-function resolveInternal(root,pointer,options) {
+function resolveInternal(root,pointer) {
 	return jptr.jptr(root,pointer)||false;
 }
 

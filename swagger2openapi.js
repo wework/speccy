@@ -58,17 +58,17 @@ function processResult(err, options) {
 
 	var s;
 	if (options.yaml) {
-   		s = options.debug ? yaml.dump(options.openapi) : yaml.safeDump(options.openapi);
+		s = options.debug ? yaml.dump(options.openapi) : yaml.safeDump(options.openapi);
 	}
 	else {
-   		s = JSON.stringify(options.openapi, null, 2);
+		s = JSON.stringify(options.openapi, null, 2);
 	}
 
 	if (argv.outfile) {
-  		fs.writeFileSync(options.outfile, s, options.encoding||'utf8');
+		fs.writeFileSync(options.outfile, s, options.encoding||'utf8');
 	}
 	else {
-  		console.log(s);
+		console.log(s);
 	}
 
 	if (argv.components) {

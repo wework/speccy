@@ -886,14 +886,14 @@
           }
         },
         "additionalProperties": {
-            "oneOf": [
-                {
-                    "$ref": "#/definitions/schemaOrReference"
-                },
-                {
-                    "type": "boolean"
-                }
-            ]
+          "oneOf": [
+            {
+              "$ref": "#/definitions/schemaOrReference"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
         },
         "default": {
           "$ref": "#/definitions/defaultType"

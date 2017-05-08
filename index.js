@@ -199,7 +199,7 @@ function processParameter(param,op,path,index,openapi,options) {
 				param.explode = true;
 			}
 			if (param.collectionFormat == 'tsv') {
-				throwError('collectionFormat:tsv is not supported', options); // not lossless
+				throwError('collectionFormat:tsv is no longer supported', options); // not lossless
 			}
 			delete param.collectionFormat;
 		}

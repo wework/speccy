@@ -674,7 +674,7 @@ function main(openapi, options) {
 
 function convertObj(swagger, options, callback) {
 	return maybe(callback, new Promise(function(resolve, reject) {
-		if ((swagger.openapi) && (swagger.openapi.startsWith('3.'))) {
+		if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
 			options.openapi = swagger;
 			return resolve(options);
 		}

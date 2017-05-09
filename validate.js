@@ -268,6 +268,7 @@ function validateSync(openapi, options, callback) {
     openapi.should.not.have.key('swagger');
 	openapi.should.have.key('openapi');
 	openapi.openapi.should.have.type('string');
+	should.ok(openapi.openapi.startsWith('3.0.'),'Must be an OpenAPI 3.0.x document');
 	openapi.should.not.have.key('host');
 	openapi.should.not.have.key('basePath');
 	openapi.should.not.have.key('schemes');
@@ -396,14 +397,15 @@ function validateSync(openapi, options, callback) {
         }
     }
 
-    should.ok(openapi.openapi.startsWith('3.0.'),'Must be an OpenAPI 3.0.x document');
-
     common.recurse(openapi,null,function(obj,key,state){
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
 			options.context.push(state.path);
-            should(obj[key].indexOf('#/definitions/')).be.exactly(-1,'Reference to #/definitions');
+            obj[key].should.not.startWith('#/definitions/');
 			should(Object.keys(obj).length).be.exactly(1,'Reference object cannot be extended');
-			should(jptr.jptr(openapi,obj[key])).not.be.exactly(false,'Cannot resolve reference: '+obj[key]);
+			var refUrl = url.parse(obj[key]);
+			if (!refUrl.protocol && !refUrl.path) {
+				should(jptr.jptr(openapi,obj[key])).not.be.exactly(false,'Cannot resolve reference: '+obj[key]);
+			}
 			options.context.pop();
         }
     });

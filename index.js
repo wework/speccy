@@ -140,7 +140,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
 	consumes = consumes.filter(common.uniqueOnly);
 
-	if (param.$ref) {
+	if (param.$ref && (typeof param.$ref === 'string')) {
 		// if we still have a ref here, it must be an internal one
 		if (param.$ref.startsWith('#/parameters/')) {
 			param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
@@ -382,7 +382,7 @@ function processParameter(param,op,path,index,openapi,options) {
 }
 
 function processResponse(response, op, openapi, options) {
-	if (response.$ref) {
+	if (response.$ref && (typeof response.$ref === 'string')) {
 		if (typeof response.description !== 'undefined') {
 			if (options.patch) {
 				delete response.description;
@@ -414,7 +414,7 @@ function processResponse(response, op, openapi, options) {
 
 			common.recurse(response.schema, {payload:{targetted:true}}, fixupSchema);
 
-			if (response.schema.$ref && response.schema.$ref.startsWith('#/responses/')) {
+			if (response.schema.$ref && (typeof response.schema.$ref === 'string') && response.schema.$ref.startsWith('#/responses/')) {
 				response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
 			}
 

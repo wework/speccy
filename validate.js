@@ -422,8 +422,10 @@ function validateSync(openapi, options, callback) {
     }
     for (let p in openapi.paths) {
 		options.context.push('#/paths/'+jptr.jpescape(p));
-		p.should.startWith('/');
-        checkPathItem(openapi.paths[p],openapi,options);
+		if (!p.startsWith('x-')) {
+			p.should.startWith('/');
+			checkPathItem(openapi.paths[p],openapi,options);
+		}
 		options.context.pop();
     }
     if (openapi["x-ms-paths"]) {

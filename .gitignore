@@ -5,6 +5,8 @@ schemas/*gnostic*
 schemas/*diff*
 .coveralls.yml
 *.txt
+*.out
+*test.sh
 
 # Logs
 logs

@@ -13,6 +13,7 @@ var common = require('./common.js');
 // TODO handle specification-extensions with plugins?
 
 const targetVersion = '3.0.0-RC1';
+var componentNames; // initialised in main
 
 function throwError(message,options) {
 	var err = new Error(message);
@@ -61,15 +62,28 @@ function fixupSchema(obj,key,state){
 		delete obj[key];
 	}
 	if ((key == '$ref') && (typeof obj[key] === 'string')) {
-		if (obj[key].indexOf('#/definitions/') == 0) {
-			obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
+		if (obj[key].startsWith('#/definitions/')) {
+			//only the first part of a schema component name must be sanitised
+			let keys = obj[key].replace('#/definitions/','').split('/');
+			keys[0] = componentNames.schemas[keys[0]];
+			obj[key] = '#/components/schemas/'+keys.join('/');
+		}
+		if (obj[key].startsWith('#/parameters/')) {
+			// for extensions like Apigee's x-templates
+			obj[key] = '#/components/parameters/'+common.sanitise(obj[key].replace('#/parameters/',''));
+		}
+		if (obj[key].startsWith('#/responses/')) {
+			// for extensions like Apigee's x-templates
+			obj[key] = '#/components/responses/'+common.sanitise(obj[key].replace('#/responses/',''));
 		}
 		Object.keys(obj).forEach(function(k){
 			if (k !== '$ref') delete obj[k];
 		});
 	}
 	if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
-		obj[key] = '#/components/schemas/'+common.sanitise(obj[key].replace('#/definitions/',''));
+		let keys = obj[key].replace('#/definitions/','').split('/');
+		keys[0] = componentNames.schemas[keys[0]];
+		obj[key] = '#/components/schemas/'+keys.join('/');
 	}
 }
 
@@ -546,6 +560,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 function main(openapi, options) {
 
 	var requestBodyCache = {};
+	componentNames = {schemas:{}};
 
 	if (openapi.security) processSecurity(openapi.security);
 
@@ -563,13 +578,15 @@ function main(openapi, options) {
 
 	for (let s in openapi.components.schemas) {
 		let sname = common.sanitise(s);
+		let suffix = '';
 		if (s != sname) {
-			if (openapi.components.schemas[sname]) {
-				throwError('Duplicate sanitised schema name '+sname,options);
+			while (openapi.components.schemas[sname+suffix]) {
+				suffix = (suffix ? ++suffix : 2);
 			}
-			openapi.components.schemas[sname] = openapi.components.schemas[s];
+			openapi.components.schemas[sname+suffix] = openapi.components.schemas[s];
 			delete openapi.components.schemas[s];
 		}
+		componentNames.schemas[s] = sname+suffix;
 	}
 
 	for (let p in openapi.components.parameters) {

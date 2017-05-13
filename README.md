@@ -1,7 +1,5 @@
 # swagger2openapi
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/Mermade/swagger2openapi.svg)](https://greenkeeper.io/)
-
 ![logo](https://github.com/Mermade/swagger2openapi/blob/master/docs/logo.png?raw=true)
 
 [![OpenAPI Validation](https://openapi-converter.herokuapp.com/api/v1/badge?url=https://openapi-converter.herokuapp.com/examples/openapi.json)](https://openapi-converter.herokuapp.com/api/v1/validate?url=https://openapi-converter.herokuapp.com/examples/openapi.json)
@@ -10,6 +8,7 @@
 [![Tested on Mermade OpenAPIs](https://img.shields.io/badge/Additional%20Specs-882-brightgreen.svg)](https://github.com/mermade/openapi-definitions)
 [![Coverage Status](https://coveralls.io/repos/github/Mermade/swagger2openapi/badge.svg?branch=master)](https://coveralls.io/github/Mermade/swagger2openapi?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/npm/swagger2openapi/badge.svg)](https://snyk.io/test/npm/swagger2openapi)
+[![Greenkeeper badge](https://badges.greenkeeper.io/Mermade/swagger2openapi.svg)](https://greenkeeper.io/)
 
 Convert Swagger 2.0 definitions into OpenApi 3.0.x
 

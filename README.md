@@ -1,5 +1,7 @@
 # swagger2openapi
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Mermade/swagger2openapi.svg)](https://greenkeeper.io/)
+
 ![logo](https://github.com/Mermade/swagger2openapi/blob/master/docs/logo.png?raw=true)
 
 [![OpenAPI Validation](https://openapi-converter.herokuapp.com/api/v1/badge?url=https://openapi-converter.herokuapp.com/examples/openapi.json)](https://openapi-converter.herokuapp.com/api/v1/validate?url=https://openapi-converter.herokuapp.com/examples/openapi.json)

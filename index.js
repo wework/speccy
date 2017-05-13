@@ -1,3 +1,4 @@
+// @ts-check
 'use strict';
 
 var fs = require('fs');
@@ -581,6 +582,7 @@ function main(openapi, options) {
 		let suffix = '';
 		if (s != sname) {
 			while (openapi.components.schemas[sname+suffix]) {
+				// @ts-ignore
 				suffix = (suffix ? ++suffix : 2);
 			}
 			openapi.components.schemas[sname+suffix] = openapi.components.schemas[s];
@@ -668,10 +670,11 @@ function main(openapi, options) {
 			var suffix = '';
 			if (!entry.name) {
 				entry.name = 'requestBody';
+				// @ts-ignore
 				suffix = counter++;
 			}
 			while (rbNamesGenerated.indexOf(entry.name+suffix)>=0) {
-				// this can happen if descriptions are not exactly the same (e.g. bitbucket)
+				// @ts-ignore - this can happen if descriptions are not exactly the same (e.g. bitbucket)
 				suffix = (suffix ? ++suffix : 2);
 			}
 			entry.name = entry.name+suffix;

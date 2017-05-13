@@ -1,3 +1,4 @@
+// @ts-check
 'use strict';
 
 var fs = require('fs');

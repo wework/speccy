@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-check
 
 'use strict';
 
@@ -9,6 +10,7 @@ var util = require('util');
 var yaml = require('js-yaml');
 var converter = require('./index.js');
 
+// @ts-ignore
 var argv = require('yargs')
 	.boolean('components')
 	.alias('c','components')

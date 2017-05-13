@@ -25,7 +25,7 @@
   "author": "Mike Ralphson <mike.ralphson@gmail.com>",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "ajv": "^4.11.3",
+    "ajv": "^5.0.1",
     "call-me-maybe": "^1.0.1",
     "co": "^4.6.0",
     "jgexml": "^0.3.6",
@@ -33,7 +33,7 @@
     "node-fetch": "^1.6.3",
     "node-readfiles": "^0.2.0",
     "should": "^11.2.0",
-    "yargs": "^6.2.0"
+    "yargs": "^8.0.1"
   },
   "keywords": [
     "swagger",

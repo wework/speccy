@@ -30,7 +30,7 @@ function validateUrl(s,servers,context,options) {
 	if (servers && servers.length) {
 		base = servers[0].url;
 	}
-	var u = URL ? new URL(s,base) : url.parse(s);
+	var u = (URL && options.whatwg) ? new URL(s,base) : url.parse(s);
 	return true; // if we haven't thrown
 }
 

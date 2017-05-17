@@ -309,6 +309,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	if (param.in == 'body') {
 		result.content = {};
 		if (param.name) result['x-s2o-name'] = param.name;
+		if (param.description) result.description = param.description;
 
 		if (param.schema && param.schema.$ref) {
 			result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/','');
@@ -323,7 +324,6 @@ function processParameter(param,op,path,index,openapi,options) {
 
 		for (let mimetype of consumes) {
 			result.content[mimetype] = {};
-			if (param.description) result.content[mimetype].description = param.description;
 			result.content[mimetype].schema = common.clone(param.schema)||{};
 			common.recurse(result.content[mimetype].schema,{payload:{targetted:true}},fixupSchema);
 		}

@@ -12,7 +12,7 @@
       "version": "2.0",
       "converter": {
         "url": "https://github.com/mermade/swagger2openapi",
-        "version": "2.1.0"
+        "version": "2.2.0"
       }
     }
   ],
@@ -323,16 +323,17 @@
                 "type": "object",
                 "properties": {
                   "name": {
+                    "description": "Updated name of the pet",
                     "type": "string"
                   },
                   "status": {
+                    "description": "Updated status of the pet",
                     "type": "string"
                   }
                 }
               }
             }
-          },
-          "description": "Updated name of the pet"
+          }
         }
       },
       "delete": {
@@ -428,8 +429,7 @@
                 "format": "binary"
               }
             }
-          },
-          "description": "file to upload"
+          }
         }
       }
     },
@@ -497,12 +497,12 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "order placed for purchasing the pet",
               "schema": {
                 "$ref": "#/components/schemas/Order"
               }
             }
-          }
+          },
+          "description": "order placed for purchasing the pet"
         }
       }
     },
@@ -599,12 +599,12 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "Created user object",
               "schema": {
                 "$ref": "#/components/schemas/User"
               }
             }
-          }
+          },
+          "description": "Created user object"
         }
       }
     },
@@ -801,12 +801,12 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "description": "Updated user object",
               "schema": {
                 "$ref": "#/components/schemas/User"
               }
             }
-          }
+          },
+          "description": "Updated user object"
         }
       },
       "delete": {
@@ -1021,23 +1021,21 @@
       "Pet": {
         "content": {
           "application/json": {
-            "description": "Pet object that needs to be added to the store",
             "schema": {
               "$ref": "#/components/schemas/Pet"
             }
           },
           "application/xml": {
-            "description": "Pet object that needs to be added to the store",
             "schema": {
               "$ref": "#/components/schemas/Pet"
             }
           }
-        }
+        },
+        "description": "Pet object that needs to be added to the store"
       },
       "UserArray": {
         "content": {
           "application/json": {
-            "description": "List of user object",
             "schema": {
               "type": "array",
               "items": {
@@ -1045,7 +1043,8 @@
               }
             }
           }
-        }
+        },
+        "description": "List of user object"
       }
     },
     "securitySchemes": {

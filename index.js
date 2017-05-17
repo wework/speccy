@@ -240,7 +240,7 @@ function processParameter(param,op,path,index,openapi,options) {
 				}
 				for (let prop of common.parameterTypeProperties) {
 					if (typeof param[prop] !== 'undefined') param.schema[prop] = param[prop];
-					delete param.prop;
+					delete param[prop];
 				}
 			}
 		}
@@ -280,7 +280,7 @@ function processParameter(param,op,path,index,openapi,options) {
 			result.content[contentType].schema.properties[param.name] = {};
 			var schema = result.content[contentType].schema;
 			let target = result.content[contentType].schema.properties[param.name];
-			if (param.description) result.description = param.description;
+			if (param.description) target.description = param.description;
 			if (param.type) target.type = param.type;
 
 			for (let prop of common.parameterTypeProperties) {

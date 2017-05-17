@@ -61,12 +61,17 @@ function validateSchema(schema,openapi,options) {
 function checkContent(content,contextServers,openapi,options) {
 	contextAppend(options,'content');
 	for (let ct in content) {
-		contextAppend(options,ct);
+		contextAppend(options,jptr.jpescape(ct));
 		var contentType = content[ct];
+		if (typeof contentType.schema !== 'undefined') {
+			contentType.schema.should.be.an.Object();
+			contentType.schema.should.not.be.an.Array();
+		}
 		if (contentType.example) {
 			contentType.should.not.have.property('examples');
 		}
 		if (contentType.examples) {
+			contextAppend(options,'examples');
 			contentType.should.not.have.property('example');
 			contentType.examples.should.be.an.Object();
 			contentType.examples.should.not.be.an.Array();
@@ -89,6 +94,7 @@ function checkContent(content,contextServers,openapi,options) {
 				}
 
 			}
+			options.context.pop();
 		}
 		if (contentType.schema) validateSchema(contentType.schema,openapi,options);
 		options.context.pop();
@@ -154,6 +160,10 @@ function checkResponse(response,contextServers,openapi,options) {
 	response.should.have.property('description');
 	should(response.description).have.type('string','response description should be of type string');
 	response.should.not.have.property('examples');
+	if (typeof response.schema !== 'undefined') {
+		response.schema.should.be.an.Object();
+		response.schema.should.not.be.an.Array();
+	}
 	if (response.headers) {
 		contextAppend(options,'headers');
 		for (let h in response.headers) {

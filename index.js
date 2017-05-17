@@ -440,8 +440,10 @@ function processResponse(response, op, openapi, options) {
 				response.content[mimetype] = {};
 				response.content[mimetype].schema = common.clone(response.schema);
 				if (response.examples && response.examples[mimetype]) {
-					response.content[mimetype].examples = [];
-					response.content[mimetype].examples.push(response.examples[mimetype]);
+					let example = {};
+					example.value = response.examples[mimetype];
+					response.content[mimetype].examples = {};
+					response.content[mimetype].examples.response = example;
 					delete response.examples[mimetype];
 				}
 				if (response.content[mimetype].schema.type == 'file') {

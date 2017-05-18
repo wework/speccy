@@ -9,6 +9,7 @@ var fetch = require('node-fetch');
 var yaml = require('js-yaml');
 
 var common = require('./common.js');
+var statusCodes = require('./statusCodes.json');
 
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
@@ -396,7 +397,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	return result;
 }
 
-function processResponse(response, op, openapi, options) {
+function processResponse(response, name, op, openapi, options) {
 	if (response.$ref && (typeof response.$ref === 'string')) {
 		if (typeof response.description !== 'undefined') {
 			if (options.patch) {
@@ -417,9 +418,13 @@ function processResponse(response, op, openapi, options) {
 		}
 	}
 	else {
-		if ((typeof response.description === 'undefined') || (response.description === null)) {
+		if ((typeof response.description === 'undefined') || (response.description === null)
+			|| ((response.description === '') && options.patch)) {
 			if (options.patch) {
-				response.description = '';
+				var sc = statusCodes.find(function(e){
+					return e.code == name;
+				});
+				response.description = (sc ? sc.phrase : '');
 			}
 			else {
 				throwError('response.description is mandatory',options);
@@ -518,7 +523,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				}
 				for (let r in op.responses) {
 					var response = op.responses[r];
-					processResponse(response,op,openapi,options);
+					processResponse(response,r,op,openapi,options);
 				}
 
 				if (options.debug) {
@@ -617,7 +622,7 @@ function main(openapi, options) {
 			delete openapi.components.responses[r];
 		}
 		var response = openapi.components.responses[sname];
-		processResponse(response,null,openapi,options);
+		processResponse(response,sname,null,openapi,options);
 		if (response.headers) {
 			for (let h in response.headers) {
 				processHeader(response.headers[h]);

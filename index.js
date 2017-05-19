@@ -137,7 +137,16 @@ function processHeader(header) {
 		}
 		if (header.type) header.schema.type = header.type;
 		delete header.type;
+		if (header.items && header.items.collectionFormat) {
+			delete header.items.collectionFormat; // TODO FIXME ??
+		}
 		for (let prop of common.parameterTypeProperties) {
+			if (typeof header[prop] !== 'undefined') {
+				header.schema[prop] = header[prop];
+				delete header[prop];
+			}
+		}
+		for (let prop of common.arrayProperties) {
 			if (typeof header[prop] !== 'undefined') {
 				header.schema[prop] = header[prop];
 				delete header[prop];

@@ -155,7 +155,7 @@ function processHeader(header,options) {
 					delete header.collectionFormat;
 				}
 				else {
-					throwError('collectionFormat is only applicable to header.type array',options);
+					throwError('(Patchable) collectionFormat is only applicable to header.type array',options);
 				}
 			}
 			if (header.collectionFormat == 'csv') {
@@ -241,7 +241,7 @@ function processParameter(param,op,path,index,openapi,options) {
 				param.type = 'string';
 			}
 			else {
-				throwError('Parameter type is mandatory for non-body parameters',options);
+				throwError('(Patchable) parameter.type is mandatory for non-body parameters',options);
 			}
 		}
 
@@ -252,7 +252,7 @@ function processParameter(param,op,path,index,openapi,options) {
 					delete param.collectionFormat;
 				}
 				else {
-					throwError('collectionFormat is only applicable to param.type array',options);
+					throwError('(Patchable) collectionFormat is only applicable to param.type array',options);
 				}
 			}
 			if (param.collectionFormat == 'csv') {
@@ -444,7 +444,7 @@ function processParameter(param,op,path,index,openapi,options) {
 			param.required = true;
 		}
 		else {
-			throwError('Path parameters must be required:true',options);
+			throwError('(Patchable) path parameters must be required:true',options);
 		}
 	}
 
@@ -458,7 +458,7 @@ function processResponse(response, name, op, openapi, options) {
 				delete response.description;
 			}
 			else {
-				throwError('$ref object cannot be extended: ' + response.$ref,options);
+				throwError('(Patchable) $ref object cannot be extended: ' + response.$ref,options);
 			}
 		}
 		if (response.$ref.indexOf('#/definitions/') >= 0) {
@@ -481,7 +481,7 @@ function processResponse(response, name, op, openapi, options) {
 				response.description = (sc ? sc.phrase : '');
 			}
 			else {
-				throwError('response.description is mandatory',options);
+				throwError('(Patchable) response.description is mandatory',options);
 			}
 		}
 		if (response.schema) {

@@ -127,7 +127,7 @@ function deleteParameters(value) {
 	return !value["x-s2o-delete"];
 }
 
-function processHeader(header) {
+function processHeader(header,options) {
 	if (header.$ref) {
 		header.$ref = header.$ref.replace('#/responses/','#/components/responses/');
 	}
@@ -136,10 +136,46 @@ function processHeader(header) {
 			header.schema = {};
 		}
 		if (header.type) header.schema.type = header.type;
-		delete header.type;
 		if (header.items && header.items.collectionFormat) {
-			delete header.items.collectionFormat; // TODO FIXME ??
+			if (header.items.type && header.items.type != 'array') {
+				if (!header.collectionFormat) {
+					header.collectionFormat = header.items.collectionFormat; // FIXME TODO temp fixup for beezup
+				}
+				else {
+					if (header.items.collectionFormat != header.collectionFormat) {
+						throwError('Nested collectionFormats are not supported', options);
+					}
+				}
+				delete header.items.collectionFormat;
+			}
 		}
+		if (typeof header.collectionFormat !== 'undefined') {
+			if (header.type != 'array') {
+				if (options.patch) {
+					delete header.collectionFormat;
+				}
+				else {
+					throwError('collectionFormat is only applicable to header.type array',options);
+				}
+			}
+			if (header.collectionFormat == 'csv') {
+				header.style = 'form';
+			}
+			if (header.collectionFormat == 'ssv') {
+				header.style = 'spaceDelimited';
+			}
+			if (header.collectionFormat == 'pipes') {
+				header.style = 'pipeDelimited';
+			}
+			if (header.collectionFormat == 'multi') {
+				header.explode = true;
+			}
+			if (header.collectionFormat == 'tsv') {
+				throwError('collectionFormat:tsv is no longer supported', options); // not lossless
+			}
+			delete header.collectionFormat;
+		}
+		delete header.type;
 		for (let prop of common.parameterTypeProperties) {
 			if (typeof header[prop] !== 'undefined') {
 				header.schema[prop] = header[prop];
@@ -211,6 +247,14 @@ function processParameter(param,op,path,index,openapi,options) {
 
 		var oldCollectionFormat = param.collectionFormat;
 		if (param.collectionFormat) {
+			if (param.type != 'array') {
+				if (options.patch) {
+					delete param.collectionFormat;
+				}
+				else {
+					throwError('collectionFormat is only applicable to param.type array',options);
+				}
+			}
 			if (param.collectionFormat == 'csv') {
 				param.style = 'form';
 			}
@@ -246,6 +290,7 @@ function processParameter(param,op,path,index,openapi,options) {
 							}
 							delete obj[key]; // not lossless
 						}
+						// TODO recursively process items
 					});
 				}
 				for (let prop of common.parameterTypeProperties) {
@@ -476,7 +521,7 @@ function processResponse(response, name, op, openapi, options) {
 		delete response.examples;
 		if (response.headers) {
 			for (let h in response.headers) {
-				processHeader(response.headers[h]);
+				processHeader(response.headers[h],options);
 			}
 		}
 	}
@@ -634,7 +679,7 @@ function main(openapi, options) {
 		processResponse(response,sname,null,openapi,options);
 		if (response.headers) {
 			for (let h in response.headers) {
-				processHeader(response.headers[h]);
+				processHeader(response.headers[h],options);
 			}
 		}
 	}

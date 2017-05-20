@@ -806,7 +806,7 @@
           "type": "boolean"
         },
         "discriminator": {
-          "type": "string"
+          "type": "object"
         },
         "readOnly": {
           "type": "boolean"

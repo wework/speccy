@@ -16,7 +16,7 @@ var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
 
 var jsonSchema = require('./schemas/json_v5.json');
-var openapi3Schema = require('./schemas/openapi-3.json');
+var openapi3Schema = require('./schemas/openapi-3.0.json');
 var validateMetaSchema = ajv.compile(jsonSchema);
 var validateOpenAPI3 = ajv.compile(openapi3Schema);
 

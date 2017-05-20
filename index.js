@@ -14,7 +14,7 @@ var statusCodes = require('./statusCodes.json');
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
 
-const targetVersion = '3.0.0-RC1';
+const targetVersion = '3.0.0-RC2';
 var componentNames; // initialised in main
 
 function throwError(message,options) {
@@ -43,6 +43,9 @@ function fixupSchema(obj,key,state){
 	}
 	if (state.payload.targetted && (key == 'required') && (typeof obj[key] === 'boolean')) {
 		delete obj[key]; // TODO check we're at the right level(s) if poss.
+	}
+	if (state.payload.targetted && (key == 'discriminator') && (typeof obj[key] === 'string')) {
+		obj[key] = {propertyName:obj[key]};
 	}
 	if (key == 'x-anyOf') {
 		obj.anyOf = obj[key];

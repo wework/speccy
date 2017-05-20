@@ -138,13 +138,8 @@ function processHeader(header,options) {
 		if (header.type) header.schema.type = header.type;
 		if (header.items && header.items.collectionFormat) {
 			if (header.items.type && header.items.type != 'array') {
-				if (!header.collectionFormat) {
-					header.collectionFormat = header.items.collectionFormat; // FIXME TODO temp fixup for beezup
-				}
-				else {
-					if (header.items.collectionFormat != header.collectionFormat) {
-						throwError('Nested collectionFormats are not supported', options);
-					}
+				if (header.items.collectionFormat != header.collectionFormat) {
+					throwError('Nested collectionFormats are not supported', options);
 				}
 				delete header.items.collectionFormat;
 			}

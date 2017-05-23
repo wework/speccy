@@ -41,7 +41,7 @@ function fixupSchema(obj,key,state){
 		}
 		delete obj[key];
 	}
-	if (state.payload.targetted && (key == 'required') && (typeof obj[key] === 'boolean')) {
+	if ((key == 'required') && (typeof obj[key] === 'boolean') && state.payload.targetted) {
 		delete obj[key]; // TODO check we're at the right level(s) if poss.
 	}
 	if (key == 'x-anyOf') {

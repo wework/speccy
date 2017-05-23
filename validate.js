@@ -90,7 +90,7 @@ function checkContent(content,contextServers,openapi,options) {
 				if (typeof contentType.examples[ex].externalValue !== 'undefined') {
 					contentType.examples[ex].externalValue.should.have.type('string');
 					contentType.examples[ex].should.not.have.property('value');
-					validateUrl(contentType.examples[ex].externalValue,contextServers,'examples..externalValue',options).should.not.throw();
+					(function(){validateUrl(contentType.examples[ex].externalValue,contextServers,'examples..externalValue',options)}).should.not.throw();
 				}
 
 			}
@@ -106,7 +106,7 @@ function checkServers(servers,options) {
 	servers.should.be.an.Array();
 	for (let server of servers) {
 		server.should.have.property('url');
-		validateUrl(server.url,[],'server.url',options).should.not.throw();
+		(function(){validateUrl(server.url,[],'server.url',options)}).should.not.throw();
 		if (server.variables) {
 			for (let v in server.variables) {
 				server.variables[v].should.have.key('default');
@@ -289,7 +289,7 @@ function checkPathItem(pathItem,openapi,options) {
 			if (op.externalDocs) {
 				op.externalDocs.should.have.key('url');
 				op.externalDocs.url.should.have.type('string');
-				validateUrl(op.externalDocs.url,contextServers,'externalDocs',options).should.not.throw();
+				(function(){validateUrl(op.externalDocs.url,contextServers,'externalDocs',options)}).should.not.throw();
 			}
 		}
 		options.context.pop();
@@ -332,7 +332,7 @@ function validateSync(openapi, options, callback) {
 	}
 	if (typeof openapi.info.termsOfService !== 'undefined') {
 		should(openapi.info.termsOfService).not.be.Null();
-		validateUrl(openapi.info.termsOfService,contextServers,'termsOfService',options).should.not.throw();
+		(function(){validateUrl(openapi.info.termsOfService,contextServers,'termsOfService',options)}).should.not.throw();
 	}
 	options.context.pop();
 
@@ -345,7 +345,7 @@ function validateSync(openapi, options, callback) {
 		contextAppend(options,'externalDocs');
 		openapi.externalDocs.should.have.key('url');
 		openapi.externalDocs.url.should.have.type('string');
-		validateUrl(openapi.externalDocs.url,contextServers,'externalDocs',options).should.not.throw();
+		(function(){validateUrl(openapi.externalDocs.url,contextServers,'externalDocs',options)}).should.not.throw();
 		options.context.pop();
 	}
 
@@ -357,7 +357,7 @@ function validateSync(openapi, options, callback) {
 			if (tag.externalDocs) {
 				tag.externalDocs.should.have.key('url');
 				tag.externalDocs.url.should.have.type('string');
-				validateUrl(tag.externalDocs.url,contextServers,'tag.externalDocs',options).should.not.throw();
+				(function(){validateUrl(tag.externalDocs.url,contextServers,'tag.externalDocs',options)}).should.not.throw();
 			}
 		}
 		options.context.pop();
@@ -402,7 +402,7 @@ function validateSync(openapi, options, callback) {
 					if ((f == 'implicit') || (f == 'authorizationCode')) {
 						flow.should.have.property('authorizationUrl');
 						flow.authorizationUrl.should.have.type('string');
-						validateUrl(flow.authorizationUrl,contextServers,'authorizationUrl',options).should.not.throw();
+						(function(){validateUrl(flow.authorizationUrl,contextServers,'authorizationUrl',options)}).should.not.throw();
 					}
 					else {
 						flow.should.not.have.property('authorizationUrl');
@@ -411,13 +411,13 @@ function validateSync(openapi, options, callback) {
 						(f == 'authorizationCode')) {
 						flow.should.have.property('tokenUrl');
 						flow.tokenUrl.should.have.type('string');
-						validateUrl(flow.tokenUrl,contextServers,'tokenUrl',options).should.not.throw();
+						(function(){validateUrl(flow.tokenUrl,contextServers,'tokenUrl',options)}).should.not.throw();
 					}
 					else {
 						flow.should.not.have.property('tokenUrl');
 					}
 					if (typeof flow.refreshUrl !== 'undefined') {
-						validateUrl(flow.refreshUrl,contextServers,'refreshUrl',options).should.not.throw();
+						(function(){validateUrl(flow.refreshUrl,contextServers,'refreshUrl',options)}).should.not.throw();
 					}
 					flow.should.have.property('scopes');
 				}
@@ -428,7 +428,7 @@ function validateSync(openapi, options, callback) {
 			if (scheme.type == 'openIdConnect') {
 				scheme.should.have.property('openIdConnectUrl');
 				scheme.openIdConnectUrl.should.have.type('string');
-				validateUrl(scheme.openIdConnectUrl,contextServers,'openIdConnectUrl',options).should.not.throw();
+				(function(){validateUrl(scheme.openIdConnectUrl,contextServers,'openIdConnectUrl',options)}).should.not.throw();
 			}
 			else {
 				scheme.should.not.have.property('openIdConnectUrl');

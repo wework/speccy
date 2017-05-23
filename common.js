@@ -43,7 +43,7 @@ function recurse(object,state,callback) {
 		var oPath = state.path;
 		state.path = (state.path ? state.path : '#')+escKey;
 		callback(object,key,state);
-		if (typeof object[key] == 'object') {
+		if (typeof object[key] === 'object') {
 			var newState = {};
 			newState.parent = object;
 			newState.path = state.path;

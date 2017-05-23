@@ -41,6 +41,9 @@ var argv = require('yargs')
 	.boolean('whatwg')
 	.alias('w','whatwg')
 	.describe('whatwg','enable WHATWG URL parsing')
+	.boolean('yaml')
+	.alias('y','yaml')
+	.describe('yaml','skip YAML-safe test')
 	.help('h')
     .alias('h', 'help')
 	.strict()
@@ -78,8 +81,10 @@ function handleResult(err, options) {
 
 	if (typeof result !== 'boolean') try {
 		var src = options.original;
-		resultStr = yaml.safeDump(result); // should be representable safely in yaml
-		resultStr.should.not.be.exactly('{}');
+		if (!options.yaml) {
+			resultStr = yaml.safeDump(result); // should be representable safely in yaml
+			resultStr.should.not.be.exactly('{}');
+		}
 
 		result = validator.validateSync(result,options);
 

@@ -2,6 +2,7 @@
 'use strict';
 
 var fs = require('fs');
+var url = require('url');
 
 var co = require('co');
 var maybe = require('call-me-maybe');
@@ -194,6 +195,15 @@ function processHeader(header,options) {
 	}
 }
 
+function fixParamRef(param) {
+	if (param.$ref.startsWith('#/parameters/')) {
+		param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
+	}
+	if (param.$ref.startsWith('#/definitions/')) {
+		throwError('Definition used as parameter',options);
+	}
+}
+
 /**
  * @returns requestBody?
  */
@@ -206,12 +216,7 @@ function processParameter(param,op,path,index,openapi,options) {
 
 	if (param.$ref && (typeof param.$ref === 'string')) {
 		// if we still have a ref here, it must be an internal one
-		if (param.$ref.startsWith('#/parameters/')) {
-			param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
-		}
-		if (param.$ref.startsWith('#/definitions/')) {
-			throwError('Definition used as parameter',options);
-		}
+		fixParamRef(param);
 		var ptr = param.$ref.replace('#/components/parameters/','');
 		var rbody = false;
 		let target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
@@ -518,8 +523,9 @@ function processResponse(response, name, op, openapi, options) {
 		for (let mimetype in response.examples) {
 			if (!response.content) response.content = {};
 			if (!response.content[mimetype]) response.content[mimetype] = {};
-			response.content[mimetype].examples = [];
-			response.content[mimetype].examples.push(response.examples[mimetype]);
+			response.content[mimetype].examples = {};
+			response.content[mimetype].examples.response = {};
+			response.content[mimetype].examples.response.value = response.examples[mimetype];
 		}
 		delete response.examples;
 		if (response.headers) {
@@ -560,6 +566,17 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				}
 
 				if (op.parameters && Array.isArray(op.parameters)) {
+				    if (path.parameters) {
+						for (let param of path.parameters) {
+							if (typeof param.$ref === 'string') {
+								fixParamRef(param);
+								param = common.resolveInternal(openapi,param.$ref);
+							}
+							if ((param.in === 'formData') || (param.in === 'body') || (param.type === 'file')) { // FIXME and if not overridden by matching in & name
+								processParameter(param, op, path, null, openapi, options);
+							}
+						}
+					}
 					for (let param of op.parameters) {
 						processParameter(param, op, path, null, openapi, options);
 					}
@@ -583,12 +600,30 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 					processResponse(response,r,op,openapi,options);
 				}
 
+				if (op.schemes && op.schemes.length) {
+					for (let scheme of op.schemes) {
+						if ((!openapi.schemes) || (openapi.schemes.indexOf(scheme) < 0)) {
+							if (!op.servers) {
+								op.servers = [];
+							}
+							for (let server of openapi.servers) {
+								let newServer = common.clone(server);
+								let serverUrl = url.parse(newServer.url);
+								serverUrl.protocol = scheme+':';
+								newServer.url = serverUrl.toString();
+								op.servers.push(newServer);
+							}
+						}
+					}
+				}
+
 				if (options.debug) {
 					op["x-s2o-consumes"] = op.consumes || [];
 					op["x-s2o-produces"] = op.produces || [];
 				}
 				delete op.consumes;
 				delete op.produces;
+				delete op.schemes;
 
 				common.recurse(op, {payload:{targetted:false}}, fixupSchema); // for x-ms-odata etc
 
@@ -722,6 +757,7 @@ function main(openapi, options) {
 	}
 	delete openapi.consumes;
 	delete openapi.produces;
+	delete openapi.schemes;
 
 	var rbNamesGenerated = [];
 
@@ -794,7 +830,7 @@ function convertObj(swagger, options, callback) {
 				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
 				server.url = server.url.split('{{').join('{');
 				server.url = server.url.split('}}').join('}');
-				server.url.replace(/(\{.+?\})/g,function(match,group1){ // TODO extend to :parameters (not port)?
+				server.url.replace(/\{(.+?)\}/g,function(match,group1){ // TODO extend to :parameters (not port)?
 					if (!server.variables) {
 						server.variables = {};
 					}
@@ -810,7 +846,6 @@ function convertObj(swagger, options, callback) {
 		}
 		delete openapi.host;
 		delete openapi.basePath;
-		delete openapi.schemes;
 
 		if (openapi['x-servers'] && Array.isArray(openapi['x-servers'])) {
 			openapi.servers = openapi['x-servers'].concat(openapi.servers);
@@ -823,13 +858,24 @@ function convertObj(swagger, options, callback) {
 			var xMsPHost = swagger['x-ms-parameterized-host'];
 			let server = {};
 			server.url = xMsPHost.hostTemplate;
-			server.parameters = xMsPHost.parameters;
-			for (let param of server.parameters) {
-				if (param.ref === false) param.required = true; // has a different meaning
-				delete param.type; // all strings
+			server.variables = {};
+			for (let param of xMsPHost.parameters) {
 				if (param.$ref) {
-					param.$ref = param.$ref.replace('#/parameters/','#/components/parameters/');
+					param.$ref = common.resolveInternal(openapi,param.$ref);
 				}
+				delete param.required; // all true
+				delete param.type; // all strings
+				delete param.in; // all 'host'
+				if (typeof param.default === 'undefined') {
+					if (param.enum) {
+						param.default = param.enum[0];
+					}
+					else {
+						param.default = '';
+					}
+				}
+				server.variables[param.name] = param;
+				delete param.name;
 			}
 			openapi.servers.push(server);
 			delete openapi['x-ms-parameterized-host'];
@@ -840,7 +886,7 @@ function convertObj(swagger, options, callback) {
 				openapi.info = {version:'',title:''};
 			}
 			else {
-				return reject(new Error('info object is mandatory'));
+				return reject(new Error('(Patchable) info object is mandatory'));
 			}
 		}
 		if ((typeof openapi.info.title === 'undefined') || (openapi.info.title === null)) {
@@ -848,7 +894,7 @@ function convertObj(swagger, options, callback) {
 				openapi.info.title = '';
 			}
 			else {
-				return reject(new Error('info.title cannot be null'));
+				return reject(new Error('(Patchable) info.title cannot be null'));
 			}
 		}
 		if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
@@ -856,7 +902,7 @@ function convertObj(swagger, options, callback) {
 				openapi.info.version = '';
 			}
 			else {
-				return reject(new Error('info.version cannot be null'));
+				return reject(new Error('(Patchable) info.version cannot be null'));
 			}
 		}
 		if (typeof openapi.info.version !== 'string') {
@@ -864,8 +910,15 @@ function convertObj(swagger, options, callback) {
 				openapi.info.version = openapi.info.version.toString();
 			}
 			else {
-				return reject(new Error('info.version cannot be null'));
+				return reject(new Error('(Patchable) info.version cannot be null'));
 			}
+		}
+		if (typeof openapi.info.logo !== 'undefined') {
+			if (options.patch) {
+				openapi.info['x-logo'] = openapi.info.logo;
+				delete openapi.info.logo; // TODO make patch only
+			}
+			else return reject(new Error('(Patchable) info should not have logo property'));
 		}
 		if (typeof openapi.info.termsOfService !== 'undefined') {
 			if (openapi.info.termsOfService === null) {
@@ -873,7 +926,7 @@ function convertObj(swagger, options, callback) {
 					openapi.info.termsOfService = '';
 				}
 				else {
-					return reject(new Error('info.termsOfService cannot be null'));
+					return reject(new Error('(Patchable) info.termsOfService cannot be null'));
 				}
 			}
 		}

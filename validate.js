@@ -251,6 +251,7 @@ function checkPathItem(pathItem,openapi,options) {
 			op.should.not.be.empty();
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
+			op.should.not.have.property('schemes');
 			op.should.have.property('responses');
 			op.responses.should.not.be.empty();
 			if (op.summary) op.summary.should.have.type('string');
@@ -512,6 +513,8 @@ function validateSync(openapi, options, callback) {
 			if (r.startsWith('requestBody')) {
 				options.warnings.push('Anonymous requestBody: '+r);
 			}
+			let rb = openapi.components.requestBodies[r];
+			rb.should.not.have.property('x-s2o-partial');
 			options.context.pop();
 		}
 	}

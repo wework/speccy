@@ -173,9 +173,15 @@ function* check(file,force,expectFailure) {
 }
 
 function processPathSpec(pathspec,expectFailure) {
-	pathspec = path.resolve(pathspec);
-	var stats = fs.statSync(pathspec);
-	if (stats.isFile()) {
+	if (pathspec.startsWith('@')) {
+		pathspec = pathspec.substr(1,pathspec.length-1);
+		var list = fs.readFileSync(pathspec,'utf8').split('\r').join('').split('\n');
+		for (var file of list) {
+			genStack.push(check(file,false,expectFailure));
+		}
+		genStackNext();
+	}
+	else if (fs.statSync(path.resolve(pathspec)).isFile()) {
 		genStack.push(check(pathspec,true,expectFailure));
 		genStackNext();
 	}

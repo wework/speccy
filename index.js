@@ -425,20 +425,6 @@ function processParameter(param,op,path,index,openapi,options) {
 				}
 			}
 		}
-		else if (path) {
-			let uniqueName = index ? index.toCamelCase()+'RequestBodyBase' : param.name;
-			if (param.in == 'formData') {
-				result["x-s2o-partial"] = true;
-			}
-			openapi.components.requestBodies[uniqueName] = result;
-		}
-		else {
-			let uniqueName = index ? index : param.name;
-			if (param.in == 'formData') {
-				result["x-s2o-partial"] = true;
-			}
-			openapi.components.requestBodies[uniqueName] = result;
-		}
 	}
 
 	// tidy up
@@ -572,7 +558,11 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 								fixParamRef(param);
 								param = common.resolveInternal(openapi,param.$ref);
 							}
-							if ((param.in === 'formData') || (param.in === 'body') || (param.type === 'file')) { // FIXME and if not overridden by matching in & name
+							var match = op.parameters.find(function(e,i,a){
+								return ((e.name == param.name) && (e.in == param.in));
+							});
+
+							if (!match && (param.in === 'formData') || (param.in === 'body') || (param.type === 'file')) {
 								processParameter(param, op, path, null, openapi, options);
 							}
 						}
@@ -602,6 +592,8 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 
 				if (op.schemes && op.schemes.length) {
 					for (let scheme of op.schemes) {
+						if (scheme === 'ws') scheme = 'http';
+						if (scheme === 'wss') scheme = 'https';
 						if ((!openapi.schemes) || (openapi.schemes.indexOf(scheme) < 0)) {
 							if (!op.servers) {
 								op.servers = [];
@@ -609,8 +601,8 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 							for (let server of openapi.servers) {
 								let newServer = common.clone(server);
 								let serverUrl = url.parse(newServer.url);
-								serverUrl.protocol = scheme+':';
-								newServer.url = serverUrl.toString();
+								serverUrl.protocol = scheme;
+								newServer.url = serverUrl.href;
 								op.servers.push(newServer);
 							}
 						}
@@ -762,6 +754,7 @@ function main(openapi, options) {
 	var rbNamesGenerated = [];
 
 	openapi.components.requestBodies = {}; // for now as we've dereffed them
+
 	var counter = 1;
 	for (let e in requestBodyCache) {
 		let entry = requestBodyCache[e];
@@ -826,17 +819,23 @@ function convertObj(swagger, options, callback) {
 
 		if (swagger.host && swagger.schemes) {
 			for (let s of swagger.schemes) {
-				let server = {};
-				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
-				server.url = server.url.split('{{').join('{');
-				server.url = server.url.split('}}').join('}');
-				server.url.replace(/\{(.+?)\}/g,function(match,group1){ // TODO extend to :parameters (not port)?
-					if (!server.variables) {
-						server.variables = {};
-					}
-					server.variables[group1] = {default: 'unknown'};
-				});
-				openapi.servers.push(server);
+				let os = s;
+				if (s === 'ws') s = 'http';
+				if (s === 'wss') s = 'https';
+				if ((swagger.schemes.indexOf(s) === swagger.schemes.indexOf(os)) ||
+					(swagger.schemes.indexOf(s) === -1)) {
+					let server = {};
+					server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
+					server.url = server.url.split('{{').join('{');
+					server.url = server.url.split('}}').join('}');
+					server.url.replace(/\{(.+?)\}/g,function(match,group1){ // TODO extend to :parameters (not port)?
+						if (!server.variables) {
+							server.variables = {};
+						}
+						server.variables[group1] = {default: 'unknown'};
+					});
+					openapi.servers.push(server);
+				}
 			}
 		}
 		else if (swagger.basePath) {

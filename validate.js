@@ -44,6 +44,10 @@ function validateComponentName(name) {
 	return /^[a-zA-Z0-9\.\-_]+$/.test(name);
 }
 
+function validateHeaderName(name) {
+	return /^[A-Za-z0-9!#\-\$%&'\*\+\\\.\^_`\|~]+$/.test(name);
+}
+
 function validateSchema(schema,openapi,options) {
 	validateMetaSchema(schema);
 	var errors = validateSchema.errors;
@@ -168,6 +172,7 @@ function checkResponse(response,contextServers,openapi,options) {
 		contextAppend(options,'headers');
 		for (let h in response.headers) {
 			contextAppend(options,h);
+			validateHeaderName(h).should.be.equal(true,'Header doesn\'t match RFC7230 pattern');
 			checkHeader(response.headers[h],contextServers,openapi,options);
 			options.context.pop();
 		}
@@ -514,7 +519,6 @@ function validateSync(openapi, options, callback) {
 				options.warnings.push('Anonymous requestBody: '+r);
 			}
 			let rb = openapi.components.requestBodies[r];
-			rb.should.not.have.property('x-s2o-partial');
 			options.context.pop();
 		}
 	}

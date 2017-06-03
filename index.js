@@ -592,8 +592,6 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 
 				if (op.schemes && op.schemes.length) {
 					for (let scheme of op.schemes) {
-						if (scheme === 'ws') scheme = 'http';
-						if (scheme === 'wss') scheme = 'https';
 						if ((!openapi.schemes) || (openapi.schemes.indexOf(scheme) < 0)) {
 							if (!op.servers) {
 								op.servers = [];
@@ -602,7 +600,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 								let newServer = common.clone(server);
 								let serverUrl = url.parse(newServer.url);
 								serverUrl.protocol = scheme;
-								newServer.url = serverUrl.href;
+								newServer.url = serverUrl.format();
 								op.servers.push(newServer);
 							}
 						}
@@ -819,23 +817,17 @@ function convertObj(swagger, options, callback) {
 
 		if (swagger.host && swagger.schemes) {
 			for (let s of swagger.schemes) {
-				let os = s;
-				if (s === 'ws') s = 'http';
-				if (s === 'wss') s = 'https';
-				if ((swagger.schemes.indexOf(s) === swagger.schemes.indexOf(os)) ||
-					(swagger.schemes.indexOf(s) === -1)) {
-					let server = {};
-					server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
-					server.url = server.url.split('{{').join('{');
-					server.url = server.url.split('}}').join('}');
-					server.url.replace(/\{(.+?)\}/g,function(match,group1){ // TODO extend to :parameters (not port)?
-						if (!server.variables) {
-							server.variables = {};
-						}
-						server.variables[group1] = {default: 'unknown'};
-					});
-					openapi.servers.push(server);
-				}
+				let server = {};
+				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
+				server.url = server.url.split('{{').join('{');
+				server.url = server.url.split('}}').join('}');
+				server.url.replace(/\{(.+?)\}/g,function(match,group1){ // TODO extend to :parameters (not port)?
+					if (!server.variables) {
+						server.variables = {};
+					}
+					server.variables[group1] = {default: 'unknown'};
+				});
+				openapi.servers.push(server);
 			}
 		}
 		else if (swagger.basePath) {

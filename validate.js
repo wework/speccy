@@ -67,6 +67,8 @@ function checkContent(content,contextServers,openapi,options) {
 	for (let ct in content) {
 		contextAppend(options,jptr.jpescape(ct));
 		var contentType = content[ct];
+		should(contentType).be.an.Object();
+		should(contentType).not.be.an.Array();
 		if (typeof contentType.schema !== 'undefined') {
 			contentType.schema.should.be.an.Object();
 			contentType.schema.should.not.be.an.Array();

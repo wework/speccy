@@ -26,21 +26,26 @@ function throwError(message,options) {
 
 function fixupSchema(obj,key,state){
 	if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
-		obj.oneOf = [];
-		for (let type of obj[key]) {
-			var schema = {};
-			schema.type = type;
-			if (type == 'array') {
-				for (let prop of common.arrayProperties) {
-					if (typeof obj[prop] !== 'undefined') {
-						schema[prop] = obj[prop];
-						delete obj[prop];
+		if (obj[key].length < 2) {
+			obj[key] = (obj[key].length ? obj[key][0] : 'string');
+		}
+		else {
+			obj.oneOf = [];
+			for (let type of obj[key]) {
+				var schema = {};
+				schema.type = type;
+				if (type == 'array') {
+					for (let prop of common.arrayProperties) {
+						if (typeof obj[prop] !== 'undefined') {
+							schema[prop] = obj[prop];
+							delete obj[prop];
+						}
 					}
 				}
+				obj.oneOf.push(schema);
 			}
-			obj.oneOf.push(schema);
+			delete obj[key];
 		}
-		delete obj[key];
 	}
 	if (state.payload.targetted && (key == 'required') && (typeof obj[key] === 'boolean')) {
 		delete obj[key]; // TODO check we're at the right level(s) if poss.

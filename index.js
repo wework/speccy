@@ -210,7 +210,7 @@ function fixParamRef(param) {
 }
 
 /**
- * @returns requestBody?
+ * @returns requestBody
  */
 function processParameter(param,op,path,index,openapi,options) {
 	var result = {};
@@ -795,7 +795,7 @@ function convertObj(swagger, options, callback) {
 			return resolve(options);
 		}
 		if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
-			return reject(new Error('Unsupported swagger/OpenAPI version'));
+			return reject(new Error('Unsupported swagger/OpenAPI version: '+swagger.swagger));
 		}
 
 		var openapi = options.openapi = {};

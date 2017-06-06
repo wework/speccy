@@ -272,7 +272,7 @@ function checkPathItem(pathItem,openapi,options) {
 			if (op.requestBody && op.requestBody.content) {
 				contextAppend(options,'requestBody');
 				op.requestBody.should.have.property('content');
-				if (op.requestBody.description) op.requestBody.description.should.have.type('string');
+				if (typeof op.requestBody.description !== 'undefined') should(op.requestBody.description).have.type('string');
 				if (op.requestBody.required) op.requestBody.required.should.have.type('boolean');
 				checkContent(op.requestBody.content,contextServers,openapi,options);
 				options.context.pop();

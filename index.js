@@ -360,6 +360,7 @@ function processParameter(param,op,path,index,openapi,options) {
 		result.content = {};
 		if (param.name) result['x-s2o-name'] = param.name;
 		if (param.description) result.description = param.description;
+		if (param.required) result.required = param.required;
 
 		if (param.schema && param.schema.$ref) {
 			result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/','');

@@ -15,7 +15,7 @@ var statusCodes = require('./statusCodes.json');
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
 
-const targetVersion = '3.0.0-RC2';
+const targetVersion = '3.0.0-rc2';
 var componentNames; // initialised in main
 
 function throwError(message,options) {

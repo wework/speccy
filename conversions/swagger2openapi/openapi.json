@@ -502,7 +502,8 @@
               }
             }
           },
-          "description": "order placed for purchasing the pet"
+          "description": "order placed for purchasing the pet",
+          "required": true
         }
       }
     },
@@ -604,7 +605,8 @@
               }
             }
           },
-          "description": "Created user object"
+          "description": "Created user object",
+          "required": true
         }
       }
     },
@@ -806,7 +808,8 @@
               }
             }
           },
-          "description": "Updated user object"
+          "description": "Updated user object",
+          "required": true
         }
       },
       "delete": {
@@ -1031,7 +1034,8 @@
             }
           }
         },
-        "description": "Pet object that needs to be added to the store"
+        "description": "Pet object that needs to be added to the store",
+        "required": true
       },
       "UserArray": {
         "content": {
@@ -1044,7 +1048,8 @@
             }
           }
         },
-        "description": "List of user object"
+        "description": "List of user object",
+        "required": true
       }
     },
     "securitySchemes": {

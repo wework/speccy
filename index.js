@@ -350,6 +350,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	}
 	if (param.type == 'file') {
 		// convert to requestBody
+		if (param.required) result.required = param.required;
 		result.content = {};
 		result.content["application/octet-stream"] = {};
 		result.content["application/octet-stream"].schema = {};

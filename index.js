@@ -376,7 +376,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	}
 	if (param.in == 'body') {
 		result.content = {};
-		if (param.name) result['x-s2o-name'] = param.name;
+		if (param.name) result['x-s2o-name'] = (op && op.operationId ? op.operationId : '') + ('_'+param.name).toCamelCase();
 		if (param.description) result.description = param.description;
 
 		if (param.schema && param.schema.$ref) {

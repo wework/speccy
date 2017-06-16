@@ -493,6 +493,8 @@ function processResponse(response, name, op, openapi, options) {
 
 			var produces = ((op && op.produces) || []).concat(openapi.produces || []).filter(common.uniqueOnly);
 			if (!produces.length) produces.push('*/*'); // TODO verify default
+			if (!response.examples) produces = [produces.join(',')];
+
 			response.content = {};
 			for (let mimetype of produces) {
 				response.content[mimetype] = {};

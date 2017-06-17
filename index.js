@@ -2,6 +2,7 @@
 'use strict';
 
 var fs = require('fs');
+var url = require('url');
 
 var co = require('co');
 var maybe = require('call-me-maybe');
@@ -14,7 +15,7 @@ var statusCodes = require('./statusCodes.json');
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
 
-const targetVersion = '3.0.0-RC1';
+const targetVersion = '3.0.0-rc2';
 var componentNames; // initialised in main
 
 function throwError(message,options) {
@@ -25,24 +26,32 @@ function throwError(message,options) {
 
 function fixupSchema(obj,key,state){
 	if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
-		obj.oneOf = [];
-		for (let type of obj[key]) {
-			var schema = {};
-			schema.type = type;
-			if (type == 'array') {
-				for (let prop of common.arrayProperties) {
-					if (typeof obj[prop] !== 'undefined') {
-						schema[prop] = obj[prop];
-						delete obj[prop];
+		if (obj[key].length < 2) {
+			obj[key] = (obj[key].length ? obj[key][0] : 'string');
+		}
+		else {
+			obj.oneOf = [];
+			for (let type of obj[key]) {
+				var schema = {};
+				schema.type = type;
+				if (type == 'array') {
+					for (let prop of common.arrayProperties) {
+						if (typeof obj[prop] !== 'undefined') {
+							schema[prop] = obj[prop];
+							delete obj[prop];
+						}
 					}
 				}
+				obj.oneOf.push(schema);
 			}
-			obj.oneOf.push(schema);
+			delete obj[key];
 		}
-		delete obj[key];
 	}
 	if ((key == 'required') && (typeof obj[key] === 'boolean') && state.payload.targetted) {
 		delete obj[key]; // TODO check we're at the right level(s) if poss.
+	}
+	if (state.payload.targetted && (key == 'discriminator') && (typeof obj[key] === 'string')) {
+		obj[key] = {propertyName:obj[key]};
 	}
 	if (key == 'x-anyOf') {
 		obj.anyOf = obj[key];
@@ -186,8 +195,17 @@ function processHeader(header,options) {
 	}
 }
 
+function fixParamRef(param) {
+	if (param.$ref.startsWith('#/parameters/')) {
+		param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
+	}
+	if (param.$ref.startsWith('#/definitions/')) {
+		throwError('Definition used as parameter',options);
+	}
+}
+
 /**
- * @returns requestBody?
+ * @returns requestBody
  */
 function processParameter(param,op,path,index,openapi,options) {
 	var result = {};
@@ -198,12 +216,7 @@ function processParameter(param,op,path,index,openapi,options) {
 
 	if (param.$ref && (typeof param.$ref === 'string')) {
 		// if we still have a ref here, it must be an internal one
-		if (param.$ref.startsWith('#/parameters/')) {
-			param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
-		}
-		if (param.$ref.startsWith('#/definitions/')) {
-			throwError('Definition used as parameter',options);
-		}
+		fixParamRef(param);
 		var ptr = param.$ref.replace('#/components/parameters/','');
 		var rbody = false;
 		let target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
@@ -359,7 +372,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	}
 	if (param.in == 'body') {
 		result.content = {};
-		if (param.name) result['x-s2o-name'] = param.name;
+		if (param.name) result['x-s2o-name'] = (op && op.operationId ? op.operationId : '') + ('_'+param.name).toCamelCase();
 		if (param.description) result.description = param.description;
 		if (param.required) result.required = param.required;
 
@@ -413,20 +426,6 @@ function processParameter(param,op,path,index,openapi,options) {
 					}
 				}
 			}
-		}
-		else if (path) {
-			let uniqueName = index ? index.toCamelCase()+'RequestBodyBase' : param.name;
-			if (param.in == 'formData') {
-				result["x-s2o-partial"] = true;
-			}
-			openapi.components.requestBodies[uniqueName] = result;
-		}
-		else {
-			let uniqueName = index ? index : param.name;
-			if (param.in == 'formData') {
-				result["x-s2o-partial"] = true;
-			}
-			openapi.components.requestBodies[uniqueName] = result;
 		}
 	}
 
@@ -491,6 +490,7 @@ function processResponse(response, name, op, openapi, options) {
 
 			var produces = ((op && op.produces) || []).concat(openapi.produces || []).filter(common.uniqueOnly);
 			if (!produces.length) produces.push('*/*'); // TODO verify default
+
 			response.content = {};
 			for (let mimetype of produces) {
 				response.content[mimetype] = {};
@@ -512,8 +512,9 @@ function processResponse(response, name, op, openapi, options) {
 		for (let mimetype in response.examples) {
 			if (!response.content) response.content = {};
 			if (!response.content[mimetype]) response.content[mimetype] = {};
-			response.content[mimetype].examples = [];
-			response.content[mimetype].examples.push(response.examples[mimetype]);
+			response.content[mimetype].examples = {};
+			response.content[mimetype].examples.response = {};
+			response.content[mimetype].examples.response.value = response.examples[mimetype];
 		}
 		delete response.examples;
 		if (response.headers) {
@@ -554,6 +555,21 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				}
 
 				if (op.parameters && Array.isArray(op.parameters)) {
+				    if (path.parameters) {
+						for (let param of path.parameters) {
+							if (typeof param.$ref === 'string') {
+								fixParamRef(param);
+								param = common.resolveInternal(openapi,param.$ref);
+							}
+							var match = op.parameters.find(function(e,i,a){
+								return ((e.name == param.name) && (e.in == param.in));
+							});
+
+							if (!match && (param.in === 'formData') || (param.in === 'body') || (param.type === 'file')) {
+								processParameter(param, op, path, null, openapi, options);
+							}
+						}
+					}
 					for (let param of op.parameters) {
 						processParameter(param, op, path, null, openapi, options);
 					}
@@ -577,12 +593,30 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 					processResponse(response,r,op,openapi,options);
 				}
 
+				if (op.schemes && op.schemes.length) {
+					for (let scheme of op.schemes) {
+						if ((!openapi.schemes) || (openapi.schemes.indexOf(scheme) < 0)) {
+							if (!op.servers) {
+								op.servers = [];
+							}
+							for (let server of openapi.servers) {
+								let newServer = common.clone(server);
+								let serverUrl = url.parse(newServer.url);
+								serverUrl.protocol = scheme;
+								newServer.url = serverUrl.format();
+								op.servers.push(newServer);
+							}
+						}
+					}
+				}
+
 				if (options.debug) {
 					op["x-s2o-consumes"] = op.consumes || [];
 					op["x-s2o-produces"] = op.produces || [];
 				}
 				delete op.consumes;
 				delete op.produces;
+				delete op.schemes;
 
 				common.recurse(op, {payload:{targetted:false}}, fixupSchema); // for x-ms-odata etc
 
@@ -716,10 +750,12 @@ function main(openapi, options) {
 	}
 	delete openapi.consumes;
 	delete openapi.produces;
+	delete openapi.schemes;
 
 	var rbNamesGenerated = [];
 
 	openapi.components.requestBodies = {}; // for now as we've dereffed them
+
 	var counter = 1;
 	for (let e in requestBodyCache) {
 		let entry = requestBodyCache[e];
@@ -757,7 +793,7 @@ function convertObj(swagger, options, callback) {
 			return resolve(options);
 		}
 		if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
-			return reject(new Error('Unsupported swagger/OpenAPI version'));
+			return reject(new Error('Unsupported swagger/OpenAPI version: '+swagger.swagger));
 		}
 
 		var openapi = options.openapi = {};
@@ -788,7 +824,7 @@ function convertObj(swagger, options, callback) {
 				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
 				server.url = server.url.split('{{').join('{');
 				server.url = server.url.split('}}').join('}');
-				server.url.replace(/(\{.+?\})/g,function(match,group1){ // TODO extend to :parameters (not port)?
+				server.url.replace(/\{(.+?)\}/g,function(match,group1){ // TODO extend to :parameters (not port)?
 					if (!server.variables) {
 						server.variables = {};
 					}
@@ -804,7 +840,6 @@ function convertObj(swagger, options, callback) {
 		}
 		delete openapi.host;
 		delete openapi.basePath;
-		delete openapi.schemes;
 
 		if (openapi['x-servers'] && Array.isArray(openapi['x-servers'])) {
 			openapi.servers = openapi['x-servers'].concat(openapi.servers);
@@ -817,13 +852,24 @@ function convertObj(swagger, options, callback) {
 			var xMsPHost = swagger['x-ms-parameterized-host'];
 			let server = {};
 			server.url = xMsPHost.hostTemplate;
-			server.parameters = xMsPHost.parameters;
-			for (let param of server.parameters) {
-				if (param.ref === false) param.required = true; // has a different meaning
-				delete param.type; // all strings
+			server.variables = {};
+			for (let param of xMsPHost.parameters) {
 				if (param.$ref) {
-					param.$ref = param.$ref.replace('#/parameters/','#/components/parameters/');
+					param.$ref = common.resolveInternal(openapi,param.$ref);
 				}
+				delete param.required; // all true
+				delete param.type; // all strings
+				delete param.in; // all 'host'
+				if (typeof param.default === 'undefined') {
+					if (param.enum) {
+						param.default = param.enum[0];
+					}
+					else {
+						param.default = '';
+					}
+				}
+				server.variables[param.name] = param;
+				delete param.name;
 			}
 			openapi.servers.push(server);
 			delete openapi['x-ms-parameterized-host'];
@@ -834,7 +880,7 @@ function convertObj(swagger, options, callback) {
 				openapi.info = {version:'',title:''};
 			}
 			else {
-				return reject(new Error('info object is mandatory'));
+				return reject(new Error('(Patchable) info object is mandatory'));
 			}
 		}
 		if ((typeof openapi.info.title === 'undefined') || (openapi.info.title === null)) {
@@ -842,7 +888,7 @@ function convertObj(swagger, options, callback) {
 				openapi.info.title = '';
 			}
 			else {
-				return reject(new Error('info.title cannot be null'));
+				return reject(new Error('(Patchable) info.title cannot be null'));
 			}
 		}
 		if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
@@ -850,7 +896,7 @@ function convertObj(swagger, options, callback) {
 				openapi.info.version = '';
 			}
 			else {
-				return reject(new Error('info.version cannot be null'));
+				return reject(new Error('(Patchable) info.version cannot be null'));
 			}
 		}
 		if (typeof openapi.info.version !== 'string') {
@@ -858,8 +904,15 @@ function convertObj(swagger, options, callback) {
 				openapi.info.version = openapi.info.version.toString();
 			}
 			else {
-				return reject(new Error('info.version cannot be null'));
+				return reject(new Error('(Patchable) info.version cannot be null'));
 			}
+		}
+		if (typeof openapi.info.logo !== 'undefined') {
+			if (options.patch) {
+				openapi.info['x-logo'] = openapi.info.logo;
+				delete openapi.info.logo; // TODO make patch only
+			}
+			else return reject(new Error('(Patchable) info should not have logo property'));
 		}
 		if (typeof openapi.info.termsOfService !== 'undefined') {
 			if (openapi.info.termsOfService === null) {
@@ -867,7 +920,7 @@ function convertObj(swagger, options, callback) {
 					openapi.info.termsOfService = '';
 				}
 				else {
-					return reject(new Error('info.termsOfService cannot be null'));
+					return reject(new Error('(Patchable) info.termsOfService cannot be null'));
 				}
 			}
 		}

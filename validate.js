@@ -16,7 +16,7 @@ var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
 
 var jsonSchema = require('./schemas/json_v5.json');
-var openapi3Schema = require('./schemas/openapi-3.json');
+var openapi3Schema = require('./schemas/openapi-3.0.json');
 var validateMetaSchema = ajv.compile(jsonSchema);
 var validateOpenAPI3 = ajv.compile(openapi3Schema);
 
@@ -44,6 +44,10 @@ function validateComponentName(name) {
 	return /^[a-zA-Z0-9\.\-_]+$/.test(name);
 }
 
+function validateHeaderName(name) {
+	return /^[A-Za-z0-9!#\-\$%&'\*\+\\\.\^_`\|~]+$/.test(name);
+}
+
 function validateSchema(schema,openapi,options) {
 	validateMetaSchema(schema);
 	var errors = validateSchema.errors;
@@ -63,6 +67,8 @@ function checkContent(content,contextServers,openapi,options) {
 	for (let ct in content) {
 		contextAppend(options,jptr.jpescape(ct));
 		var contentType = content[ct];
+		should(contentType).be.an.Object();
+		should(contentType).not.be.an.Array();
 		if (typeof contentType.schema !== 'undefined') {
 			contentType.schema.should.be.an.Object();
 			contentType.schema.should.not.be.an.Array();
@@ -168,6 +174,7 @@ function checkResponse(response,contextServers,openapi,options) {
 		contextAppend(options,'headers');
 		for (let h in response.headers) {
 			contextAppend(options,h);
+			validateHeaderName(h).should.be.equal(true,'Header doesn\'t match RFC7230 pattern');
 			checkHeader(response.headers[h],contextServers,openapi,options);
 			options.context.pop();
 		}
@@ -251,6 +258,7 @@ function checkPathItem(pathItem,openapi,options) {
 			op.should.not.be.empty();
 			op.should.not.have.property('consumes');
 			op.should.not.have.property('produces');
+			op.should.not.have.property('schemes');
 			op.should.have.property('responses');
 			op.responses.should.not.be.empty();
 			if (op.summary) op.summary.should.have.type('string');
@@ -264,7 +272,7 @@ function checkPathItem(pathItem,openapi,options) {
 			if (op.requestBody && op.requestBody.content) {
 				contextAppend(options,'requestBody');
 				op.requestBody.should.have.property('content');
-				if (op.requestBody.description) op.requestBody.description.should.have.type('string');
+				if (typeof op.requestBody.description !== 'undefined') should(op.requestBody.description).have.type('string');
 				if (op.requestBody.required) op.requestBody.required.should.have.type('boolean');
 				checkContent(op.requestBody.content,contextServers,openapi,options);
 				options.context.pop();
@@ -512,6 +520,7 @@ function validateSync(openapi, options, callback) {
 			if (r.startsWith('requestBody')) {
 				options.warnings.push('Anonymous requestBody: '+r);
 			}
+			let rb = openapi.components.requestBodies[r];
 			options.context.pop();
 		}
 	}

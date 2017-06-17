@@ -1,5 +1,3 @@
-/*.json
-/*.yaml
 build.sh
 schemas/*gnostic*
 schemas/*diff*
@@ -8,6 +6,7 @@ schemas/*diff*
 *.out
 *test.sh
 utils/
+in/
 
 # Logs
 logs

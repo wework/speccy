@@ -143,7 +143,15 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/xml,application/json": {
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              },
+              "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -194,7 +202,15 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/xml,application/json": {
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              },
+              "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -243,7 +259,12 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/xml,application/json": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              },
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Pet"
                 }
@@ -457,7 +478,12 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/xml,application/json": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              },
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Order"
                 }
@@ -506,7 +532,12 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/xml,application/json": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              },
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Order"
                 }
@@ -664,7 +695,12 @@
               }
             },
             "content": {
-              "application/xml,application/json": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
@@ -716,7 +752,12 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/xml,application/json": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
                 }

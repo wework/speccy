@@ -3,6 +3,7 @@
 
 var fs = require('fs');
 var url = require('url');
+var pathlib = require('path');
 
 var co = require('co');
 var maybe = require('call-me-maybe');
@@ -10,7 +11,7 @@ var fetch = require('node-fetch');
 var yaml = require('js-yaml');
 
 var common = require('./common.js');
-var statusCodes = require('./statusCodes.json');
+var statusCodes = require(pathlib.join(__dirname,'statusCodes.json'));
 
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?

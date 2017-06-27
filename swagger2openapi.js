@@ -48,6 +48,7 @@ var argv = require('yargs')
 
 function processResult(err, options) {
 	if (err) {
+		delete err.options;
 		console.log(util.inspect(err));
 		return process.exitCode = 1;
 	}

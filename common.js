@@ -75,6 +75,11 @@ function resolveExternal(root,pointer,options,callback) {
 	var u = url.parse(options.source);
 	var base = options.source.split('/');
 	base.pop(); // drop the actual filename
+	let fragment = '';
+	let fnComponents = pointer.split('#');
+	if (fnComponents.length>1) {
+		fragment = '#'+fnComponents[1];
+	}
 	base = base.join('/');
 	if (options.verbose) console.log((u.protocol ? 'GET ' : 'file://') + base+'/'+pointer);
 	if (u.protocol) {
@@ -85,6 +90,9 @@ function resolveExternal(root,pointer,options,callback) {
 		.then(function(data){
 			try {
 				data = yaml.safeLoad(data,{json:true});
+				if (fragment) {
+					data = resolveInternal(data,fragment);
+				}
 			}
 			catch (ex) {}
 			callback(data);

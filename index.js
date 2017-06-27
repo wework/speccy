@@ -197,10 +197,11 @@ function processHeader(header,options) {
 }
 
 function fixParamRef(param) {
-	if (param.$ref.startsWith('#/parameters/')) {
-		param.$ref = '#/components/parameters/'+common.sanitise(param.$ref.replace('#/parameters/',''));
+	if (param.$ref.indexOf('#/parameters/')>=0) {
+		let refComponents = param.$ref.split('#/parameters/');
+		param.$ref = refComponents[0]+'#/components/parameters/'+common.sanitise(refComponents[1]);
 	}
-	if (param.$ref.startsWith('#/definitions/')) {
+	if (param.$ref.indexOf('#/definitions/')>=0) {
 		throwError('Definition used as parameter',options);
 	}
 }
@@ -222,7 +223,7 @@ function processParameter(param,op,path,index,openapi,options) {
 		var rbody = false;
 		let target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
 
-		if ((!target) || (target["x-s2o-delete"])) {
+		if (((!target) || (target["x-s2o-delete"])) && param.$ref.startsWith('#/')) {
 			// if it's gone, chances are it's a requestBody component now unless spec was broken
 			param["x-s2o-delete"] = true;
 			rbody = true;
@@ -232,9 +233,14 @@ function processParameter(param,op,path,index,openapi,options) {
 		// we dereference all op.requestBody's then hash them and pull out common ones later
 
 		if (rbody) {
-			var ref = param.$ref;
-			param = common.resolveInternal(openapi,param.$ref);
-			if (!param) throwError('Could not resolve reference '+ref,options);
+			let ref = param.$ref;
+			let newParam = common.resolveInternal(openapi,param.$ref);
+			if (!newParam && ref.startsWith('#/')) {
+				throwError('Could not resolve reference '+ref,options);
+			}
+			else {
+				if (newParam) param = newParam; // preserve reference
+			}
 		}
 	}
 

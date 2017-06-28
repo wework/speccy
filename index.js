@@ -917,7 +917,7 @@ function convertObj(swagger, options, callback) {
 		if (typeof openapi.info.logo !== 'undefined') {
 			if (options.patch) {
 				openapi.info['x-logo'] = openapi.info.logo;
-				delete openapi.info.logo; // TODO make patch only
+				delete openapi.info.logo;
 			}
 			else return reject(new Error('(Patchable) info should not have logo property'));
 		}

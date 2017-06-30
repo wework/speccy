@@ -12,7 +12,7 @@
 
 Convert Swagger 2.0 definitions into OpenApi 3.0.x
 
-Currently tracking [v3.0.0-rc2](https://github.com/OAI/OpenAPI-Specification/blob/3.0.0-rc2/versions/3.0.md)
+Currently tracking [v3.0.0-rc3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.0-rc3/versions/3.0.md)
 
 Usage:
 

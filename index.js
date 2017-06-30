@@ -16,7 +16,7 @@ var statusCodes = require(pathlib.join(__dirname,'statusCodes.json'));
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
 
-const targetVersion = '3.0.0-rc2';
+const targetVersion = '3.0.0-rc3';
 var componentNames; // initialised in main
 
 function throwError(message,options) {

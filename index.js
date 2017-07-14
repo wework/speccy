@@ -164,7 +164,7 @@ function processHeader(header,options) {
 				}
 			}
 			if (header.collectionFormat == 'csv') {
-				header.style = 'form';
+				header.style = 'simple';
 			}
 			if (header.collectionFormat == 'ssv') {
 				header.style = 'spaceDelimited';
@@ -270,8 +270,11 @@ function processParameter(param,op,path,index,openapi,options) {
 					throwError('(Patchable) collectionFormat is only applicable to param.type array',options);
 				}
 			}
-			if (param.collectionFormat == 'csv') {
+			if ((param.collectionFormat == 'csv') && ((param.in == 'query') || (param.in == 'cookie'))) {
 				param.style = 'form';
+			}
+			if ((param.collectionFormat == 'csv') && ((param.in == 'path') || (param.in == 'header'))) {
+				param.style = 'simple';
 			}
 			if (param.collectionFormat == 'ssv') {
 				param.style = 'spaceDelimited';

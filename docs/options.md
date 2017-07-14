@@ -12,6 +12,7 @@ externals|[Array](externals.md)|Output|Information required to unresolve a resol
 fail|Boolean|Input|Command-line flag used by `testRunner`
 file|String|Input|Used to pass filename back to `testRunner`
 help|Boolean|Reserved|Command-line flag to display help
+jsonschema|String|Input|Path to alternative JSON schema (in JSON or YAML) for validation
 laxurls|Boolean|Input|Flag to validation step to ignore empty URLs
 nopatch|Boolean|Input|Command-line flag by `testRunner` to unset `patch`
 openapi|Object|Output|The OpenApi 3.x definition returned from a conversion step

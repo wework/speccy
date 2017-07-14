@@ -20,12 +20,18 @@ var argv = require('yargs')
 	.string('fail')
 	.describe('fail','path to specs expected to fail')
 	.alias('f','fail')
+	.string('jsonschema')
+	.alias('j','jsonschema')
+	.describe('jsonschema','path to alternative JSON schema')
 	.boolean('laxurls')
 	.alias('l','laxurls')
 	.describe('laxurls','lax checking of empty urls')
 	.boolean('nopatch')
 	.alias('n','nopatch')
 	.describe('nopatch','do not patch minor errors in the source definition')
+	.boolean('output')
+	.alias('o','output')
+	.describe('output','output conversion as openapi.yaml')
 	.boolean('quiet')
 	.alias('q','quiet')
 	.describe('quiet','do not show test passes on console, for CI')
@@ -82,7 +88,7 @@ function handleResult(err, options) {
 	if (typeof result !== 'boolean') try {
 		var src = options.original;
 		if (!options.yaml) {
-			resultStr = yaml.safeDump(result); // should be representable safely in yaml
+			resultStr = yaml.safeDump(result,{lineWidth:-1}); // should be representable safely in yaml
 			resultStr.should.not.be.exactly('{}');
 		}
 
@@ -109,6 +115,10 @@ function handleResult(err, options) {
 	}
 	if (result) {
 		pass++;
+		if ((options.file.indexOf('swagger.yaml')>=0) && argv.output) {
+			let outFile = options.file.replace('swagger.yaml','openapi.yaml');
+			fs.writeFile(outFile,resultStr,argv.encoding);
+		}
 	}
 	else {
 		fail++;

@@ -1,23 +1,26 @@
 // @ts-check
 'use strict';
 
+var fs = require('fs');
 var url = require('url');
 var URL = url.URL;
 var util = require('util');
 
+var yaml = require('js-yaml');
 var should = require('should');
 var ajv = require('ajv')({
 	allErrors: true,
 	verbose: true,
-	jsonPointers: true
+	jsonPointers: true,
+	unknownFormats: 'ignore'
 });
 
 var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
 
 var jsonSchema = require('./schemas/json_v5.json');
-var openapi3Schema = require('./schemas/openapi-3.0.json');
 var validateMetaSchema = ajv.compile(jsonSchema);
+var openapi3Schema = require('./schemas/openapi-3.0.json');
 var validateOpenAPI3 = ajv.compile(openapi3Schema);
 
 function contextAppend(options,s) {
@@ -273,7 +276,7 @@ function checkPathItem(pathItem,openapi,options) {
 				contextAppend(options,'requestBody');
 				op.requestBody.should.have.property('content');
 				if (typeof op.requestBody.description !== 'undefined') should(op.requestBody.description).have.type('string');
-				if (op.requestBody.required) op.requestBody.required.should.have.type('boolean');
+				if (typeof op.requestBody.required !== 'undefined') op.requestBody.required.should.have.type('boolean');
 				checkContent(op.requestBody.content,contextServers,openapi,options);
 				options.context.pop();
 			}
@@ -299,6 +302,21 @@ function checkPathItem(pathItem,openapi,options) {
 				op.externalDocs.url.should.have.type('string');
 				(function(){validateUrl(op.externalDocs.url,contextServers,'externalDocs',options)}).should.not.throw();
 			}
+			if (op.callbacks) {
+				contextAppend(options,'callbacks');
+				for (let c in op.callbacks) {
+					let callback = op.callbacks[c];
+					if (!callback.$ref) {
+						contextAppend(options,c);
+						for (let p in callback) {
+							let cbPi = callback[p];
+							checkPathItem(cbPi,openapi,options);
+						}
+						options.context.pop();
+					}
+				}
+				options.context.pop();
+			}
 		}
 		options.context.pop();
 	}
@@ -309,6 +327,12 @@ function validateSync(openapi, options, callback) {
 	options.valid = false;
 	options.context = [];
 	options.warnings = [];
+
+	if (options.jsonschema) {
+		let schemaStr = fs.readFileSync(options.jsonschema,'utf8');
+		openapi3Schema = yaml.safeLoad(schemaStr,{json:true});
+		validateOpenAPI3 = ajv.compile(openapi3Schema);
+	}
 
 	options.context.push('#/');
     openapi.should.not.have.key('swagger');
@@ -521,6 +545,25 @@ function validateSync(openapi, options, callback) {
 				options.warnings.push('Anonymous requestBody: '+r);
 			}
 			let rb = openapi.components.requestBodies[r];
+			rb.should.have.property('content');
+			if (typeof rb.description !== 'undefined') should(rb.description).have.type('string');
+			if (typeof rb.required !== 'undefined') rb.required.should.have.type('boolean');
+			checkContent(rb.content,openapi.servers,openapi,options);
+			options.context.pop();
+		}
+	}
+
+	if (openapi.components && openapi.components.callbacks) {
+		for (let c in openapi.components.callbacks) {
+			options.context.push('#/components/callbacks/'+c);
+			validateComponentName(c).should.be.equal(true,'component name invalid');
+			let cb = openapi.components.callbacks[c];
+			if (!cb.$ref) {
+				for (let u in cb) {
+					let cbPi = cb[u];
+					checkPathItem(cbPi,openapi,options);
+				}
+			}
 			options.context.pop();
 		}
 	}

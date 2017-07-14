@@ -34,7 +34,12 @@ function fixupSchema(obj,key,state){
 			obj.oneOf = [];
 			for (let type of obj[key]) {
 				var schema = {};
-				schema.type = type;
+				if (type === 'null') {
+					obj.nullable = true;
+				}
+				else {
+					schema.type = type;
+				}
 				if (type == 'array') {
 					for (let prop of common.arrayProperties) {
 						if (typeof obj[prop] !== 'undefined') {
@@ -43,9 +48,16 @@ function fixupSchema(obj,key,state){
 						}
 					}
 				}
-				obj.oneOf.push(schema);
+				if (schema.type) obj.oneOf.push(schema);
 			}
-			delete obj[key];
+			if (obj.oneOf.length != 1) {
+				delete obj[key];
+			}
+			else {
+				obj[key] = obj.oneOf[0].type;
+				delete obj.oneOf;
+			}
+
 		}
 	}
 	if ((key == 'required') && (typeof obj[key] === 'boolean') && state.payload.targetted) {
@@ -65,6 +77,10 @@ function fixupSchema(obj,key,state){
 	if (key == 'x-not') {
 		obj.not = obj[key];
 		delete obj[key];
+	}
+	if ((key == 'type') && (obj[key] == 'null')) {
+		delete obj[key];
+		obj.nullable = true;
 	}
 	if ((key == 'x-required') && (Array.isArray(obj[key]))) {
 		if (!obj.required) {

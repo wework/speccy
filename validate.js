@@ -147,6 +147,9 @@ function checkHeader(header,contextServers,openapi,options) {
 	}
 	if (header.schema) {
 		header.should.not.have.property('content');
+		if (typeof header.style !== 'undefined') {
+			header.style.should.be.exactly('simple');
+		}
 		validateSchema(header.schema,openapi,options);
 	}
 	if (header.content) {
@@ -220,6 +223,25 @@ function checkParam(param,index,contextServers,openapi,options){
 	}
 	if (param.schema) {
 		param.should.not.have.property('content');
+		if (typeof param.style !== 'undefined') {
+			if (param.in == 'path') {
+				param.style.should.not.be.exactly('form');
+				param.style.should.not.be.exactly('spaceDelimited');
+				param.style.should.not.be.exactly('pipeDelimited');
+				param.style.should.not.be.exactly('deepObject');
+			}
+			if (param.in == 'query') {
+				param.style.should.not.be.exactly('matrix');
+				param.style.should.not.be.exactly('label');
+				param.style.should.not.be.exactly('simple');
+			}
+			if (param.in == 'header') {
+				param.style.should.be.exactly('simple');
+			}
+			if (param.in == 'cookie') {
+				param.style.should.be.exactly('form');
+			}
+		}
 		validateSchema(param.schema,openapi,options);
 	}
 	if (param.content) {

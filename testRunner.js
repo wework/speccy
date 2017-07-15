@@ -130,7 +130,7 @@ function handleResult(err, options) {
 
 function genStackNext() {
 	if (!genStack.length) return false;
-	var gen = genStack.pop();
+	var gen = genStack.shift();
 	gen.next();
 	return true;
 }
@@ -205,11 +205,7 @@ function processPathSpec(pathspec,expectFailure) {
 			if (err) console.log(util.inspect(err));
 		})
 		.then(files => {
-			files = files.sort(function(a,b){
-				if (a<b) return +1;
-				if (a>b) return -1;
-				return 0;
-			});
+			files = files.sort();
 			for (var file of files) {
 				genStack.push(check(file,false,expectFailure));
 			}

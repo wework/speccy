@@ -127,7 +127,7 @@ function processSecurity(securityObject) {
 	}
 }
 
-function processSecurityScheme(scheme) {
+function processSecurityScheme(scheme,options) {
 	if (scheme.type == 'basic') {
 		scheme.type = 'http';
 		scheme.scheme = 'basic';
@@ -146,6 +146,14 @@ function processSecurityScheme(scheme) {
 		delete scheme.authorizationUrl;
 		delete scheme.tokenUrl;
 		delete scheme.scopes;
+		if (typeof scheme.name !== 'undefined') {
+			if (options.patch) {
+				delete scheme.name;
+			}
+			else {
+				throwError('(Patchable) oauth2 securitySchemes should not have name property',options);
+			}
+		}
 	}
 }
 
@@ -183,10 +191,10 @@ function processHeader(header,options) {
 				header.style = 'simple';
 			}
 			if (header.collectionFormat == 'ssv') {
-				header.style = 'spaceDelimited';
+				throwError('collectionFormat:ssv is no longer supported for headers', options); // not lossless
 			}
 			if (header.collectionFormat == 'pipes') {
-				header.style = 'pipeDelimited';
+				throwError('collectionFormat:pipes is no longer supported for headers', options); // not lossless
 			}
 			if (header.collectionFormat == 'multi') {
 				header.explode = true;
@@ -293,10 +301,20 @@ function processParameter(param,op,path,index,openapi,options) {
 				param.style = 'simple';
 			}
 			if (param.collectionFormat == 'ssv') {
-				param.style = 'spaceDelimited';
+				if (param.in == 'query') {
+					param.style = 'spaceDelimited';
+				}
+				else {
+					throwError('collectionFormat:ssv is no longer supported except for in:query parameters', options); // not lossless
+				}
 			}
 			if (param.collectionFormat == 'pipes') {
-				param.style = 'pipeDelimited';
+				if (param.in == 'query') {
+					param.style = 'pipeDelimited';
+				}
+				else {
+					throwError('collectionFormat:pipes is no longer supported except for in:query parameters', options); // not lossless
+				}
 			}
 			if (param.collectionFormat == 'multi') {
 				param.explode = true;
@@ -692,7 +710,7 @@ function main(openapi, options) {
 			openapi.components.securitySchemes[sname] = openapi.components.securitySchemes[s];
 			delete openapi.components.securitySchemes[s];
 		}
-		processSecurityScheme(openapi.components.securitySchemes[sname]);
+		processSecurityScheme(openapi.components.securitySchemes[sname],options);
 	}
 
 	for (let s in openapi.components.schemas) {
@@ -769,6 +787,7 @@ function main(openapi, options) {
 	common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema);
 	common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema); // second pass for fixed x-anyOf's etc
 	common.recurse(openapi,{payload:{targetted:false}},fixupSchema); // pass across whole definition for $refs in vendor extensions
+	common.recurse(openapi,{payload:{targetted:false}},fixupSchema); // second pass for fixed x-anyOf's etc
 
 	if (options.debug) {
 		openapi["x-s2o-consumes"] = openapi.consumes||[];

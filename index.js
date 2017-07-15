@@ -93,7 +93,7 @@ function fixupSchema(obj,key,state){
 		if (obj[key].startsWith('#/definitions/')) {
 			//only the first part of a schema component name must be sanitised
 			let keys = obj[key].replace('#/definitions/','').split('/');
-			keys[0] = componentNames.schemas[keys[0]];
+			keys[0] = componentNames.schemas[keys[0]]; //lookup
 			obj[key] = '#/components/schemas/'+keys.join('/');
 		}
 		if (obj[key].startsWith('#/parameters/')) {
@@ -110,7 +110,7 @@ function fixupSchema(obj,key,state){
 	}
 	if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
 		let keys = obj[key].replace('#/definitions/','').split('/');
-		keys[0] = componentNames.schemas[keys[0]];
+		keys[0] = componentNames.schemas[keys[0]]; //lookup
 		obj[key] = '#/components/schemas/'+keys.join('/');
 	}
 }

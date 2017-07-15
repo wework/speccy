@@ -147,7 +147,9 @@ const httpVerbs = [
 ];
 
 function sanitise(s) {
-    return s.replace(/[^A-Za-z0-9_\-\.]+|\s+/gm, '_');
+	var components = s.split('/');
+	components[0] = components[0].replace(/[^A-Za-z0-9_\-\.]+|\s+/gm, '_');
+	return components.join('/');
 }
 
 module.exports = {

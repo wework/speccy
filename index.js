@@ -444,7 +444,7 @@ function processParameter(param,op,path,index,openapi,options) {
 		if (op) {
 			if (op.requestBody && singularRequestBody) {
 				op.requestBody["x-s2o-overloaded"] = true;
-				throwError('Operation has >1 requestBodies',options);
+				throwError('Operation has multiple requestBodies',options);
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody); // make sure we have one

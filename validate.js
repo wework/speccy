@@ -17,11 +17,11 @@ var ajv = require('ajv')({
 });
 	//meta: false, // optional, to prevent adding draft-06 meta-schema
 
-var ajvFormats = require('./node_modules/ajv/lib/compile/formats.js');
+var ajvFormats = require('ajv/lib/compile/formats.js');
 ajv.addFormat('uriref',ajvFormats.full['uri-reference']);
-ajv.addMetaSchema(require('./node_modules/ajv/lib/refs/json-schema-draft-04.json'));
+ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-04.json'));
 ajv._refs['http://json-schema.org/schema'] = 'http://json-schema.org/draft-04/schema'; // optional, using unversioned URI is out of spec
-var metaSchema = require('./node_modules/ajv/lib/refs/json-schema-v5.json');
+var metaSchema = require('ajv/lib/refs/json-schema-v5.json');
 ajv.addMetaSchema(metaSchema);
 ajv._opts.defaultMeta = metaSchema.id;
 

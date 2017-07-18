@@ -82,6 +82,10 @@ function fixupSchema(obj,key,state){
 		delete obj[key];
 		obj.nullable = true;
 	}
+	if (state.payload.targetted && (key == 'x-nullable') && (typeof obj[key] === 'boolean')) {
+		obj.nullable = obj[key];
+		delete obj[key];
+	}
 	if ((key == 'x-required') && (Array.isArray(obj[key]))) {
 		if (!obj.required) {
 			obj.required = [];

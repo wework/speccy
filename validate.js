@@ -12,8 +12,18 @@ var ajv = require('ajv')({
 	allErrors: true,
 	verbose: true,
 	jsonPointers: true,
-	unknownFormats: 'ignore'
+	patternGroups: true,
+	extendRefs: true // optional, current default is to 'fail', spec behaviour is to 'ignore'
 });
+	//meta: false, // optional, to prevent adding draft-06 meta-schema
+
+var ajvFormats = require('./node_modules/ajv/lib/compile/formats.js');
+ajv.addFormat('uriref',ajvFormats.full['uri-reference']);
+ajv.addMetaSchema(require('./node_modules/ajv/lib/refs/json-schema-draft-04.json'));
+ajv._refs['http://json-schema.org/schema'] = 'http://json-schema.org/draft-04/schema'; // optional, using unversioned URI is out of spec
+var metaSchema = require('./node_modules/ajv/lib/refs/json-schema-v5.json');
+ajv.addMetaSchema(metaSchema);
+ajv._opts.defaultMeta = metaSchema.id;
 
 var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');

@@ -86,7 +86,20 @@ function fixupSchema(obj,key,state){
 		obj.nullable = obj[key];
 		delete obj[key];
 	}
-	if ((key == 'x-required') && (Array.isArray(obj[key]))) {
+	if (state.payload.targetted && (key == 'items') && Array.isArray(obj[key])) {
+		if (obj[key].length == 0) {
+			obj[key] = {};
+		}
+		else if (obj[key].length == 1) {
+			obj[key] = obj[key][0];
+		}
+		else {
+			obj[key] = {
+				anyOf: obj[key]
+			};
+		}
+	}
+	if ((key == 'x-required') && Array.isArray(obj[key])) {
 		if (!obj.required) {
 			obj.required = [];
 		}
@@ -420,7 +433,7 @@ function processParameter(param,op,path,index,openapi,options) {
 	}
 	if (param.in == 'body') {
 		result.content = {};
-		if (param.name) result['x-s2o-name'] = (op && op.operationId ? op.operationId : '') + ('_'+param.name).toCamelCase();
+		if (param.name) result['x-s2o-name'] = (op && op.operationId ? common.sanitiseAll(op.operationId) : '') + ('_'+param.name).toCamelCase();
 		if (param.description) result.description = param.description;
 		if (param.required) result.required = param.required;
 
@@ -469,7 +482,7 @@ function processParameter(param,op,path,index,openapi,options) {
 							op.requestBody['x-s2o-name'] = op.requestBody.schema.$ref.replace('#/components/schemas/','').split('/').join('');
 						}
 						else if (op.operationId) {
-							op.requestBody['x-s2o-name'] = op.operationId;
+							op.requestBody['x-s2o-name'] = common.sanitiseAll(op.operationId);
 						}
 					}
 				}
@@ -669,7 +682,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				common.recurse(op, {payload:{targetted:false}}, fixupSchema); // for x-ms-odata etc
 
 				if (op.requestBody) {
-					var effectiveOperationId = op.operationId||common.sanitise(method+p).toCamelCase();
+					var effectiveOperationId = op.operationId ? common.sanitiseAll(op.operationId) : common.sanitiseAll(method+p).toCamelCase();
 					var rbName = common.sanitise(op.requestBody['x-s2o-name']||effectiveOperationId||'');
 					delete op.requestBody['x-s2o-name'];
 					var rbStr = JSON.stringify(op.requestBody);
@@ -718,7 +731,7 @@ function main(openapi, options) {
 	}
 
 	for (let s in openapi.components.schemas) {
-		let sname = common.sanitise(s);
+		let sname = common.sanitiseAll(s);
 		let suffix = '';
 		if (s != sname) {
 			while (openapi.components.schemas[sname+suffix]) {

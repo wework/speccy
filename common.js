@@ -152,6 +152,10 @@ function sanitise(s) {
 	return components.join('/');
 }
 
+function sanitiseAll(s) {
+	return sanitise(s.split('/').join('_'));
+}
+
 module.exports = {
 
 	clone : clone,
@@ -164,6 +168,7 @@ module.exports = {
 	parameterTypeProperties : parameterTypeProperties,
 	arrayProperties : arrayProperties,
 	httpVerbs : httpVerbs,
-	sanitise : sanitise
+	sanitise : sanitise,
+	sanitiseAll : sanitiseAll
 
 };

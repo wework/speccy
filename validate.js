@@ -126,9 +126,14 @@ function checkServers(servers,options) {
 	for (let server of servers) {
 		server.should.have.property('url');
 		(function(){validateUrl(server.url,[],'server.url',options)}).should.not.throw();
+		let srvVars = 0;
+		server.url.replace(/\{(.+?)\}/g,function(match,group1) {
+			srvVars++;
+			server.should.have.key('variables');
+			server.variables.should.have.key(group1);
+		});
 		if (server.variables) {
 			for (let v in server.variables) {
-				// TODO validate variable appears in server.url
 				server.variables[v].should.have.key('default');
 				server.variables[v].default.should.be.type('string');
 				if (typeof server.variables[v].enum !== 'undefined') {
@@ -139,7 +144,7 @@ function checkServers(servers,options) {
 					}
 				}
 			}
-			// TODO validate all variables seen in server.url are present
+			should(Object.keys(server.variables).length).be.exactly(srvVars);
 		}
 	}
 }

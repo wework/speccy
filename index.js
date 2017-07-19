@@ -886,7 +886,7 @@ function convertObj(swagger, options, callback) {
 				server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
 				server.url = server.url.split('{{').join('{');
 				server.url = server.url.split('}}').join('}');
-				server.url.replace(/\{(.+?)\}/g,function(match,group1){ // TODO extend to :parameters (not port)?
+				server.url.replace(/\{(.+?)\}/g,function(match,group1) { // TODO extend to :parameters (not port)?
 					if (!server.variables) {
 						server.variables = {};
 					}

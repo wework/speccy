@@ -12,11 +12,11 @@
 
 Convert Swagger 2.0 definitions into OpenApi 3.0.x
 
-Currently tracking [v3.0.0-rc3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.0-rc3/versions/3.0.md)
+Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.md)
 
 Usage:
 
-````
+```
 swagger2openapi [options] [filename|url]
 Options:
   -c, --components  output information to unresolve a definition       [boolean]
@@ -29,11 +29,11 @@ Options:
   -u, --url         url of original spec, creates x-origin entry        [string]
   -v, --verbose     increase verbosity                                   [count]
   -y, --yaml        read and write YAML, default JSON                  [boolean]
-````
+```
 
 or use the APIs:
 
-````javascript
+```javascript
 var converter = require('swagger2openapi');
 var options = {};
 //options.debug = true; // sets various x-s2o- debugging properties
@@ -42,9 +42,9 @@ converter.convertObj(swagger, options, function(err, options){
 });
 // also available are asynchronous convertFile, convertUrl, convertStr and convertStream functions
 // if you omit the callback parameter, you will instead receive a Promise
-````
+```
 
-````javascript
+```javascript
 var validator = require('swagger2openapi/validate.js');
 var options = {};
 validator.validate(openapi, options, function(err, options){
@@ -52,7 +52,7 @@ validator.validate(openapi, options, function(err, options){
   // options.context now contains a stack (array) of JSON-Pointer strings
 });
 // also available is a synchronous validateSync method which returns a boolean
-````
+```
 
 See here for complete [documentation](docs/options.md) of the `options` object.
 
@@ -69,6 +69,10 @@ The `testRunner` harness can also be used as a simple validator if given one or 
 swagger2openapi preserves `$ref` JSON references in your API definition, and does not dereference
 every item, as with some model-based parsers.
 
+### Schema transformations
+
+Swagger2openapi will automatically 'repair' a number of problems where non-compliant Swagger 2.0 schemas have been used. It will attempt to transform JSON schemas (used incorrectly) into OpenAPI 3.0.x Schema objects.
+
 ### Specification extensions
 
 swagger2openapi has support for a limited number of real-world [specification extensions](/docs/extensions.md) which have a direct bearing on the conversion. All other specification extensions are left untouched. swagger2openapi is [swaggerplusplus](https://github.com/mermade/swaggerplusplus)-compatible.
@@ -79,9 +83,9 @@ It is expected to be able to configure the process of specification-extension mo
 
 To run a test-suite:
 
-````shell
+```shell
 node testRunner [-f {path-to-expected-failures}]... [{path-to-APIs|single-file...}]
-````
+```
 
 The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x, 6.x and 7.x against
 
@@ -94,4 +98,4 @@ Additionally swagger2openapi has been tested on a corpus of 34,679 real-world va
 
 ## License 
 
-[BSD-3-Clause](LICENSE) except the OpenAPI3 schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json) and is licensed under the [Apache-2](https://github.com/googleapis/gnostic/blob/master/LICENSE) license.
+[BSD-3-Clause](LICENSE) except the `openapi-3.0.json` schema, which is taken from the [OpenAPI-Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/schemas/v3.0/schema.json) and the alternative `gnostic-3.0.json` schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json). Both of these are licensed under the [Apache-2](http://www.apache.org/licenses/LICENSE-2.0) license.

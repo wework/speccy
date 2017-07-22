@@ -1,6 +1,7 @@
 build.sh
 schemas/*gnostic*
 schemas/*diff*
+schemadev/
 .coveralls.yml
 *.txt
 *.out

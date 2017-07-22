@@ -19,6 +19,7 @@ openapi|Object|Output|The OpenApi 3.x definition returned from a conversion step
 origin|String|Input|The URL of the definition, set by convertUrl method
 original|Object|Input|Used by `testRunner` to round-trip the original definition
 outfile|String|Input|The output file to write to
+output|Boolean|Input|Internal flag to testRunner to write output openapi.yaml files
 patch|Boolean|Input|Flag to fix-up minor errors in the source definition before conversion
 quiet|Boolean|Input|Command-line flag used by `testRunner`
 resolve|Boolean|Input|Flag to enable resolution of external `$ref`s.

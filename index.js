@@ -16,7 +16,7 @@ var statusCodes = require(pathlib.join(__dirname,'statusCodes.json'));
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
 
-const targetVersion = '3.0.0-rc3';
+const targetVersion = '3.0.0';
 var componentNames; // initialised in main
 
 function throwError(message,options) {
@@ -678,6 +678,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 				delete op.consumes;
 				delete op.produces;
 				delete op.schemes;
+				if (op.parameters && op.parameters.length === 0) delete op.parameters;
 
 				common.recurse(op, {payload:{targetted:false}}, fixupSchema); // for x-ms-odata etc
 
@@ -843,6 +844,25 @@ function main(openapi, options) {
 				openapi[address[0]][address[2]][address[1]].requestBody = ref; // might be easier to use a JSON Pointer here
 			}
 		}
+	}
+
+	if (openapi.components.responses && Object.keys(openapi.components.responses).length === 0) {
+		delete openapi.components.responses;
+	}
+	if (openapi.components.parameters && Object.keys(openapi.components.parameters).length === 0) {
+		delete openapi.components.parameters;
+	}
+	if (openapi.components.examples && Object.keys(openapi.components.examples).length === 0) {
+		delete openapi.components.examples;
+	}
+	if (openapi.components.requestBodies && Object.keys(openapi.components.requestBodies).length === 0) {
+		delete openapi.components.requestBodies;
+	}
+	if (openapi.components.securitySchemes && Object.keys(openapi.components.securitySchemes).length === 0) {
+		delete openapi.components.securitySchemes;
+	}
+	if (openapi.components.headers && Object.keys(openapi.components.headers).length === 0) {
+		delete openapi.components.headers;
 	}
 
 	return openapi;

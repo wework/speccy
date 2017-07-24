@@ -29,7 +29,7 @@ String.prototype.toCamelCase = function camelize() {
 }
 
 function recurse(object,state,callback) {
-	if (!state) {
+	if (!state || (Object.keys(state).length === 0)) {
 		state = {};
 		state.path = '#';
 		state.depth = 0;

@@ -131,25 +131,36 @@ function checkServer(server,options) {
 		server.variables.should.have.key(group1);
 	});
 	if (server.variables) {
+		contextAppend(options,'variables');
 		for (let v in server.variables) {
+			contextAppend(options,v);
 			server.variables[v].should.have.key('default');
 			server.variables[v].default.should.be.type('string');
 			if (typeof server.variables[v].enum !== 'undefined') {
+				contextAppend(options,'enum');
 				server.variables[v].enum.should.be.an.Array();
 				should(server.variables[v].enum.length).not.be.exactly(0,'Server variables enum should not be empty');
-				for (let enumValue of server.variables[v].enum) {
-					enumValue.should.be.type('string');
+				for (let e in server.variables[v].enum) {
+					contextAppend(options,e);
+					server.variables[v].enum[e].should.be.type('string');
+					options.context.pop();
 				}
+				options.context.pop();
 			}
+			options.context.pop();
 		}
 		should(Object.keys(server.variables).length).be.exactly(srvVars);
+		options.context.pop();
 	}
 }
 
 function checkServers(servers,options) {
 	servers.should.be.an.Array();
-	for (let server of servers) {
+	for (let s in servers) {
+		contextAppend(options,s);
+		let server = servers[s];
 		checkServer(server,options);
+		options.context.pop();
 	}
 }
 
@@ -236,9 +247,13 @@ function checkResponse(response,contextServers,openapi,options) {
 	}
 
 	if (typeof response.links !== 'undefined') {
+		contextAppend(options,'links');
 		for (let l in response.links) {
+			contextAppend(options,l);
 			checkLink(response.links[l],options);
+			options.context.pop();
 		}
+		options.context.pop();
 	}
 }
 
@@ -322,7 +337,9 @@ function checkPathItem(pathItem,openapi,options) {
 			}
 		}
 		else if (o == 'servers') {
+			contextAppend(options,'servers');
 			checkServers(op,options); // won't be here in converted definitions
+			options.context.pop();
 		}
 		else if (o == 'summary') {
 			pathItem.summary.should.have.type('string');
@@ -341,7 +358,9 @@ function checkPathItem(pathItem,openapi,options) {
 			if (op.description) op.description.should.have.type('string');
 
 			if (op.servers) {
+				contextAppend(options,'servers');
 				checkServers(op.servers,options); // won't be here in converted definitions
+				options.context.pop();
 				contextServers.push(op.servers);
 			}
 
@@ -443,7 +462,9 @@ function validateSync(openapi, options, callback) {
 
 	var contextServers = [];
 	if (openapi.servers) {
+		contextAppend(options,'servers');
 		checkServers(openapi.servers,options);
+		options.context.pop();
 		contextServers.push(openapi.servers);
 	}
 	if (openapi.externalDocs) {

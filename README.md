@@ -12,7 +12,7 @@
 
 Convert Swagger 2.0 definitions into OpenApi 3.0.x
 
-Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.md)
+Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
 
 Usage:
 
@@ -91,6 +91,7 @@ The test harness currently expects files with a `.json` or `.yaml` extension, or
 
 * [APIs.guru](https://github.com/APIs-guru/openapi-directory)
 * [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)
+* [OpenAPI3-Examples (pass/fail)](https://github.com/mermade/openapi3-examples)
 * [SOM-Research collection](https://github.com/SOM-Research/hapi)
 
 Additionally swagger2openapi has been tested on a corpus of 34,679 real-world valid Swagger 2.0 definitions from GitHub and [SwaggerHub](https://swaggerhub.com/). However, if you have a definition which causes errors in the converter or does not pass validation, please do not hesitate to [raise an issue](https://github.com/Mermade/swagger2openapi/issues).

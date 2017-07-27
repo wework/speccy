@@ -64,7 +64,7 @@ function fixupSchema(obj,key,state){
 		delete obj[key]; // TODO check we're at the right level(s) if poss.
 	}
 	if (state.payload.targetted && (key == 'properties') && (typeof obj[key] === 'object')) {
-		if (typeof obj.type === 'undefined') {
+		if ((state.pkey !== 'properties') && (typeof obj.type === 'undefined')) {
 			obj.type = 'object';
 		}
 	}

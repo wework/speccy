@@ -1,4 +1,4 @@
-[
+var statusCodes = [
     {
         "code": "default",
         "phrase": "Default response"
@@ -251,4 +251,8 @@
         "code": "7XX",
         "phrase": "Developer Error"
     }
-]
+];
+
+module.exports = {
+	statusCodes : statusCodes
+};

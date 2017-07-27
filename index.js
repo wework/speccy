@@ -11,7 +11,7 @@ var fetch = require('node-fetch');
 var yaml = require('js-yaml');
 
 var common = require('./common.js');
-var statusCodes = require(pathlib.join(__dirname,'statusCodes.json'));
+var statusCodes = require('./statusCodes.js').statusCodes;
 
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?

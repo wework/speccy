@@ -63,6 +63,11 @@ function fixupSchema(obj,key,state){
 	if ((key == 'required') && (typeof obj[key] === 'boolean') && state.payload.targetted) {
 		delete obj[key]; // TODO check we're at the right level(s) if poss.
 	}
+	if (state.payload.targetted && (key == 'properties') && (typeof obj[key] === 'object')) {
+		if (typeof obj.type === 'undefined') {
+			obj.type = 'object';
+		}
+	}
 	if (state.payload.targetted && (key == 'discriminator') && (typeof obj[key] === 'string')) {
 		obj[key] = {propertyName:obj[key]};
 	}

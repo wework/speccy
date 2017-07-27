@@ -466,7 +466,9 @@ function processParameter(param,op,path,index,openapi,options) {
 		if (op) {
 			if (op.requestBody && singularRequestBody) {
 				op.requestBody["x-s2o-overloaded"] = true;
-				throwError('Operation has multiple requestBodies',options);
+				let opId = op.operationId||index;
+
+				throwError('Operation '+opId+' has multiple requestBodies',options);
 			}
 			else {
 				op.requestBody = Object.assign({},op.requestBody); // make sure we have one
@@ -632,12 +634,12 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 							});
 
 							if (!match && (param.in === 'formData') || (param.in === 'body') || (param.type === 'file')) {
-								processParameter(param, op, path, null, openapi, options);
+								processParameter(param, op, path, p, openapi, options);
 							}
 						}
 					}
 					for (let param of op.parameters) {
-						processParameter(param, op, path, null, openapi, options);
+						processParameter(param, op, path, method+':'+p, openapi, options);
 					}
 					if (!options.debug) {
 						op.parameters = op.parameters.filter(deleteParameters);

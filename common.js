@@ -60,16 +60,16 @@ function getVersion() {
 	return require('./package.json').version;
 }
 
-fs.readFileAsync = function(filename, encoding) {
-    return new Promise(function(resolve, reject) {
-        fs.readFile(filename, encoding, function(err, data){
-            if (err)
-                reject(err);
-            else
-                resolve(data);
-        });
+function readFileAsync(filename, encoding) {
+  return new Promise(function(resolve, reject) {
+    fs.readFile(filename, encoding, function(err, data){
+      if (err)
+        reject(err);
+      else
+        resolve(data);
     });
-};
+  });
+}
 
 function resolveExternal(root,pointer,options,callback) {
 	var u = url.parse(options.source);
@@ -100,7 +100,7 @@ function resolveExternal(root,pointer,options,callback) {
 		});
 	}
 	else {
-		return fs.readFileAsync(base+'/'+pointer,options.encoding||'utf8');
+		return readFileAsync(base+'/'+pointer,options.encoding||'utf8');
 	}
 }
 
@@ -161,7 +161,7 @@ module.exports = {
 	clone : clone,
 	uniqueOnly : uniqueOnly,
 	recurse : recurse,
-    sha256 : sha256,
+	sha256 : sha256,
 	getVersion : getVersion,
 	resolveExternal : resolveExternal,
 	resolveInternal : resolveInternal,

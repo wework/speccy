@@ -587,7 +587,17 @@ function processResponse(response, name, op, openapi, options) {
 		delete response.examples;
 		if (response.headers) {
 			for (let h in response.headers) {
-				processHeader(response.headers[h],options);
+				if (h == 'Status Code') {
+					if (options.patch) {
+						delete response.headers[h];
+					}
+					else {
+						throwError('"Status Code" is not a valid header (patchable)', options);
+					}
+				}
+				else {
+					processHeader(response.headers[h],options);
+				}
 			}
 		}
 	}
@@ -779,7 +789,17 @@ function main(openapi, options) {
 		processResponse(response,sname,null,openapi,options);
 		if (response.headers) {
 			for (let h in response.headers) {
-				processHeader(response.headers[h],options);
+				if (h == 'Status Code') {
+					if (options.patch) {
+						delete response.headers[h];
+					}
+					else {
+						throwError('"Status Code" is not a valid header (patchable)', options);
+					}
+				}
+				else {
+					processHeader(response.headers[h],options);
+				}
 			}
 		}
 	}

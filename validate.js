@@ -203,13 +203,24 @@ function checkHeader(header,contextServers,openapi,options) {
 	if (header.schema) {
 		header.should.not.have.property('content');
 		if (typeof header.style !== 'undefined') {
+			header.style.should.be.type('string');
 			header.style.should.be.exactly('simple');
+		}
+		if (typeof header.explode !== 'undefined') {
+			header.explode.should.be.type('boolean');
+		}
+		if (typeof header.allowReserved !== 'undefined') {
+			header.allowReserved.should.be.type('boolean');
 		}
 		validateSchema(header.schema,openapi,options);
 	}
 	if (header.content) {
 		header.should.not.have.property('schema');
 		header.should.not.have.property('style');
+		header.should.not.have.property('explode');
+		header.should.not.have.property('allowReserved');
+		header.should.not.have.property('example');
+		header.should.not.have.property('examples');
 		checkContent(header.content,contextServers,openapi,options);
 	}
 	if (!header.schema && !header.content) {
@@ -289,6 +300,7 @@ function checkParam(param,index,contextServers,openapi,options){
 	if (param.schema) {
 		param.should.not.have.property('content');
 		if (typeof param.style !== 'undefined') {
+			param.style.should.be.type('string');
 			if (param.in == 'path') {
 				param.style.should.not.be.exactly('form');
 				param.style.should.not.be.exactly('spaceDelimited');
@@ -307,11 +319,21 @@ function checkParam(param,index,contextServers,openapi,options){
 				param.style.should.be.exactly('form');
 			}
 		}
+		if (typeof param.explode !== 'undefined') {
+			param.explode.should.be.type('boolean');
+		}
+		if (typeof param.allowReserved !== 'undefined') {
+			param.allowReserved.should.be.type('boolean');
+		}
 		validateSchema(param.schema,openapi,options);
 	}
 	if (param.content) {
 		param.should.not.have.property('schema');
 		param.should.not.have.property('style');
+		param.should.not.have.property('explode');
+		param.should.not.have.property('allowReserved');
+		param.should.not.have.property('example');
+		param.should.not.have.property('examples');
 		should(Object.keys(param.content).length).be.exactly(1,'Parameter content must have only one entry');
 		checkContent(param.content,contextServers,openapi,options);
 	}

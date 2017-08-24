@@ -412,9 +412,11 @@ function checkPathItem(pathItem,openapi,options) {
 				options.context.pop();
 			}
 			if (op.externalDocs) {
+				contextAppend(options,'externalDocs');
 				op.externalDocs.should.have.key('url');
 				op.externalDocs.url.should.have.type('string');
 				(function(){validateUrl(op.externalDocs.url,contextServers,'externalDocs',options)}).should.not.throw();
+				options.context.pop();
 			}
 			if (op.callbacks) {
 				contextAppend(options,'callbacks');

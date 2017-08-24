@@ -955,7 +955,7 @@ function convertObj(swagger, options, callback) {
 			delete openapi['x-servers'];
 		}
 
-		// TODO APIMatic extensions ?
+		// TODO APIMatic extensions (x-server-configuration) ?
 
 		if (swagger['x-ms-parameterized-host']) {
 			var xMsPHost = swagger['x-ms-parameterized-host'];

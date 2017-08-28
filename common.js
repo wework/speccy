@@ -23,12 +23,12 @@ function sha256(s) {
 }
 
 String.prototype.toCamelCase = function camelize() {
-    return this.toLowerCase().replace(/[-_ \/\.](.)/g, function(match, group1) {
+    return this.toLowerCase().replace(/[-_ \/\.](.)/g, function (match, group1) {
         return group1.toUpperCase();
     });
 }
 
-function recurse(object,state,callback) {
+function recurse(object, state, callback) {
     if (!state || (Object.keys(state).length === 0)) {
         state = {};
         state.path = '#';
@@ -38,19 +38,19 @@ function recurse(object,state,callback) {
         state.payload = {};
     }
     for (var key in object) {
-        var escKey = '/'+jptr.jpescape(key);
+        var escKey = '/' + jptr.jpescape(key);
         state.key = key;
         var oPath = state.path;
-        state.path = (state.path ? state.path : '#')+escKey;
-        callback(object,key,state);
+        state.path = (state.path ? state.path : '#') + escKey;
+        callback(object, key, state);
         if (typeof object[key] === 'object') {
             var newState = {};
             newState.parent = object;
             newState.path = state.path;
-            newState.depth = (state.depth ? state.depth++ : state.depth=1);
+            newState.depth = (state.depth ? state.depth++ : state.depth = 1);
             newState.pkey = key;
             newState.payload = state.payload;
-            recurse(object[key],newState,callback);
+            recurse(object[key], newState, callback);
         }
         state.path = oPath;
     }
@@ -61,51 +61,51 @@ function getVersion() {
 }
 
 function readFileAsync(filename, encoding) {
-  return new Promise(function(resolve, reject) {
-    fs.readFile(filename, encoding, function(err, data){
-      if (err)
-        reject(err);
-      else
-        resolve(data);
+    return new Promise(function (resolve, reject) {
+        fs.readFile(filename, encoding, function (err, data) {
+            if (err)
+                reject(err);
+            else
+                resolve(data);
+        });
     });
-  });
 }
 
-function resolveExternal(root,pointer,options,callback) {
+function resolveExternal(root, pointer, options, callback) {
     var u = url.parse(options.source);
     var base = options.source.split('/');
     base.pop(); // drop the actual filename
     let fragment = '';
     let fnComponents = pointer.split('#');
-    if (fnComponents.length>1) {
-        fragment = '#'+fnComponents[1];
+    if (fnComponents.length > 1) {
+        fragment = '#' + fnComponents[1];
     }
     base = base.join('/');
-    if (options.verbose) console.log((u.protocol ? 'GET ' : 'file://') + base+'/'+pointer);
+    if (options.verbose) console.log((u.protocol ? 'GET ' : 'file://') + base + '/' + pointer);
     if (u.protocol) {
-        return fetch(base+'/'+pointer)
-        .then(function(res){
-            return res.text();
-        })
-        .then(function(data){
-            try {
-                data = yaml.safeLoad(data,{json:true});
-                if (fragment) {
-                    data = resolveInternal(data,fragment);
+        return fetch(base + '/' + pointer)
+            .then(function (res) {
+                return res.text();
+            })
+            .then(function (data) {
+                try {
+                    data = yaml.safeLoad(data, { json: true });
+                    if (fragment) {
+                        data = resolveInternal(data, fragment);
+                    }
                 }
-            }
-            catch (ex) {}
-            callback(data);
-            return data;
-        });
+                catch (ex) { }
+                callback(data);
+                return data;
+            });
     }
     else {
-        return readFileAsync(base+'/'+pointer,options.encoding||'utf8');
+        return readFileAsync(base + '/' + pointer, options.encoding || 'utf8');
     }
 }
 
-function resolveInternal(root,pointer) {
-    return jptr.jptr(root,pointer)||false;
+function resolveInternal(root, pointer) {
+    return jptr.jptr(root, pointer) || false;
 }
 
 const parameterTypeProperties = [
@@ -158,17 +158,17 @@ function sanitiseAll(s) {
 
 module.exports = {
 
-    clone : clone,
-    uniqueOnly : uniqueOnly,
-    recurse : recurse,
-    sha256 : sha256,
-    getVersion : getVersion,
-    resolveExternal : resolveExternal,
-    resolveInternal : resolveInternal,
-    parameterTypeProperties : parameterTypeProperties,
-    arrayProperties : arrayProperties,
-    httpVerbs : httpVerbs,
-    sanitise : sanitise,
-    sanitiseAll : sanitiseAll
+    clone: clone,
+    uniqueOnly: uniqueOnly,
+    recurse: recurse,
+    sha256: sha256,
+    getVersion: getVersion,
+    resolveExternal: resolveExternal,
+    resolveInternal: resolveInternal,
+    parameterTypeProperties: parameterTypeProperties,
+    arrayProperties: arrayProperties,
+    httpVerbs: httpVerbs,
+    sanitise: sanitise,
+    sanitiseAll: sanitiseAll
 
 };

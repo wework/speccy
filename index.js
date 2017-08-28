@@ -19,13 +19,13 @@ var statusCodes = require('./statusCodes.js').statusCodes;
 const targetVersion = '3.0.0';
 var componentNames; // initialised in main
 
-function throwError(message,options) {
+function throwError(message, options) {
     var err = new Error(message);
     err.options = options;
     throw err;
 }
 
-function fixupSchema(obj,key,state){
+function fixupSchema(obj, key, state) {
     if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
         if (obj[key].length < 2) {
             obj[key] = (obj[key].length ? obj[key][0] : 'string');
@@ -69,7 +69,7 @@ function fixupSchema(obj,key,state){
         }
     }
     if (state.payload.targetted && (key == 'discriminator') && (typeof obj[key] === 'string')) {
-        obj[key] = {propertyName:obj[key]};
+        obj[key] = { propertyName: obj[key] };
     }
     if (key == 'x-anyOf') {
         obj.anyOf = obj[key];
@@ -114,26 +114,26 @@ function fixupSchema(obj,key,state){
     if ((key == '$ref') && (typeof obj[key] === 'string')) {
         if (obj[key].startsWith('#/definitions/')) {
             //only the first part of a schema component name must be sanitised
-            let keys = obj[key].replace('#/definitions/','').split('/');
+            let keys = obj[key].replace('#/definitions/', '').split('/');
             keys[0] = componentNames.schemas[keys[0]]; //lookup
-            obj[key] = '#/components/schemas/'+keys.join('/');
+            obj[key] = '#/components/schemas/' + keys.join('/');
         }
         if (obj[key].startsWith('#/parameters/')) {
             // for extensions like Apigee's x-templates
-            obj[key] = '#/components/parameters/'+common.sanitise(obj[key].replace('#/parameters/',''));
+            obj[key] = '#/components/parameters/' + common.sanitise(obj[key].replace('#/parameters/', ''));
         }
         if (obj[key].startsWith('#/responses/')) {
             // for extensions like Apigee's x-templates
-            obj[key] = '#/components/responses/'+common.sanitise(obj[key].replace('#/responses/',''));
+            obj[key] = '#/components/responses/' + common.sanitise(obj[key].replace('#/responses/', ''));
         }
-        Object.keys(obj).forEach(function(k){
+        Object.keys(obj).forEach(function (k) {
             if (k !== '$ref') delete obj[k];
         });
     }
     if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
-        let keys = obj[key].replace('#/definitions/','').split('/');
+        let keys = obj[key].replace('#/definitions/', '').split('/');
         keys[0] = componentNames.schemas[keys[0]]; //lookup
-        obj[key] = '#/components/schemas/'+keys.join('/');
+        obj[key] = '#/components/schemas/' + keys.join('/');
     }
 }
 
@@ -149,7 +149,7 @@ function processSecurity(securityObject) {
     }
 }
 
-function processSecurityScheme(scheme,options) {
+function processSecurityScheme(scheme, options) {
     if (scheme.type == 'basic') {
         scheme.type = 'http';
         scheme.scheme = 'basic';
@@ -159,9 +159,9 @@ function processSecurityScheme(scheme,options) {
         var flowName = scheme.flow;
         if (scheme.flow == 'application') flowName = 'clientCredentials';
         if (scheme.flow == 'accessCode') flowName = 'authorizationCode';
-        if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl||'/';
-        if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl||'/';
-        flow.scopes = scheme.scopes||{};
+        if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl || '/';
+        if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl || '/';
+        flow.scopes = scheme.scopes || {};
         scheme.flows = {};
         scheme.flows[flowName] = flow;
         delete scheme.flow;
@@ -173,7 +173,7 @@ function processSecurityScheme(scheme,options) {
                 delete scheme.name;
             }
             else {
-                throwError('(Patchable) oauth2 securitySchemes should not have name property',options);
+                throwError('(Patchable) oauth2 securitySchemes should not have name property', options);
             }
         }
     }
@@ -183,9 +183,9 @@ function deleteParameters(value) {
     return !value["x-s2o-delete"];
 }
 
-function processHeader(header,options) {
+function processHeader(header, options) {
     if (header.$ref) {
-        header.$ref = header.$ref.replace('#/responses/','#/components/responses/');
+        header.$ref = header.$ref.replace('#/responses/', '#/components/responses/');
     }
     else {
         if (header.type && !header.schema) {
@@ -206,7 +206,7 @@ function processHeader(header,options) {
                     delete header.collectionFormat;
                 }
                 else {
-                    throwError('(Patchable) collectionFormat is only applicable to header.type array',options);
+                    throwError('(Patchable) collectionFormat is only applicable to header.type array', options);
                 }
             }
             if (header.collectionFormat == 'csv') {
@@ -243,29 +243,29 @@ function processHeader(header,options) {
 }
 
 function fixParamRef(param) {
-    if (param.$ref.indexOf('#/parameters/')>=0) {
+    if (param.$ref.indexOf('#/parameters/') >= 0) {
         let refComponents = param.$ref.split('#/parameters/');
-        param.$ref = refComponents[0]+'#/components/parameters/'+common.sanitise(refComponents[1]);
+        param.$ref = refComponents[0] + '#/components/parameters/' + common.sanitise(refComponents[1]);
     }
-    if (param.$ref.indexOf('#/definitions/')>=0) {
-        throwError('Definition used as parameter',options);
+    if (param.$ref.indexOf('#/definitions/') >= 0) {
+        throwError('Definition used as parameter', options);
     }
 }
 
 /**
  * @returns requestBody
  */
-function processParameter(param,op,path,index,openapi,options) {
+function processParameter(param, op, path, index, openapi, options) {
     var result = {};
     var singularRequestBody = true;
 
-    var consumes = ((op && op.consumes)||[]).concat(openapi.consumes||[]);
+    var consumes = ((op && op.consumes) || []).concat(openapi.consumes || []);
     consumes = consumes.filter(common.uniqueOnly);
 
     if (param.$ref && (typeof param.$ref === 'string')) {
         // if we still have a ref here, it must be an internal one
         fixParamRef(param);
-        var ptr = param.$ref.replace('#/components/parameters/','');
+        var ptr = param.$ref.replace('#/components/parameters/', '');
         var rbody = false;
         let target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
 
@@ -280,9 +280,9 @@ function processParameter(param,op,path,index,openapi,options) {
 
         if (rbody) {
             let ref = param.$ref;
-            let newParam = common.resolveInternal(openapi,param.$ref);
+            let newParam = common.resolveInternal(openapi, param.$ref);
             if (!newParam && ref.startsWith('#/')) {
-                throwError('Could not resolve reference '+ref,options);
+                throwError('Could not resolve reference ' + ref, options);
             }
             else {
                 if (newParam) param = newParam; // preserve reference
@@ -302,7 +302,7 @@ function processParameter(param,op,path,index,openapi,options) {
                 param.type = 'string';
             }
             else {
-                throwError('(Patchable) parameter.type is mandatory for non-body parameters',options);
+                throwError('(Patchable) parameter.type is mandatory for non-body parameters', options);
             }
         }
 
@@ -313,7 +313,7 @@ function processParameter(param,op,path,index,openapi,options) {
                     delete param.collectionFormat;
                 }
                 else {
-                    throwError('(Patchable) collectionFormat is only applicable to param.type array',options);
+                    throwError('(Patchable) collectionFormat is only applicable to param.type array', options);
                 }
             }
             if ((param.collectionFormat == 'csv') && ((param.in == 'query') || (param.in == 'cookie'))) {
@@ -349,7 +349,7 @@ function processParameter(param,op,path,index,openapi,options) {
 
         if (param.type && (param.type != 'object') && (param.type != 'body') && (param.in != 'formData')) {
             if (param.items && param.schema) {
-                throwError('parameter has array,items and schema',options);
+                throwError('parameter has array,items and schema', options);
             }
             else {
                 if ((!param.schema) || (typeof param.schema !== 'object')) param.schema = {};
@@ -357,7 +357,7 @@ function processParameter(param,op,path,index,openapi,options) {
                 if (param.items) {
                     param.schema.items = param.items;
                     delete param.items;
-                    common.recurse(param.schema.items,null,function(obj,key,state){
+                    common.recurse(param.schema.items, null, function (obj, key, state) {
                         if ((key == 'collectionFormat') && (typeof obj[key] == 'string')) {
                             if (oldCollectionFormat && obj[key] !== oldCollectionFormat) {
                                 throwError('Nested collectionFormats are not supported', options);
@@ -375,7 +375,7 @@ function processParameter(param,op,path,index,openapi,options) {
         }
 
         if (param.schema) {
-            common.recurse(param.schema,{payload:{targetted:true}},fixupSchema);
+            common.recurse(param.schema, { payload: { targetted: true } }, fixupSchema);
         }
 
         if (param["x-ms-skip-url-encoding"]) {
@@ -391,7 +391,7 @@ function processParameter(param,op,path,index,openapi,options) {
         singularRequestBody = false;
         result.content = {};
         var contentType = 'application/x-www-form-urlencoded';
-        if ((consumes.length) && (consumes.indexOf('multipart/form-data')>0)) {
+        if ((consumes.length) && (consumes.indexOf('multipart/form-data') > 0)) {
             contentType = 'multipart/form-data';
         }
 
@@ -399,7 +399,7 @@ function processParameter(param,op,path,index,openapi,options) {
         if (param.schema) {
             result.content[contentType].schema = param.schema;
             if (param.schema.$ref) {
-                result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/','');
+                result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/', '');
             }
         }
         else {
@@ -438,15 +438,15 @@ function processParameter(param,op,path,index,openapi,options) {
     }
     if (param.in == 'body') {
         result.content = {};
-        if (param.name) result['x-s2o-name'] = (op && op.operationId ? common.sanitiseAll(op.operationId) : '') + ('_'+param.name).toCamelCase();
+        if (param.name) result['x-s2o-name'] = (op && op.operationId ? common.sanitiseAll(op.operationId) : '') + ('_' + param.name).toCamelCase();
         if (param.description) result.description = param.description;
         if (param.required) result.required = param.required;
 
         if (param.schema && param.schema.$ref) {
-            result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/','');
+            result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/', '');
         }
         else if (param.schema && (param.schema.type == 'array') && param.schema.items && param.schema.items.$ref) {
-            result['x-s2o-name'] = param.schema.items.$ref.replace('#/components/schemas/','')+'Array';
+            result['x-s2o-name'] = param.schema.items.$ref.replace('#/components/schemas/', '') + 'Array';
         }
 
         if (!consumes.length) {
@@ -455,8 +455,8 @@ function processParameter(param,op,path,index,openapi,options) {
 
         for (let mimetype of consumes) {
             result.content[mimetype] = {};
-            result.content[mimetype].schema = common.clone(param.schema)||{};
-            common.recurse(result.content[mimetype].schema,{payload:{targetted:true}},fixupSchema);
+            result.content[mimetype].schema = common.clone(param.schema) || {};
+            common.recurse(result.content[mimetype].schema, { payload: { targetted: true } }, fixupSchema);
         }
     }
 
@@ -466,27 +466,27 @@ function processParameter(param,op,path,index,openapi,options) {
         if (op) {
             if (op.requestBody && singularRequestBody) {
                 op.requestBody["x-s2o-overloaded"] = true;
-                let opId = op.operationId||index;
+                let opId = op.operationId || index;
 
-                throwError('Operation '+opId+' has multiple requestBodies',options);
+                throwError('Operation ' + opId + ' has multiple requestBodies', options);
             }
             else {
-                op.requestBody = Object.assign({},op.requestBody); // make sure we have one
+                op.requestBody = Object.assign({}, op.requestBody); // make sure we have one
                 if ((op.requestBody.content && op.requestBody.content["multipart/form-data"])
                     && (result.content["multipart/form-data"])) {
                     op.requestBody.content["multipart/form-data"].schema.properties =
-                        Object.assign(op.requestBody.content["multipart/form-data"].schema.properties,result.content["multipart/form-data"].schema.properties);
+                        Object.assign(op.requestBody.content["multipart/form-data"].schema.properties, result.content["multipart/form-data"].schema.properties);
                 }
                 else if ((op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"])
                     && (result.content["application/x-www-form-urlencoded"])) {
                     op.requestBody.content["application/x-www-form-urlencoded"].schema.properties =
-                        Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].schema.properties,result.content["application/x-www-form-urlencoded"].schema.properties);
+                        Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].schema.properties, result.content["application/x-www-form-urlencoded"].schema.properties);
                 }
                 else {
-                    op.requestBody = Object.assign(op.requestBody,result);
+                    op.requestBody = Object.assign(op.requestBody, result);
                     if (!op.requestBody['x-s2o-name']) {
                         if (op.requestBody.schema && op.requestBody.schema.$ref) {
-                            op.requestBody['x-s2o-name'] = op.requestBody.schema.$ref.replace('#/components/schemas/','').split('/').join('');
+                            op.requestBody['x-s2o-name'] = op.requestBody.schema.$ref.replace('#/components/schemas/', '').split('/').join('');
                         }
                         else if (op.operationId) {
                             op.requestBody['x-s2o-name'] = common.sanitiseAll(op.operationId);
@@ -508,7 +508,7 @@ function processParameter(param,op,path,index,openapi,options) {
             param.required = true;
         }
         else {
-            throwError('(Patchable) path parameters must be required:true',options);
+            throwError('(Patchable) path parameters must be required:true', options);
         }
     }
 
@@ -522,12 +522,12 @@ function processResponse(response, name, op, openapi, options) {
                 delete response.description;
             }
             else {
-                throwError('(Patchable) $ref object cannot be extended: ' + response.$ref,options);
+                throwError('(Patchable) $ref object cannot be extended: ' + response.$ref, options);
             }
         }
         if (response.$ref.indexOf('#/definitions/') >= 0) {
             //response.$ref = '#/components/schemas/'+common.sanitise(response.$ref.replace('#/definitions/',''));
-            throwError('definition used as response: ' + response.$ref,options);
+            throwError('definition used as response: ' + response.$ref, options);
         }
         else {
             if (response.$ref.startsWith('#/responses/')) {
@@ -539,18 +539,18 @@ function processResponse(response, name, op, openapi, options) {
         if ((typeof response.description === 'undefined') || (response.description === null)
             || ((response.description === '') && options.patch)) {
             if (options.patch) {
-                var sc = statusCodes.find(function(e){
+                var sc = statusCodes.find(function (e) {
                     return e.code == name;
                 });
                 response.description = (sc ? sc.phrase : '');
             }
             else {
-                throwError('(Patchable) response.description is mandatory',options);
+                throwError('(Patchable) response.description is mandatory', options);
             }
         }
         if (response.schema) {
 
-            common.recurse(response.schema, {payload:{targetted:true}}, fixupSchema);
+            common.recurse(response.schema, { payload: { targetted: true } }, fixupSchema);
 
             if (response.schema.$ref && (typeof response.schema.$ref === 'string') && response.schema.$ref.startsWith('#/responses/')) {
                 response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
@@ -596,7 +596,7 @@ function processResponse(response, name, op, openapi, options) {
                     }
                 }
                 else {
-                    processHeader(response.headers[h],options);
+                    processHeader(response.headers[h], options);
                 }
             }
         }
@@ -637,9 +637,9 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                         for (let param of path.parameters) {
                             if (typeof param.$ref === 'string') {
                                 fixParamRef(param);
-                                param = common.resolveInternal(openapi,param.$ref);
+                                param = common.resolveInternal(openapi, param.$ref);
                             }
-                            var match = op.parameters.find(function(e,i,a){
+                            var match = op.parameters.find(function (e, i, a) {
                                 return ((e.name == param.name) && (e.in == param.in));
                             });
 
@@ -649,7 +649,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                         }
                     }
                     for (let param of op.parameters) {
-                        processParameter(param, op, path, method+':'+p, openapi, options);
+                        processParameter(param, op, path, method + ':' + p, openapi, options);
                     }
                     if (!options.debug) {
                         op.parameters = op.parameters.filter(deleteParameters);
@@ -668,7 +668,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                 }
                 for (let r in op.responses) {
                     var response = op.responses[r];
-                    processResponse(response,r,op,openapi,options);
+                    processResponse(response, r, op, openapi, options);
                 }
 
                 if (op.schemes && op.schemes.length) {
@@ -697,11 +697,11 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                 delete op.schemes;
                 if (op.parameters && op.parameters.length === 0) delete op.parameters;
 
-                common.recurse(op, {payload:{targetted:false}}, fixupSchema); // for x-ms-odata etc
+                common.recurse(op, { payload: { targetted: false } }, fixupSchema); // for x-ms-odata etc
 
                 if (op.requestBody) {
-                    var effectiveOperationId = op.operationId ? common.sanitiseAll(op.operationId) : common.sanitiseAll(method+p).toCamelCase();
-                    var rbName = common.sanitise(op.requestBody['x-s2o-name']||effectiveOperationId||'');
+                    var effectiveOperationId = op.operationId ? common.sanitiseAll(op.operationId) : common.sanitiseAll(method + p).toCamelCase();
+                    var rbName = common.sanitise(op.requestBody['x-s2o-name'] || effectiveOperationId || '');
                     delete op.requestBody['x-s2o-name'];
                     var rbStr = JSON.stringify(op.requestBody);
                     var rbSha256 = common.sha256(rbStr);
@@ -732,7 +732,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 function main(openapi, options) {
 
     var requestBodyCache = {};
-    componentNames = {schemas:{}};
+    componentNames = { schemas: {} };
 
     if (openapi.security) processSecurity(openapi.security);
 
@@ -740,53 +740,53 @@ function main(openapi, options) {
         let sname = common.sanitise(s);
         if (s != sname) {
             if (openapi.components.securitySchemes[sname]) {
-                throwError('Duplicate sanitised securityScheme name '+sname,options);
+                throwError('Duplicate sanitised securityScheme name ' + sname, options);
             }
             openapi.components.securitySchemes[sname] = openapi.components.securitySchemes[s];
             delete openapi.components.securitySchemes[s];
         }
-        processSecurityScheme(openapi.components.securitySchemes[sname],options);
+        processSecurityScheme(openapi.components.securitySchemes[sname], options);
     }
 
     for (let s in openapi.components.schemas) {
         let sname = common.sanitiseAll(s);
         let suffix = '';
         if (s != sname) {
-            while (openapi.components.schemas[sname+suffix]) {
+            while (openapi.components.schemas[sname + suffix]) {
                 // @ts-ignore
                 suffix = (suffix ? ++suffix : 2);
             }
-            openapi.components.schemas[sname+suffix] = openapi.components.schemas[s];
+            openapi.components.schemas[sname + suffix] = openapi.components.schemas[s];
             delete openapi.components.schemas[s];
         }
-        componentNames.schemas[s] = sname+suffix;
+        componentNames.schemas[s] = sname + suffix;
     }
 
     for (let p in openapi.components.parameters) {
         let sname = common.sanitise(p);
         if (p != sname) {
             if (openapi.components.parameters[sname]) {
-                throwError('Duplicate sanitised parameter name '+sname,options);
+                throwError('Duplicate sanitised parameter name ' + sname, options);
             }
             openapi.components.parameters[sname] = openapi.components.parameters[p];
             delete openapi.components.parameters[p];
         }
         var param = openapi.components.parameters[sname];
-        processParameter(param,null,null,sname,openapi,options);
+        processParameter(param, null, null, sname, openapi, options);
     }
 
-    common.recurse(openapi.components.responses,{payload:{targetted:false}},fixupSchema);
+    common.recurse(openapi.components.responses, { payload: { targetted: false } }, fixupSchema);
     for (let r in openapi.components.responses) {
         let sname = common.sanitise(r);
         if (r != sname) {
             if (openapi.components.responses[sname]) {
-                throwError('Duplicate sanitised response name '+sname,options);
+                throwError('Duplicate sanitised response name ' + sname, options);
             }
             openapi.components.responses[sname] = openapi.components.responses[r];
             delete openapi.components.responses[r];
         }
         var response = openapi.components.responses[sname];
-        processResponse(response,sname,null,openapi,options);
+        processResponse(response, sname, null, openapi, options);
         if (response.headers) {
             for (let h in response.headers) {
                 if (h == 'Status Code') {
@@ -798,7 +798,7 @@ function main(openapi, options) {
                     }
                 }
                 else {
-                    processHeader(response.headers[h],options);
+                    processHeader(response.headers[h], options);
                 }
             }
         }
@@ -815,9 +815,9 @@ function main(openapi, options) {
         requestBodyCache[rbSha256] = entry;
     }
 
-    processPaths(openapi.paths,'paths',options,requestBodyCache,openapi);
+    processPaths(openapi.paths, 'paths', options, requestBodyCache, openapi);
     if (openapi["x-ms-paths"]) {
-        processPaths(openapi["x-ms-paths"],'x-ms-paths',options,requestBodyCache,openapi);
+        processPaths(openapi["x-ms-paths"], 'x-ms-paths', options, requestBodyCache, openapi);
     }
 
     if (!options.debug) {
@@ -829,14 +829,14 @@ function main(openapi, options) {
         }
     }
 
-    common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema);
-    common.recurse(openapi.components.schemas,{payload:{targetted:true}},fixupSchema); // second pass for fixed x-anyOf's etc
-    common.recurse(openapi,{payload:{targetted:false}},fixupSchema); // pass across whole definition for $refs in vendor extensions
-    common.recurse(openapi,{payload:{targetted:false}},fixupSchema); // second pass for fixed x-anyOf's etc
+    common.recurse(openapi.components.schemas, { payload: { targetted: true } }, fixupSchema);
+    common.recurse(openapi.components.schemas, { payload: { targetted: true } }, fixupSchema); // second pass for fixed x-anyOf's etc
+    common.recurse(openapi, { payload: { targetted: false } }, fixupSchema); // pass across whole definition for $refs in vendor extensions
+    common.recurse(openapi, { payload: { targetted: false } }, fixupSchema); // second pass for fixed x-anyOf's etc
 
     if (options.debug) {
-        openapi["x-s2o-consumes"] = openapi.consumes||[];
-        openapi["x-s2o-produces"] = openapi.produces||[];
+        openapi["x-s2o-consumes"] = openapi.consumes || [];
+        openapi["x-s2o-produces"] = openapi.produces || [];
     }
     delete openapi.consumes;
     delete openapi.produces;
@@ -849,7 +849,7 @@ function main(openapi, options) {
     var counter = 1;
     for (let e in requestBodyCache) {
         let entry = requestBodyCache[e];
-        if (entry.refs.length>1) {
+        if (entry.refs.length > 1) {
             // create a shared requestBody
             var suffix = '';
             if (!entry.name) {
@@ -857,17 +857,17 @@ function main(openapi, options) {
                 // @ts-ignore
                 suffix = counter++;
             }
-            while (rbNamesGenerated.indexOf(entry.name+suffix)>=0) {
+            while (rbNamesGenerated.indexOf(entry.name + suffix) >= 0) {
                 // @ts-ignore - this can happen if descriptions are not exactly the same (e.g. bitbucket)
                 suffix = (suffix ? ++suffix : 2);
             }
-            entry.name = entry.name+suffix;
+            entry.name = entry.name + suffix;
             rbNamesGenerated.push(entry.name);
             openapi.components.requestBodies[entry.name] = entry.body;
             for (let r in entry.refs) {
                 var address = entry.refs[r].split(' ');
                 var ref = {};
-                ref.$ref = '#/components/requestBodies/'+entry.name;
+                ref.$ref = '#/components/requestBodies/' + entry.name;
                 openapi[address[0]][address[2]][address[1]].requestBody = ref; // might be easier to use a JSON Pointer here
             }
         }
@@ -896,13 +896,13 @@ function main(openapi, options) {
 }
 
 function convertObj(swagger, options, callback) {
-    return maybe(callback, new Promise(function(resolve, reject) {
+    return maybe(callback, new Promise(function (resolve, reject) {
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
             options.openapi = swagger;
             return resolve(options);
         }
         if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
-            return reject(new Error('Unsupported swagger/OpenAPI version: '+swagger.swagger));
+            return reject(new Error('Unsupported swagger/OpenAPI version: ' + swagger.swagger));
         }
 
         var openapi = options.openapi = {};
@@ -924,7 +924,7 @@ function convertObj(swagger, options, callback) {
         }
 
         // we want the new and existing properties to appear in a sensible order. Not guaranteed
-        openapi = Object.assign(openapi,common.clone(swagger));
+        openapi = Object.assign(openapi, common.clone(swagger));
         delete openapi.swagger;
 
         if (swagger.host && swagger.schemes) {
@@ -933,11 +933,11 @@ function convertObj(swagger, options, callback) {
                 server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
                 server.url = server.url.split('{{').join('{');
                 server.url = server.url.split('}}').join('}');
-                server.url.replace(/\{(.+?)\}/g,function(match,group1) { // TODO extend to :parameters (not port)?
+                server.url.replace(/\{(.+?)\}/g, function (match, group1) { // TODO extend to :parameters (not port)?
                     if (!server.variables) {
                         server.variables = {};
                     }
-                    server.variables[group1] = {default: 'unknown'};
+                    server.variables[group1] = { default: 'unknown' };
                 });
                 openapi.servers.push(server);
             }
@@ -964,7 +964,7 @@ function convertObj(swagger, options, callback) {
             server.variables = {};
             for (let param of xMsPHost.parameters) {
                 if (param.$ref) {
-                    param.$ref = common.resolveInternal(openapi,param.$ref);
+                    param.$ref = common.resolveInternal(openapi, param.$ref);
                 }
                 delete param.required; // all true
                 delete param.type; // all strings
@@ -986,7 +986,7 @@ function convertObj(swagger, options, callback) {
 
         if (!openapi.info) {
             if (options.patch) {
-                openapi.info = {version:'',title:''};
+                openapi.info = { version: '', title: '' };
             }
             else {
                 return reject(new Error('(Patchable) info object is mandatory'));
@@ -1035,12 +1035,12 @@ function convertObj(swagger, options, callback) {
         }
 
         openapi.components = {};
-        openapi.components.schemas = openapi.definitions||{};
-        openapi.components.responses = openapi.responses||{};
-        openapi.components.parameters = openapi.parameters||{};
+        openapi.components.schemas = openapi.definitions || {};
+        openapi.components.responses = openapi.responses || {};
+        openapi.components.parameters = openapi.parameters || {};
         openapi.components.examples = {};
         openapi.components.requestBodies = {};
-        openapi.components.securitySchemes = openapi.securityDefinitions||{};
+        openapi.components.securitySchemes = openapi.securityDefinitions || {};
         openapi.components.headers = {};
         if (openapi['x-links']) {
             openapi.components.links = openapi['x-links'];
@@ -1059,10 +1059,10 @@ function convertObj(swagger, options, callback) {
         options.externals = [];
 
         if (options.resolve) {
-            common.recurse(openapi,null,function(obj,key,state){
+            common.recurse(openapi, null, function (obj, key, state) {
                 if ((key === '$ref') && (typeof obj[key] === 'string')) {
                     if (!obj[key].startsWith('#/')) {
-                        actions.push(common.resolveExternal(openapi,obj[key],options,function(data){
+                        actions.push(common.resolveExternal(openapi, obj[key], options, function (data) {
                             var external = {};
                             external.context = state.path;
                             external.$ref = obj[key];
@@ -1087,27 +1087,27 @@ function convertObj(swagger, options, callback) {
                 resolve(options);
             }
         })
-        .catch(function(err){
-            reject(err);
-        });
+            .catch(function (err) {
+                reject(err);
+            });
     }));
 }
 
-function convertStr(str,options,callback) {
-    return maybe(callback, new Promise(function(resolve, reject) {
+function convertStr(str, options, callback) {
+    return maybe(callback, new Promise(function (resolve, reject) {
         var obj = null;
         try {
             obj = JSON.parse(str);
         }
         catch (ex) {
             try {
-                obj = yaml.safeLoad(str,{json:true});
+                obj = yaml.safeLoad(str, { json: true });
                 options.sourceYaml = true;
             }
-            catch (ex) {}
+            catch (ex) { }
         }
         if (obj) {
-            return convertObj(obj,options,callback)
+            return convertObj(obj, options, callback)
         }
         else {
             reject(new Error('Could not resolve url'));
@@ -1115,58 +1115,56 @@ function convertStr(str,options,callback) {
     }));
 }
 
-function convertUrl(url,options,callback) {
-    return maybe(callback, new Promise(function(resolve, reject) {
+function convertUrl(url, options, callback) {
+    return maybe(callback, new Promise(function (resolve, reject) {
         if (!options.origin) {
             options.origin = url;
         }
         if (options.verbose) {
-            console.log('GET '+url);
+            console.log('GET ' + url);
         }
-        fetch(url).then(function(res) {
+        fetch(url).then(function (res) {
             return res.text();
-        }).then(function(body) {
-            return convertStr(body,options,callback);
-        }).catch(function(err){
+        }).then(function (body) {
+            return convertStr(body, options, callback);
+        }).catch(function (err) {
             reject(err);
         });
     }));
 }
 
-function convertFile(filename,options,callback) {
-    return maybe(callback, new Promise(function(resolve, reject) {
-        fs.readFile(filename,options.encoding||'utf8',function(err,s){
+function convertFile(filename, options, callback) {
+    return maybe(callback, new Promise(function (resolve, reject) {
+        fs.readFile(filename, options.encoding || 'utf8', function (err, s) {
             if (err) {
                 reject(err);
             }
             else {
                 options.sourceFile = filename;
-                return convertStr(s,options,callback)
+                return convertStr(s, options, callback)
             }
         });
     }));
 }
 
-function convertStream(readable,options,callback) {
-    return maybe(callback, new Promise(function(resolve, reject) {
+function convertStream(readable, options, callback) {
+    return maybe(callback, new Promise(function (resolve, reject) {
         var data = '';
-        readable.on('data',function(chunk){
+        readable.on('data', function (chunk) {
             data += chunk;
         })
-        .on('end',function(){
-            return convertStr(data,options,callback);
-        });
+            .on('end', function () {
+                return convertStr(data, options, callback);
+            });
     }));
 }
 
 module.exports = {
-
-    targetVersion : targetVersion,
-    convert : convertObj,
-    convertObj : convertObj,
-    convertUrl : convertUrl,
-    convertStr : convertStr,
-    convertFile : convertFile,
-    convertStream : convertStream
-
+    targetVersion: targetVersion,
+    convert: convertObj,
+    convertObj: convertObj,
+    convertUrl: convertUrl,
+    convertStr: convertStr,
+    convertFile: convertFile,
+    convertStream: convertStream
 };

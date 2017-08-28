@@ -14,46 +14,46 @@ var validator = require('./validate.js');
 var argv = require('yargs')
     .usage('testRunner [options] [{path-to-specs}...]')
     .string('encoding')
-    .alias('e','encoding')
-    .default('encoding','utf8')
-    .describe('encoding','encoding for input/output files')
+    .alias('e', 'encoding')
+    .default('encoding', 'utf8')
+    .describe('encoding', 'encoding for input/output files')
     .string('fail')
-    .describe('fail','path to specs expected to fail')
-    .alias('f','fail')
+    .describe('fail', 'path to specs expected to fail')
+    .alias('f', 'fail')
     .string('jsonschema')
-    .alias('j','jsonschema')
-    .describe('jsonschema','path to alternative JSON schema')
+    .alias('j', 'jsonschema')
+    .describe('jsonschema', 'path to alternative JSON schema')
     .boolean('laxurls')
-    .alias('l','laxurls')
-    .describe('laxurls','lax checking of empty urls')
+    .alias('l', 'laxurls')
+    .describe('laxurls', 'lax checking of empty urls')
     .boolean('nopatch')
-    .alias('n','nopatch')
-    .describe('nopatch','do not patch minor errors in the source definition')
+    .alias('n', 'nopatch')
+    .describe('nopatch', 'do not patch minor errors in the source definition')
     .boolean('output')
-    .alias('o','output')
-    .describe('output','output conversion as openapi.yaml')
+    .alias('o', 'output')
+    .describe('output', 'output conversion as openapi.yaml')
     .boolean('quiet')
-    .alias('q','quiet')
-    .describe('quiet','do not show test passes on console, for CI')
+    .alias('q', 'quiet')
+    .describe('quiet', 'do not show test passes on console, for CI')
     .boolean('resolve')
-    .alias('r','resolve')
-    .describe('resolve','resolve external references')
+    .alias('r', 'resolve')
+    .describe('resolve', 'resolve external references')
     .boolean('stop')
-    .alias('s','stop')
-    .describe('stop','stop on first error')
+    .alias('s', 'stop')
+    .describe('stop', 'stop on first error')
     .count('verbose')
-    .alias('v','verbose')
-    .describe('verbose','increase verbosity')
+    .alias('v', 'verbose')
+    .describe('verbose', 'increase verbosity')
     .boolean('whatwg')
-    .alias('w','whatwg')
-    .describe('whatwg','enable WHATWG URL parsing')
+    .alias('w', 'whatwg')
+    .describe('whatwg', 'enable WHATWG URL parsing')
     .boolean('yaml')
-    .alias('y','yaml')
-    .describe('yaml','skip YAML-safe test')
+    .alias('y', 'yaml')
+    .describe('yaml', 'skip YAML-safe test')
     .help('h')
     .alias('h', 'help')
     .strict()
-    .version(function() {
+    .version(function () {
         return require('../package.json').version;
     })
     .argv;
@@ -76,9 +76,9 @@ options.patch = !argv.nopatch;
 function handleResult(err, options) {
     var result = false;
     if (err) {
-        options = err.options||{file:'unknown',src:{info:{version:'',title:''}}};
-        console.log(normal+options.file);
-        console.log(red+'Converter: '+err.message);
+        options = err.options || { file: 'unknown', src: { info: { version: '', title: '' } } };
+        console.log(normal + options.file);
+        console.log(red + 'Converter: ' + err.message);
     }
     else {
         result = options.openapi;
@@ -88,36 +88,36 @@ function handleResult(err, options) {
     if (typeof result !== 'boolean') try {
         var src = options.original;
         if (!options.yaml) {
-            resultStr = yaml.safeDump(result,{lineWidth:-1}); // should be representable safely in yaml
+            resultStr = yaml.safeDump(result, { lineWidth: -1 }); // should be representable safely in yaml
             resultStr.should.not.be.exactly('{}');
         }
 
-        result = validator.validateSync(result,options);
+        result = validator.validateSync(result, options);
 
         for (var warning of options.warnings) {
-            warnings.push(options.file+' '+warning);
+            warnings.push(options.file + ' ' + warning);
         }
 
         if (!argv.quiet) {
-            console.log(normal+options.file);
+            console.log(normal + options.file);
             var colour = ((options.expectFailure ? !result : result) ? green : red);
-            console.log(colour+'  %s %s',src.info.title,src.info.version);
-            console.log('  %s',src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
+            console.log(colour + '  %s %s', src.info.title, src.info.version);
+            console.log('  %s', src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
         }
     }
-    catch (ex) {
-        console.log(normal+options.file);
-        console.log(red+options.context.pop()+'\n'+ex.message);
-        result = !!options.expectFailure;
-        if (ex.stack && ex.name !== 'AssertionError') {
-            console.log(ex.stack);
+        catch (ex) {
+            console.log(normal + options.file);
+            console.log(red + options.context.pop() + '\n' + ex.message);
+            result = !!options.expectFailure;
+            if (ex.stack && ex.name !== 'AssertionError') {
+                console.log(ex.stack);
+            }
         }
-    }
     if (result) {
         pass++;
-        if ((options.file.indexOf('swagger.yaml')>=0) && argv.output) {
-            let outFile = options.file.replace('swagger.yaml','openapi.yaml');
-            fs.writeFile(outFile,resultStr,argv.encoding);
+        if ((options.file.indexOf('swagger.yaml') >= 0) && argv.output) {
+            let outFile = options.file.replace('swagger.yaml', 'openapi.yaml');
+            fs.writeFile(outFile, resultStr, argv.encoding);
         }
     }
     else {
@@ -135,28 +135,28 @@ function genStackNext() {
     return true;
 }
 
-function* check(file,force,expectFailure) {
+function* check(file, force, expectFailure) {
     var result = false;
     options.context = [];
     options.expectFailure = expectFailure;
     options.file = file;
     var components = file.split(path.sep);
-    var name = components[components.length-1];
+    var name = components[components.length - 1];
 
-    if ((name.indexOf('.yaml')>=0) || (name.indexOf('.json')>=0) || force) {
+    if ((name.indexOf('.yaml') >= 0) || (name.indexOf('.json') >= 0) || force) {
 
-        var srcStr = fs.readFileSync(path.resolve(file),options.encoding);
+        var srcStr = fs.readFileSync(path.resolve(file), options.encoding);
         var src;
         try {
             src = JSON.parse(srcStr);
         }
         catch (ex) {
             try {
-                src = yaml.safeLoad(srcStr,{schema:yaml.JSON_SCHEMA,json:true});
+                src = yaml.safeLoad(srcStr, { schema: yaml.JSON_SCHEMA, json: true });
             }
             catch (ex) {
-                var warning = 'Could not parse file '+file+'\n'+ex.message;
-                console.log(red+warning);
+                var warning = 'Could not parse file ' + file + '\n' + ex.message;
+                console.log(red + warning);
                 warnings.push(warning);
             }
         }
@@ -173,8 +173,8 @@ function* check(file,force,expectFailure) {
             swagger2openapi.convertObj(src, common.clone(options), handleResult);
         }
         catch (ex) {
-            console.log(red+'Converter threw an error: '+ex.message);
-            warnings.push('Converter failed '+options.source);
+            console.log(red + 'Converter threw an error: ' + ex.message);
+            warnings.push('Converter failed ' + options.source);
             genStackNext();
             result = false;
         }
@@ -187,33 +187,33 @@ function* check(file,force,expectFailure) {
     return result;
 }
 
-function processPathSpec(pathspec,expectFailure) {
+function processPathSpec(pathspec, expectFailure) {
     if (pathspec.startsWith('@')) {
-        pathspec = pathspec.substr(1,pathspec.length-1);
-        var list = fs.readFileSync(pathspec,'utf8').split('\r').join('').split('\n');
+        pathspec = pathspec.substr(1, pathspec.length - 1);
+        var list = fs.readFileSync(pathspec, 'utf8').split('\r').join('').split('\n');
         for (var file of list) {
-            genStack.push(check(file,false,expectFailure));
+            genStack.push(check(file, false, expectFailure));
         }
         genStackNext();
     }
     else if (fs.statSync(path.resolve(pathspec)).isFile()) {
-        genStack.push(check(pathspec,true,expectFailure));
+        genStack.push(check(pathspec, true, expectFailure));
         genStackNext();
     }
     else {
-        readfiles(pathspec, {readContents: false, filenameFormat: readfiles.FULL_PATH}, function (err) {
+        readfiles(pathspec, { readContents: false, filenameFormat: readfiles.FULL_PATH }, function (err) {
             if (err) console.log(util.inspect(err));
         })
-        .then(files => {
-            files = files.sort();
-            for (var file of files) {
-                genStack.push(check(file,false,expectFailure));
-            }
-            genStackNext();
-        })
-        .catch(err => {
-            console.log(util.inspect(err));
-        });
+            .then(files => {
+                files = files.sort();
+                for (var file of files) {
+                    genStack.push(check(file, false, expectFailure));
+                }
+                genStackNext();
+            })
+            .catch(err => {
+                console.log(util.inspect(err));
+            });
     }
 }
 
@@ -223,26 +223,26 @@ if ((!argv._.length) && (!argv.fail)) {
     argv._.push('../openapi-directory/APIs/');
 }
 for (let pathspec of argv._) {
-    processPathSpec(pathspec,false);
+    processPathSpec(pathspec, false);
 }
 if (argv.fail) {
     if (!Array.isArray(argv.fail)) argv.fail = [argv.fail];
     for (let pathspec of argv.fail) {
-        processPathSpec(pathspec,true);
+        processPathSpec(pathspec, true);
     }
 }
 
-process.on('exit', function() {
+process.on('exit', function () {
     if (warnings.length) {
         warnings.sort();
-        console.log(normal+'\nWarnings:'+yellow);
+        console.log(normal + '\nWarnings:' + yellow);
         for (var w in warnings) {
             console.log(warnings[w]);
         }
     }
     if (failures.length) {
         failures.sort();
-        console.log(normal+'\nFailures:'+red);
+        console.log(normal + '\nFailures:' + red);
         for (var f in failures) {
             console.log(failures[f]);
         }

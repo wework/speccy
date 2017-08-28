@@ -254,5 +254,5 @@ var statusCodes = [
 ];
 
 module.exports = {
-	statusCodes : statusCodes
+    statusCodes : statusCodes
 };

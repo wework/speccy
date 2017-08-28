@@ -6,16 +6,16 @@ var commonsPlugin =
 
 module.exports = {
   node: {
-	fs: "empty"
+    fs: "empty"
   },
   entry: {
-	Converter: './index.js',
-	Validator: './validate.js'
+    Converter: './index.js',
+    Validator: './validate.js'
   },
   output: {
     filename: 'dist/[name].js', // Template based on keys in entry above
-	library: '[name]', // was constant
-	libraryTarget: 'var'
+    library: '[name]', // was constant
+    libraryTarget: 'var'
   },
   module: {
     loaders: [

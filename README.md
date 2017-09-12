@@ -60,7 +60,7 @@ Or use the [online version](https://openapi-converter.herokuapp.com) which also 
 
 ### Browser Support
 
-See [initial documentation](/docs/browser.md)
+See [initial documentation](/docs/browser.md).
 
 ## Features
 

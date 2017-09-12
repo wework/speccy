@@ -32,7 +32,7 @@
     "js-yaml": "^3.6.1",
     "node-fetch": "^1.6.3",
     "node-readfiles": "^0.2.0",
-    "should": "^11.2.0",
+    "should": "^13.0.1",
     "yargs": "^8.0.1"
   },
   "keywords": [

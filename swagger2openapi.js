@@ -24,6 +24,9 @@ var argv = require('yargs')
     .describe('encoding', 'encoding for input/output files')
     .help('help')
     .alias('h', 'help')
+    .string('indent')
+    .alias('i','indent')
+    .describe('indent','JSON indent to use, defaults to 4 spaces')
     .string('outfile')
     .alias('o', 'outfile')
     .describe('outfile', 'the output file to write to')
@@ -64,7 +67,7 @@ function processResult(err, options) {
         s = options.debug ? yaml.dump(options.openapi) : yaml.safeDump(options.openapi);
     }
     else {
-        s = JSON.stringify(options.openapi, null, 2);
+        s = JSON.stringify(options.openapi, null, options.indent||4);
     }
 
     if (argv.outfile) {
@@ -75,7 +78,7 @@ function processResult(err, options) {
     }
 
     if (argv.components) {
-        console.log(JSON.stringify(options.externals, null, 2));
+        console.log(JSON.stringify(options.externals, null, options.indent||4));
     }
 }
 

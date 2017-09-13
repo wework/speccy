@@ -22,4 +22,6 @@ total 1.1M
 
 ## Browserify
 
-Please see [api-spec-converter](https://github.com/LucyBot-Inc/api-spec-converter/) for setup or to use this bundle.
+Please see [api-spec-converter](https://github.com/LucyBot-Inc/api-spec-converter/) for setup or to use this [bundle](https://github.com/LucyBot-Inc/api-spec-converter/blob/master/dist/api-spec-converter.js).
+
+Size: 8.45M

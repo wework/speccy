@@ -47,6 +47,7 @@ var argv = require('yargs')
     .describe('yaml', 'read and write YAML, default JSON')
     .require(1)
     .strict()
+    .version()
     .argv;
 
 function processResult(err, options) {

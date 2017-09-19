@@ -91,7 +91,7 @@ To run a test-suite:
 node testRunner [-f {path-to-expected-failures}]... [{path-to-APIs|single-file...}]
 ```
 
-The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x, 6.x and 8.x against
+The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x, 6.x and 9.x (it is not recommended to run the test suite under Node.js version 7.x or 8.x because of [this bug](https://github.com/nodejs/node/issues/13048)) against
 
 * [APIs.guru](https://github.com/APIs-guru/openapi-directory)
 * [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)
@@ -101,6 +101,6 @@ The test harness currently expects files with a `.json` or `.yaml` extension, or
 Additionally swagger2openapi has been tested on a corpus of 34,679 real-world valid Swagger 2.0 definitions from GitHub and [SwaggerHub](https://swaggerhub.com/). However, if you have a definition which causes errors in the converter or does not pass validation, please do not hesitate to [raise an issue](https://github.com/Mermade/swagger2openapi/issues).
 
 
-## License 
+## License
 
 [BSD-3-Clause](LICENSE) except the `openapi-3.0.json` schema, which is taken from the [OpenAPI-Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/schemas/v3.0/schema.json) and the alternative `gnostic-3.0.json` schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json). Both of these are licensed under the [Apache-2](http://www.apache.org/licenses/LICENSE-2.0) license.

@@ -242,7 +242,7 @@ function processHeader(header, options) {
     }
 }
 
-function fixParamRef(param) {
+function fixParamRef(param, options) {
     if (param.$ref.indexOf('#/parameters/') >= 0) {
         let refComponents = param.$ref.split('#/parameters/');
         param.$ref = refComponents[0] + '#/components/parameters/' + common.sanitise(refComponents[1]);
@@ -264,7 +264,7 @@ function processParameter(param, op, path, index, openapi, options) {
 
     if (param.$ref && (typeof param.$ref === 'string')) {
         // if we still have a ref here, it must be an internal one
-        fixParamRef(param);
+        fixParamRef(param, options);
         var ptr = param.$ref.replace('#/components/parameters/', '');
         var rbody = false;
         let target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
@@ -636,7 +636,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                     if (path.parameters) {
                         for (let param of path.parameters) {
                             if (typeof param.$ref === 'string') {
-                                fixParamRef(param);
+                                fixParamRef(param, options);
                                 param = common.resolveInternal(openapi, param.$ref);
                             }
                             var match = op.parameters.find(function (e, i, a) {
@@ -1087,9 +1087,9 @@ function convertObj(swagger, options, callback) {
                 resolve(options);
             }
         })
-            .catch(function (err) {
-                reject(err);
-            });
+        .catch(function (err) {
+            reject(err);
+        });
     }));
 }
 

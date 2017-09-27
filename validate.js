@@ -100,7 +100,7 @@ function checkExample(ex, openapi, options) {
     //}
     for (let k in ex) {
         if (!k.startsWith('x-')) {
-            should(['summary','description','value','externalValue'].indexOf(k)).should.be.greaterThan(-1,'Example object cannot have additionalFields');
+            should(['summary','description','value','externalValue'].indexOf(k)).be.greaterThan(-1,'Example object cannot have additionalField: '+k);
         }
     }
 }
@@ -124,8 +124,11 @@ function checkContent(content, contextServers, openapi, options) {
             contentType.should.not.have.property('example');
             contentType.examples.should.be.an.Object();
             contentType.examples.should.not.be.an.Array();
-            for (let ex in contentType.examples) {
-                checkExample(ex, openapi, options);
+            for (let e in contentType.examples) {
+                let ex = contentType.examples[e];
+                if (!ex.$ref) {
+                    checkExample(ex, openapi, options);
+                }
             }
             options.context.pop();
         }

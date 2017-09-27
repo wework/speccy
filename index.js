@@ -576,7 +576,7 @@ function processResponse(response, name, op, openapi, options) {
             }
             delete response.schema;
         }
-        // examples for other types
+        // examples for content-types not listed in produces
         for (let mimetype in response.examples) {
             if (!response.content) response.content = {};
             if (!response.content[mimetype]) response.content[mimetype] = {};

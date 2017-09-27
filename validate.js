@@ -75,6 +75,36 @@ function validateSchema(schema, openapi, options) {
     return !(errors && errors.length);
 }
 
+function checkExample(ex, openapi, options) {
+    ex.should.be.an.Object();
+    ex.should.not.be.an.Array();
+    if (typeof ex.summary !== 'undefined') {
+        ex.summary.should.have.type('string');
+    }
+    if (typeof ex.description !== 'undefined') {
+        ex.description.should.have.type('string');
+    }
+    if (typeof ex.value !== 'undefined') {
+        ex.should.not.have.property('externalValue');
+    }
+    //else { // not mandated by the spec.
+    //    ex.should.have.property('externalValue');
+    //}
+    if (typeof ex.externalValue !== 'undefined') {
+        ex.externalValue.should.have.type('string');
+        ex.should.not.have.property('value');
+        (function () { validateUrl(ex.externalValue, contextServers, 'examples..externalValue', options) }).should.not.throw();
+    }
+    //else { // not mandated by the spec.
+    //    ex.should.have.property('value');
+    //}
+    for (let k in ex) {
+        if (!k.startsWith('x-')) {
+            should(['summary','description','value','externalValue'].indexOf(k)).should.be.greaterThan(-1,'Example object cannot have additionalFields');
+        }
+    }
+}
+
 function checkContent(content, contextServers, openapi, options) {
     contextAppend(options, 'content');
     for (let ct in content) {
@@ -95,23 +125,7 @@ function checkContent(content, contextServers, openapi, options) {
             contentType.examples.should.be.an.Object();
             contentType.examples.should.not.be.an.Array();
             for (let ex in contentType.examples) {
-                contentType.examples[ex].should.be.an.Object();
-                contentType.examples[ex].should.not.be.an.Array();
-                if (typeof contentType.examples[ex].summary !== 'undefined') {
-                    contentType.examples[ex].summary.should.have.type('string');
-                }
-                if (typeof contentType.examples[ex].description !== 'undefined') {
-                    contentType.examples[ex].description.should.have.type('string');
-                }
-                if (typeof contentType.examples[ex].value !== 'undefined') {
-                    contentType.examples[ex].should.not.have.property('externalValue');
-                }
-                if (typeof contentType.examples[ex].externalValue !== 'undefined') {
-                    contentType.examples[ex].externalValue.should.have.type('string');
-                    contentType.examples[ex].should.not.have.property('value');
-                    (function () { validateUrl(contentType.examples[ex].externalValue, contextServers, 'examples..externalValue', options) }).should.not.throw();
-                }
-
+                checkExample(ex, openapi, options);
             }
             options.context.pop();
         }
@@ -170,10 +184,16 @@ function checkLink(link, options) {
         link.operationRef.should.be.type('string');
         link.should.not.have.property('operationId');
     }
+    else {
+        link.should.have.property('operationId');
+    }
     if (typeof link.operationId !== 'undefined') {
         link.operationId.should.be.type('string');
         link.should.not.have.property('operationRef');
         // validate operationId exists (external refs?)
+    }
+    else {
+        link.should.have.property('operationdRef');
     }
     if (typeof link.parameters != 'undefined') {
         link.parameters.should.be.type('object');
@@ -190,7 +210,7 @@ function checkLink(link, options) {
 function checkHeader(header, contextServers, openapi, options) {
     if (header.$ref) {
         var ref = header.$ref;
-        should(Object.keys(header).length).be.exactly(1, 'Reference object cannot be extended');
+        if (!options.laxRefs) should(Object.keys(header).length).be.exactly(1, 'Reference object cannot be extended');
         header = common.resolveInternal(openapi, ref);
         should(header).not.be.exactly(false, 'Could not resolve reference ' + ref);
     }
@@ -231,7 +251,7 @@ function checkHeader(header, contextServers, openapi, options) {
 function checkResponse(response, contextServers, openapi, options) {
     if (response.$ref) {
         var ref = response.$ref;
-        should(Object.keys(response).length).be.exactly(1, 'Reference object cannot be extended');
+        if (!options.laxRefs) should(Object.keys(response).length).be.exactly(1, 'Reference object cannot be extended');
         response = common.resolveInternal(openapi, ref);
         should(response).not.be.exactly(false, 'Could not resolve reference ' + ref);
     }
@@ -271,7 +291,7 @@ function checkResponse(response, contextServers, openapi, options) {
 function checkParam(param, index, contextServers, openapi, options) {
     contextAppend(options, index);
     if (param.$ref) {
-        should(Object.keys(param).length).be.exactly(1, 'Reference object cannot be extended');
+        if (!options.laxRefs) should(Object.keys(param).length).be.exactly(1, 'Reference object cannot be extended');
         var ref = param.$ref;
         param = common.resolveInternal(openapi, ref);
         should(param).not.be.exactly(false, 'Could not resolve reference ' + ref);
@@ -591,7 +611,7 @@ function validateSync(openapi, options, callback) {
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
             options.context.push(state.path);
             obj[key].should.not.startWith('#/definitions/');
-            should(Object.keys(obj).length).be.exactly(1, 'Reference object cannot be extended');
+            if (!options.laxRefs) should(Object.keys(obj).length).be.exactly(1, 'Reference object cannot be extended');
             var refUrl = url.parse(obj[key]);
             if (!refUrl.protocol && !refUrl.path) {
                 should(jptr.jptr(openapi, obj[key])).not.be.exactly(false, 'Cannot resolve reference: ' + obj[key]);
@@ -683,6 +703,21 @@ function validateSync(openapi, options, callback) {
             if (typeof rb.required !== 'undefined') rb.required.should.have.type('boolean');
             checkContent(rb.content, openapi.servers, openapi, options);
             options.context.pop();
+        }
+        options.context.pop();
+    }
+
+    if (openapi.components && openapi.components.examples) {
+        options.context.push('#/components/examples');
+        openapi.components.examples.should.be.type('object');
+        openapi.components.examples.should.not.be.an.Array();
+        for (let e in openapi.components.examples) {
+            options.context.push('#/components/examples/' + e);
+            validateComponentName(e).should.be.equal(true, 'component name invalid');
+            let ex = openapi.components.examples[e];
+            if (!ex.$ref) {
+               checkExample(ex, openapi, options);
+            }
         }
         options.context.pop();
     }

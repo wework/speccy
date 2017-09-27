@@ -14,6 +14,7 @@ file|String|Input|Used to pass filename back to `testRunner`
 help|Boolean|Reserved|Command-line flag to display help
 indent|String|Input|Command-line flag to control JSON indenting
 jsonschema|String|Input|Path to alternative JSON schema (in JSON or YAML) for validation
+laxRefs|Boolean|Input|Flag to validation step to ignore additional `$ref` properties
 laxurls|Boolean|Input|Flag to validation step to ignore empty URLs
 nopatch|Boolean|Input|Command-line flag by `testRunner` to unset `patch`
 openapi|Object|Output|The OpenApi 3.x definition returned from a conversion step
@@ -27,7 +28,7 @@ resolve|Boolean|Input|Flag to enable resolution of external `$ref`s.
 stop|Boolean|Input|Command-line flag used by `testRunner`
 source|String|Output|The source filename or url of the definition
 sourceYaml|Boolean|Output|Flag set if the source string, URL or stream contained a YAML formatted definition
-url|String|Input|URL of the original definition, used when reading a file to create `x-origin` extension 
+url|String|Input|URL of the original definition, used when reading a file to create `x-origin` extension
 valid|Boolean|Output|The result of a validation step
 verbose|Boolean|Input|Increase verbosity, e.g. show HTTP GET requests
 version|Boolean|Input|Command-line flag to show version information

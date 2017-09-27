@@ -100,7 +100,7 @@ function checkExample(ex, openapi, options) {
     //}
     for (let k in ex) {
         if (!k.startsWith('x-')) {
-            should(['summary','description','value','externalValue'].indexOf(k)).be.greaterThan(-1,'Example object cannot have additionalField: '+k);
+            should(['summary','description','value','externalValue'].indexOf(k)).be.greaterThan(-1,'Example object cannot have additionalProperty: '+k);
         }
     }
 }
@@ -488,6 +488,12 @@ function validateSync(openapi, options, callback) {
     openapi.should.not.have.key('securityDefinitions');
     openapi.should.not.have.key('produces');
     openapi.should.not.have.key('consumes');
+
+    for (let k in openapi) {
+        if (!k.startsWith('x-')) {
+            should(['openapi','info','servers','security','externalDocs','tags','paths','components'].indexOf(k)).be.greaterThan(-1,'OpenAPI object cannot have additionalProperty: '+k);
+        }
+    }
 
     openapi.should.have.key('info');
     contextAppend(options, 'info');

@@ -50,7 +50,7 @@
     "babel-core": "^6.24.1",
     "babel-loader": "^7.1.0",
     "babel-preset-es2015": "^6.24.1",
-    "coveralls": "^2.12.0",
+    "coveralls": "^3.0.0",
     "webpack": "^3.5.6"
   }
 }

@@ -297,6 +297,11 @@ function processParameter(param, op, path, index, openapi, options) {
             delete param['x-deprecated'];
         }
 
+        if (typeof param['x-example'] !== 'undefined') {
+            param.example = param['x-example'];
+            delete param['x-example'];
+        }
+
         if ((param.in != 'body') && (!param.type)) {
             if (options.patch) {
                 param.type = 'string';

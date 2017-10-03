@@ -15,5 +15,6 @@ x-required|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within 
 x-deprecated|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|Within parameters, converted to `deprecated`
 x-links|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|At root and within responses, converted to `links`/`components/links`
 x-callbacks|[swaggerplusplus](https://github.com/mermade/swaggerplusplus)|At root and within operations, converted to `callbacks`/`components/callbacks`
+x-example|[apiary](https://help.apiary.io/api_101/swagger-extensions/#x-example)|Within parameters, converted to `example`
 
 See also [APIMatic extensions](https://docs.apimatic.io/advanced/swagger-server-configuration-extensions/)

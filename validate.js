@@ -75,7 +75,7 @@ function validateSchema(schema, openapi, options) {
     return !(errors && errors.length);
 }
 
-function checkExample(ex, openapi, options) {
+function checkExample(ex, contextServers, openapi, options) {
     ex.should.be.an.Object();
     ex.should.not.be.an.Array();
     if (typeof ex.summary !== 'undefined') {
@@ -127,7 +127,7 @@ function checkContent(content, contextServers, openapi, options) {
             for (let e in contentType.examples) {
                 let ex = contentType.examples[e];
                 if (!ex.$ref) {
-                    checkExample(ex, openapi, options);
+                    checkExample(ex, contextServers, openapi, options);
                 }
             }
             options.context.pop();
@@ -725,7 +725,7 @@ function validateSync(openapi, options, callback) {
             validateComponentName(e).should.be.equal(true, 'component name invalid');
             let ex = openapi.components.examples[e];
             if (!ex.$ref) {
-               checkExample(ex, openapi, options);
+               checkExample(ex, openapi.servers, openapi, options);
             }
         }
         options.context.pop();

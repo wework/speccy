@@ -103,14 +103,14 @@ function handleResult(err, options) {
             console.log('  %s', src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
         }
     }
-        catch (ex) {
-            console.log(normal + options.file);
-            console.log(red + options.context.pop() + '\n' + ex.message);
-            result = !!options.expectFailure;
-            if (ex.stack && ex.name !== 'AssertionError') {
-                console.log(ex.stack);
-            }
+    catch (ex) {
+        console.log(normal + options.file);
+        console.log(red + options.context.pop() + '\n' + ex.message);
+        result = !!options.expectFailure;
+        if (ex.stack && ex.name !== 'AssertionError') {
+            console.log(ex.stack);
         }
+    }
     if (result) {
         pass++;
         if ((options.file.indexOf('swagger.yaml') >= 0) && argv.output) {

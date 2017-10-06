@@ -71,6 +71,43 @@ var genStack = [];
 var options = argv;
 options.patch = !argv.nopatch;
 
+function finalise(err, options) {
+    if (err) {
+        console.log(red + options.context.pop() + '\n' + err.message);
+        if (err.stack && err.name !== 'AssertionError') {
+            console.log(err.stack);
+        }
+        options.valid = !!options.expectFailure;
+    }
+    for (var warning of options.warnings) {
+        warnings.push(options.file + ' ' + warning);
+    }
+
+    var src = options.original;
+    var result = options.valid;
+
+    if (!argv.quiet) {
+        console.log(normal + options.file);
+        var colour = ((options.expectFailure ? !result : result) ? green : red);
+        console.log(colour + '  %s %s', src.info.title, src.info.version);
+        console.log('  %s', src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
+    }
+    if (result) {
+        pass++;
+        if ((options.file.indexOf('swagger.yaml') >= 0) && argv.output) {
+            let outFile = options.file.replace('swagger.yaml', 'openapi.yaml');
+            let resultStr = yaml.safeDump(options.openapi, {lineWidth: -1});
+            fs.writeFile(outFile, resultStr, argv.encoding);
+        }
+    }
+    else {
+        fail++;
+        if (options.file != 'unknown') failures.push(options.file);
+        if (argv.stop) process.exit(1);
+    }
+    genStackNext();
+}
+
 function handleResult(err, options) {
     var result = false;
     if (err) {
@@ -84,46 +121,22 @@ function handleResult(err, options) {
     var resultStr = JSON.stringify(result);
 
     if (typeof result !== 'boolean') try {
-        var src = options.original;
         if (!options.yaml) {
             resultStr = yaml.safeDump(result, { lineWidth: -1 }); // should be representable safely in yaml
             resultStr.should.not.be.exactly('{}');
         }
 
-        result = validator.validateSync(result, options);
-
-        for (var warning of options.warnings) {
-            warnings.push(options.file + ' ' + warning);
-        }
-
-        if (!argv.quiet) {
-            console.log(normal + options.file);
-            var colour = ((options.expectFailure ? !result : result) ? green : red);
-            console.log(colour + '  %s %s', src.info.title, src.info.version);
-            console.log('  %s', src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
-        }
+        validator.validate(result, options, finalise);
     }
     catch (ex) {
         console.log(normal + options.file);
         console.log(red + options.context.pop() + '\n' + ex.message);
-        result = !!options.expectFailure;
         if (ex.stack && ex.name !== 'AssertionError') {
             console.log(ex.stack);
         }
+        options.valid = !options.expectFailure;
+        finalise(ex, options);
     }
-    if (result) {
-        pass++;
-        if ((options.file.indexOf('swagger.yaml') >= 0) && argv.output) {
-            let outFile = options.file.replace('swagger.yaml', 'openapi.yaml');
-            fs.writeFile(outFile, resultStr, argv.encoding);
-        }
-    }
-    else {
-        fail++;
-        if (options.file != 'unknown') failures.push(options.file);
-        if (argv.stop) process.exit(1);
-    }
-    genStackNext();
 }
 
 function genStackNext() {

@@ -792,6 +792,7 @@ function validate(openapi, options, callback) {
     common.recurse(openapi, null, function (obj, key, state) {
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
             if (!obj[key].startsWith('#/')) {
+                options.context.push(state.path);
                 actions.push(common.resolveExternal(openapi, obj[key], options, function (data) {
                     state.parent[state.pkey] = data;
                 }));
@@ -802,6 +803,7 @@ function validate(openapi, options, callback) {
     co(function* () {
         // resolve multiple promises in parallel
         var res = yield actions;
+        options.context = [];
         validateSync(openapi, options, callback);
     })
     .catch(function (err) {

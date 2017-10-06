@@ -376,20 +376,24 @@ function checkPathItem(pathItem, openapi, options) {
     for (let o in pathItem) {
         contextAppend(options, o);
         var op = pathItem[o];
-        if (o == 'parameters') {
+        if (o === '$ref') {
+            op.should.have.type('string');
+            should(op.startsWith('#/')).equal(false,'PathItem $refs must be external');
+        }
+        else if (o === 'parameters') {
             for (let p in pathItem.parameters) {
                 checkParam(pathItem.parameters[p], p, contextServers, openapi, options);
             }
         }
-        else if (o == 'servers') {
+        else if (o === 'servers') {
             contextAppend(options, 'servers');
             checkServers(op, options); // won't be here in converted definitions
             options.context.pop();
         }
-        else if (o == 'summary') {
+        else if (o === 'summary') {
             pathItem.summary.should.have.type('string');
         }
-        else if (o == 'description') {
+        else if (o === 'description') {
             pathItem.description.should.have.type('string');
         }
         else if (common.httpVerbs.indexOf(o) >= 0) {

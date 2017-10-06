@@ -73,7 +73,7 @@ function readFileAsync(filename, encoding) {
 
 function resolveExternal(root, pointer, options, callback) {
     var u = url.parse(options.source);
-    var base = options.source.split('/');
+    var base = options.source.split('\\').join('/').split('/');
     base.pop(); // drop the actual filename
     let fragment = '';
     let fnComponents = pointer.split('#');

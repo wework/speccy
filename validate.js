@@ -8,6 +8,7 @@ var util = require('util');
 
 var yaml = require('js-yaml');
 var should = require('should');
+var co = require('co');
 var ajv = require('ajv')({
     allErrors: true,
     verbose: true,
@@ -783,8 +784,29 @@ function validateSync(openapi, options, callback) {
 }
 
 function validate(openapi, options, callback) {
-    process.nextTick(function () {
+    options.valid = false;
+    options.context = [ '#/' ];
+    options.warnings = [];
+    var actions = [];
+
+    common.recurse(openapi, null, function (obj, key, state) {
+        if ((key === '$ref') && (typeof obj[key] === 'string')) {
+            if (!obj[key].startsWith('#/')) {
+                actions.push(common.resolveExternal(openapi, obj[key], options, function (data) {
+                    state.parent[state.pkey] = data;
+                }));
+            }
+        }
+    });
+
+    co(function* () {
+        // resolve multiple promises in parallel
+        var res = yield actions;
         validateSync(openapi, options, callback);
+    })
+    .catch(function (err) {
+        callback(err,options);
+        return false;
     });
 }
 

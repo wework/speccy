@@ -79,6 +79,7 @@ function resolveExternal(root, pointer, options, callback) {
     let fnComponents = pointer.split('#');
     if (fnComponents.length > 1) {
         fragment = '#' + fnComponents[1];
+        pointer = fnComponents[0];
     }
     base = base.join('/');
     if (options.verbose) console.log((u.protocol ? 'GET ' : 'file://') + base + '/' + pointer);
@@ -100,7 +101,18 @@ function resolveExternal(root, pointer, options, callback) {
             });
     }
     else {
-        return readFileAsync(base + '/' + pointer, options.encoding || 'utf8');
+        return readFileAsync(base + '/' + pointer, options.encoding || 'utf8')
+        .then(function(data){
+            try {
+                data = yaml.safeLoad(data, { json: true });
+                if (fragment) {
+                    data = resolveInternal(data, fragment);
+                }
+            }
+            catch (ex) { }
+            callback(data);
+            return data;
+        });
     }
 }
 

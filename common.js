@@ -32,7 +32,6 @@ function recurse(object, state, callback) {
     if (!state || (Object.keys(state).length === 0)) {
         state = {};
         state.path = '#';
-        state.depth = 0;
         state.pkey = '';
         state.parent = {};
         state.payload = {};
@@ -47,7 +46,6 @@ function recurse(object, state, callback) {
             var newState = {};
             newState.parent = object;
             newState.path = state.path;
-            newState.depth = (state.depth ? state.depth++ : state.depth = 1);
             newState.pkey = key;
             newState.payload = state.payload;
             recurse(object[key], newState, callback);

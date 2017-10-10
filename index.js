@@ -584,12 +584,12 @@ function processResponse(response, name, op, openapi, options) {
         delete response.examples;
         if (response.headers) {
             for (let h in response.headers) {
-                if (h == 'Status Code') {
+                if (h.toLowerCase() == 'status code') {
                     if (options.patch) {
                         delete response.headers[h];
                     }
                     else {
-                        throwError('"Status Code" is not a valid header (patchable)', options);
+                        throwError('(Patchable) "Status Code" is not a valid header', options);
                     }
                 }
                 else {
@@ -786,12 +786,12 @@ function main(openapi, options) {
         processResponse(response, sname, null, openapi, options);
         if (response.headers) {
             for (let h in response.headers) {
-                if (h == 'Status Code') {
+                if (h.toLowerCase() == 'status code') {
                     if (options.patch) {
                         delete response.headers[h];
                     }
                     else {
-                        throwError('"Status Code" is not a valid header (patchable)', options);
+                        throwError('(Patchable) "Status Code" is not a valid header', options);
                     }
                 }
                 else {

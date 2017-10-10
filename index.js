@@ -25,6 +25,15 @@ function throwError(message, options) {
     throw err;
 }
 
+function throwOrWarn(message, container, options) {
+    if (options.warnOnly) {
+        container[options.warnProperty] = message;
+    }
+    else {
+        throwError(message, options);
+    }
+}
+
 function fixupSchema(obj, key, state) {
     if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
         if (obj[key].length < 2) {
@@ -195,7 +204,7 @@ function processHeader(header, options) {
         if (header.items && header.items.collectionFormat) {
             if (header.items.type && header.items.type != 'array') {
                 if (header.items.collectionFormat != header.collectionFormat) {
-                    throwError('Nested collectionFormats are not supported', options);
+                    throwOrWarn('Nested collectionFormats are not supported', header, options);
                 }
                 delete header.items.collectionFormat;
             }
@@ -213,16 +222,16 @@ function processHeader(header, options) {
                 header.style = 'simple';
             }
             if (header.collectionFormat == 'ssv') {
-                throwError('collectionFormat:ssv is no longer supported for headers', options); // not lossless
+                throwOrWarn('collectionFormat:ssv is no longer supported for headers', header, options); // not lossless
             }
             if (header.collectionFormat == 'pipes') {
-                throwError('collectionFormat:pipes is no longer supported for headers', options); // not lossless
+                throwOrWarn('collectionFormat:pipes is no longer supported for headers', header, options); // not lossless
             }
             if (header.collectionFormat == 'multi') {
                 header.explode = true;
             }
             if (header.collectionFormat == 'tsv') {
-                throwError('collectionFormat:tsv is no longer supported', options); // not lossless
+                throwOrWarn('collectionFormat:tsv is no longer supported', header, options); // not lossless
             }
             delete header.collectionFormat;
         }
@@ -248,7 +257,7 @@ function fixParamRef(param, options) {
         param.$ref = refComponents[0] + '#/components/parameters/' + common.sanitise(refComponents[1]);
     }
     if (param.$ref.indexOf('#/definitions/') >= 0) {
-        throwError('Definition used as parameter', options);
+        throwOrWarn('Definition used as parameter', param, options);
     }
 }
 
@@ -282,7 +291,7 @@ function processParameter(param, op, path, index, openapi, options) {
             let ref = param.$ref;
             let newParam = common.resolveInternal(openapi, param.$ref);
             if (!newParam && ref.startsWith('#/')) {
-                throwError('Could not resolve reference ' + ref, options);
+                throwOrWarn('Could not resolve reference ' + ref, param, options);
             }
             else {
                 if (newParam) param = newParam; // preserve reference
@@ -332,7 +341,7 @@ function processParameter(param, op, path, index, openapi, options) {
                     param.style = 'spaceDelimited';
                 }
                 else {
-                    throwError('collectionFormat:ssv is no longer supported except for in:query parameters', options); // not lossless
+                    throwOrWarn('collectionFormat:ssv is no longer supported except for in:query parameters', param, options); // not lossless
                 }
             }
             if (param.collectionFormat == 'pipes') {
@@ -340,21 +349,21 @@ function processParameter(param, op, path, index, openapi, options) {
                     param.style = 'pipeDelimited';
                 }
                 else {
-                    throwError('collectionFormat:pipes is no longer supported except for in:query parameters', options); // not lossless
+                    throwOrWarn('collectionFormat:pipes is no longer supported except for in:query parameters', param, options); // not lossless
                 }
             }
             if (param.collectionFormat == 'multi') {
                 param.explode = true;
             }
             if (param.collectionFormat == 'tsv') {
-                throwError('collectionFormat:tsv is no longer supported', options); // not lossless
+                throwOrWarn('collectionFormat:tsv is no longer supported', param, options); // not lossless
             }
             delete param.collectionFormat;
         }
 
         if (param.type && (param.type != 'object') && (param.type != 'body') && (param.in != 'formData')) {
             if (param.items && param.schema) {
-                throwError('parameter has array,items and schema', options);
+                throwOrWarn('parameter has array,items and schema', param, options);
             }
             else {
                 if ((!param.schema) || (typeof param.schema !== 'object')) param.schema = {};
@@ -365,7 +374,7 @@ function processParameter(param, op, path, index, openapi, options) {
                     common.recurse(param.schema.items, null, function (obj, key, state) {
                         if ((key == 'collectionFormat') && (typeof obj[key] == 'string')) {
                             if (oldCollectionFormat && obj[key] !== oldCollectionFormat) {
-                                throwError('Nested collectionFormats are not supported', options);
+                                throwOrWarn('Nested collectionFormats are not supported', param, options);
                             }
                             delete obj[key]; // not lossless
                         }
@@ -473,7 +482,7 @@ function processParameter(param, op, path, index, openapi, options) {
                 op.requestBody["x-s2o-overloaded"] = true;
                 let opId = op.operationId || index;
 
-                throwError('Operation ' + opId + ' has multiple requestBodies', options);
+                throwOrWarn('Operation ' + opId + ' has multiple requestBodies', op, options);
             }
             else {
                 op.requestBody = Object.assign({}, op.requestBody); // make sure we have one
@@ -524,7 +533,7 @@ function processResponse(response, name, op, openapi, options) {
     if (response.$ref && (typeof response.$ref === 'string')) {
         if (response.$ref.indexOf('#/definitions/') >= 0) {
             //response.$ref = '#/components/schemas/'+common.sanitise(response.$ref.replace('#/definitions/',''));
-            throwError('definition used as response: ' + response.$ref, options);
+            throwOrWarn('definition used as response: ' + response.$ref, response, options);
         }
         else {
             if (response.$ref.startsWith('#/responses/')) {

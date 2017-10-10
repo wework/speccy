@@ -522,14 +522,6 @@ function processParameter(param, op, path, index, openapi, options) {
 
 function processResponse(response, name, op, openapi, options) {
     if (response.$ref && (typeof response.$ref === 'string')) {
-        if (typeof response.description !== 'undefined') {
-            if (options.patch) {
-                delete response.description;
-            }
-            else {
-                throwError('(Patchable) $ref object cannot be extended: ' + response.$ref, options);
-            }
-        }
         if (response.$ref.indexOf('#/definitions/') >= 0) {
             //response.$ref = '#/components/schemas/'+common.sanitise(response.$ref.replace('#/definitions/',''));
             throwError('definition used as response: ' + response.$ref, options);

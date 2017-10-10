@@ -214,7 +214,7 @@ function checkLink(link, options) {
 function checkHeader(header, contextServers, openapi, options) {
     if (header.$ref) {
         var ref = header.$ref;
-        if (!options.laxRefs) should(Object.keys(header).length).be.exactly(1, 'Reference object cannot be extended');
+        should(header.$ref).be.type('string');
         header = common.resolveInternal(openapi, ref);
         should(header).not.be.exactly(false, 'Could not resolve reference ' + ref);
     }
@@ -255,7 +255,7 @@ function checkHeader(header, contextServers, openapi, options) {
 function checkResponse(response, contextServers, openapi, options) {
     if (response.$ref) {
         var ref = response.$ref;
-        if (!options.laxRefs) should(Object.keys(response).length).be.exactly(1, 'Reference object cannot be extended');
+        should(response.$ref).be.type('string');
         response = common.resolveInternal(openapi, ref);
         should(response).not.be.exactly(false, 'Could not resolve reference ' + ref);
     }
@@ -295,7 +295,7 @@ function checkResponse(response, contextServers, openapi, options) {
 function checkParam(param, index, contextServers, openapi, options) {
     contextAppend(options, index);
     if (param.$ref) {
-        if (!options.laxRefs) should(Object.keys(param).length).be.exactly(1, 'Reference object cannot be extended');
+        should(param.$ref).be.type('string');
         var ref = param.$ref;
         param = common.resolveInternal(openapi, ref);
         should(param).not.be.exactly(false, 'Could not resolve reference ' + ref);
@@ -626,7 +626,6 @@ function validateSync(openapi, options, callback) {
         if ((key === '$ref') && (typeof obj[key] === 'string')) {
             options.context.push(state.path);
             obj[key].should.not.startWith('#/definitions/');
-            if (!options.laxRefs) should(Object.keys(obj).length).be.exactly(1, 'Reference object cannot be extended');
             var refUrl = url.parse(obj[key]);
             if (!refUrl.protocol && !refUrl.path) {
                 should(jptr.jptr(openapi, obj[key])).not.be.exactly(false, 'Cannot resolve reference: ' + obj[key]);

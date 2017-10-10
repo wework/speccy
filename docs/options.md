@@ -14,7 +14,7 @@ file|String|Input|Used to pass filename back to `testRunner`
 help|Boolean|Reserved|Command-line flag to display help
 indent|String|Input|Command-line flag to control JSON indenting
 jsonschema|String|Input|Path to alternative JSON schema (in JSON or YAML) for validation
-laxRefs|Boolean|Input|Flag to validation step to ignore additional `$ref` properties
+laxRefs|Boolean|Input|**No longer has any effect as this is now the default**
 laxurls|Boolean|Input|Flag to validation step to ignore empty URLs
 nopatch|Boolean|Input|Command-line flag by `testRunner` to unset `patch`
 openapi|Object|Output|The OpenApi 3.x definition returned from a conversion step

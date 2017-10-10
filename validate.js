@@ -308,6 +308,7 @@ function checkParam(param, index, contextServers, openapi, options) {
     if (param.in == 'path') {
         param.should.have.property('required');
         param.required.should.be.exactly(true, 'Path parameters must have an explicit required:true');
+        // TODO path parameters MUST appear in the path template
     }
     if (typeof param.required !== 'undefined') should(param.required).have.type('boolean');
     param.should.not.have.property('items');
@@ -407,6 +408,8 @@ function checkPathItem(pathItem, openapi, options) {
             op.responses.should.not.be.empty();
             if (op.summary) op.summary.should.have.type('string');
             if (op.description) op.description.should.have.type('string');
+            if (op.operationId) op.operationId.should.have.type('string');
+            // TODO operationIds MUST be unique
 
             if (op.servers) {
                 contextAppend(options, 'servers');
@@ -432,6 +435,9 @@ function checkPathItem(pathItem, openapi, options) {
                 options.context.pop();
             }
             options.context.pop();
+
+            // TODO parameters must be unique on in: and name: (including
+            // non-overridden path-level parameters)
 
             if (op.parameters) {
                 contextAppend(options, 'parameters');
@@ -517,6 +523,20 @@ function validateSync(openapi, options, callback) {
         should(openapi.info.termsOfService).not.be.Null();
         (function () { validateUrl(openapi.info.termsOfService, contextServers, 'termsOfService', options) }).should.not.throw();
     }
+    if (typeof openapi.info.contact !== 'undefined') {
+        contextAppend(options, 'contact');
+        openapi.info.contact.should.be.type('object');
+        openapi.info.contact.should.not.be.an.Array();
+        if (typeof openapi.info.contact.url !== 'undefined') {
+            openapi.info.contact.url.should.be.type('string');
+            (function () { validateUrl(openapi.info.contact.url, contextServers, 'url', options) }).should.not.throw();
+        }
+        if (typeof openapi.info.contact.email !== 'undefined') {
+            openapi.info.contact.email.should.have.type('string');
+            should(openapi.info.contact.email.indexOf('@')).be.greaterThan(-1,'Contact email must be a valid email address');
+        }
+        options.context.pop();
+    }
     options.context.pop();
 
     var contextServers = [];
@@ -536,9 +556,12 @@ function validateSync(openapi, options, callback) {
 
     if (openapi.tags) {
         contextAppend(options, 'tags');
+        let tagsSeen = [];
         for (let tag of openapi.tags) {
             tag.should.have.property('name');
             tag.name.should.have.type('string');
+            should(tagsSeen.indexOf(tag.name)).be.exactly(-1,'Tag names must be unique');
+            tagsSeen.push(tag.name);
             if (tag.externalDocs) {
                 tag.externalDocs.should.have.key('url');
                 tag.externalDocs.url.should.have.type('string');
@@ -633,6 +656,8 @@ function validateSync(openapi, options, callback) {
             options.context.pop();
         }
     });
+
+    // TODO Templated paths with the same hierarchy but different templated names MUST NOT exist as they are identical.
 
     for (let p in openapi.paths) {
         options.context.push('#/paths/' + jptr.jpescape(p));

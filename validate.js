@@ -26,8 +26,8 @@ var metaSchema = require('ajv/lib/refs/json-schema-v5.json');
 ajv.addMetaSchema(metaSchema);
 ajv._opts.defaultMeta = metaSchema.id;
 
-var jptr = require('jgexml/jpath.js');
 var common = require('./common.js');
+var jptr = require('reftools/lib/jptr.js');
 
 var jsonSchema = require('./schemas/json_v5.json');
 var validateMetaSchema = ajv.compile(jsonSchema);
@@ -654,8 +654,7 @@ function validateSync(openapi, options, callback) {
             var refUrl = url.parse(obj[key]);
             if (!refUrl.protocol && !refUrl.path) {
                 should(obj[key]+'/$ref').not.be.equal(state.path,'Circular reference');
-                let val = jptr.jptr(openapi,obj[key])||false;
-                should(val).not.be.exactly(false, 'Cannot resolve reference: ' + obj[key]);
+                should(jptr.jptr(openapi,obj[key])).not.be.exactly(false, 'Cannot resolve reference: ' + obj[key]);
             }
             options.context.pop();
         }

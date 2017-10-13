@@ -1,16 +1,15 @@
 'use strict';
 
-var crypto = require('crypto');
-var fs = require('fs');
-var url = require('url');
+const crypto = require('crypto');
+const fs = require('fs');
+const url = require('url');
 
-var fetch = require('node-fetch');
-var yaml = require('js-yaml');
-var jptr = require('jgexml/jpath.js');
-
-function clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
+const fetch = require('node-fetch');
+const yaml = require('js-yaml');
+const recurse = require('reftools/lib/recurse.js').recurse;
+const jptr = require('reftools/lib/jptr.js').jptr;
+const resolveInternal = jptr;
+const clone = require('reftools/lib/clone.js').clone;
 
 function uniqueOnly(value, index, self) {
     return self.indexOf(value) === index;
@@ -26,32 +25,6 @@ String.prototype.toCamelCase = function camelize() {
     return this.toLowerCase().replace(/[-_ \/\.](.)/g, function (match, group1) {
         return group1.toUpperCase();
     });
-}
-
-function recurse(object, state, callback) {
-    if (!state || (Object.keys(state).length === 0)) {
-        state = {};
-        state.path = '#';
-        state.pkey = '';
-        state.parent = {};
-        state.payload = {};
-    }
-    var oPath = state.path;
-    for (var key in object) {
-        var escKey = '/' + jptr.jpescape(key);
-        state.key = key;
-        state.path = (state.path ? state.path : '#') + escKey;
-        callback(object, key, state);
-        if (typeof object[key] === 'object') {
-            var newState = {};
-            newState.parent = object;
-            newState.path = state.path;
-            newState.pkey = key;
-            newState.payload = state.payload;
-            recurse(object[key], newState, callback);
-        }
-        state.path = oPath;
-    }
 }
 
 function getVersion() {
@@ -143,10 +116,6 @@ function resolveExternal(root, pointer, options, callback) {
 
 }
 
-function resolveInternal(root, pointer) {
-    return jptr.jptr(root, pointer) || false;
-}
-
 const parameterTypeProperties = [
     'format',
     'minimum',
@@ -207,7 +176,7 @@ module.exports = {
     sha256: sha256,
     getVersion: getVersion,
     resolveExternal: resolveExternal,
-    resolveInternal: resolveInternal,
+    resolveInternal: jptr,
     parameterTypeProperties: parameterTypeProperties,
     arrayProperties: arrayProperties,
     httpVerbs: httpVerbs,

@@ -9,7 +9,7 @@ var co = require('co');
 var maybe = require('call-me-maybe');
 var fetch = require('node-fetch');
 var yaml = require('js-yaml');
-var jptr = require('jgexml/jpath.js');
+var jptr = require('reftools/lib/jptr.js');
 
 var common = require('./common.js');
 var statusCodes = require('./statusCodes.js').statusCodes;

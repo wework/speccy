@@ -28,10 +28,10 @@
     "ajv": "^5.0.1",
     "call-me-maybe": "^1.0.1",
     "co": "^4.6.0",
-    "jgexml": "^0.3.8",
     "js-yaml": "^3.6.1",
     "node-fetch": "^1.6.3",
     "node-readfiles": "^0.2.0",
+    "reftools": "^0.0.7",
     "should": "^13.0.1",
     "yargs": "^9.0.1"
   },

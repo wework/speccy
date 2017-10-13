@@ -27,7 +27,7 @@ function throwError(message, options) {
 
 function throwOrWarn(message, container, options) {
     if (options.warnOnly) {
-        container[options.warnProperty] = message;
+        container[options.warnProperty||'x-s2o-warning'] = message;
     }
     else {
         throwError(message, options);

@@ -135,9 +135,6 @@ function fixupSchema(obj, key, state) {
             // for extensions like Apigee's x-templates
             obj[key] = '#/components/responses/' + common.sanitise(obj[key].replace('#/responses/', ''));
         }
-        Object.keys(obj).forEach(function (k) {
-            if (k !== '$ref') delete obj[k];
-        });
     }
     if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
         let keys = obj[key].replace('#/definitions/', '').split('/');
@@ -970,7 +967,7 @@ function convertObj(swagger, options, callback) {
             server.variables = {};
             for (let param of xMsPHost.parameters) {
                 if (param.$ref) {
-                    param.$ref = common.resolveInternal(openapi, param.$ref);
+                    param = common.resolveInternal(openapi, param.$ref);
                 }
                 delete param.required; // all true
                 delete param.type; // all strings

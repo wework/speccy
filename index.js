@@ -143,7 +143,7 @@ function fixupSchema(obj, key, state, options) {
         }
     }
     if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
-        let keys = obj[key].replace('#/definitions/', '').split('/');
+        let keys = obj[key].replace('#/definitions/', '').replace('#/components/schemas/','').split('/');
         let newKey = componentNames.schemas[keys[0]]; //lookup
         if (!newKey) {
             throwOrWarn('Could not resolve reference '+obj[key],obj,state.payload.options);

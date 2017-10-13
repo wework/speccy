@@ -36,10 +36,10 @@ function recurse(object, state, callback) {
         state.parent = {};
         state.payload = {};
     }
+    var oPath = state.path;
     for (var key in object) {
         var escKey = '/' + jptr.jpescape(key);
         state.key = key;
-        var oPath = state.path;
         state.path = (state.path ? state.path : '#') + escKey;
         callback(object, key, state);
         if (typeof object[key] === 'object') {

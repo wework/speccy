@@ -34,7 +34,7 @@ function throwOrWarn(message, container, options) {
     }
 }
 
-function fixupSchema(obj, key, state) {
+function fixupSchema(obj, key, state, options) {
     if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
         if (obj[key].length < 2) {
             obj[key] = (obj[key].length ? obj[key][0] : 'string');
@@ -124,7 +124,13 @@ function fixupSchema(obj, key, state) {
         if (obj[key].startsWith('#/definitions/')) {
             //only the first part of a schema component name must be sanitised
             let keys = obj[key].replace('#/definitions/', '').split('/');
-            keys[0] = componentNames.schemas[keys[0]]; //lookup
+            let newKey = componentNames.schemas[keys[0]]; //lookup
+            if (!newKey) {
+                throwOrWarn('Could not resolve reference '+obj[key],obj,state.payload.options);
+            }
+            else {
+                keys[0] = newKey;
+            }
             obj[key] = '#/components/schemas/' + keys.join('/');
         }
         if (obj[key].startsWith('#/parameters/')) {
@@ -138,7 +144,13 @@ function fixupSchema(obj, key, state) {
     }
     if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
         let keys = obj[key].replace('#/definitions/', '').split('/');
-        keys[0] = componentNames.schemas[keys[0]]; //lookup
+        let newKey = componentNames.schemas[keys[0]]; //lookup
+        if (!newKey) {
+            throwOrWarn('Could not resolve reference '+obj[key],obj,state.payload.options);
+        }
+        else {
+            keys[0] = newKey;
+        }
         obj[key] = '#/components/schemas/' + keys.join('/');
     }
 }
@@ -386,7 +398,7 @@ function processParameter(param, op, path, index, openapi, options) {
         }
 
         if (param.schema) {
-            common.recurse(param.schema, { payload: { targetted: true } }, fixupSchema);
+            common.recurse(param.schema, { payload: { targetted: true, options: options } }, fixupSchema);
         }
 
         if (param["x-ms-skip-url-encoding"]) {
@@ -467,7 +479,7 @@ function processParameter(param, op, path, index, openapi, options) {
         for (let mimetype of consumes) {
             result.content[mimetype] = {};
             result.content[mimetype].schema = common.clone(param.schema) || {};
-            common.recurse(result.content[mimetype].schema, { payload: { targetted: true } }, fixupSchema);
+            common.recurse(result.content[mimetype].schema, { payload: { targetted: true, options: options } }, fixupSchema);
         }
     }
 
@@ -553,7 +565,7 @@ function processResponse(response, name, op, openapi, options) {
         }
         if (response.schema) {
 
-            common.recurse(response.schema, { payload: { targetted: true } }, fixupSchema);
+            common.recurse(response.schema, { payload: { targetted: true, options: options } }, fixupSchema);
 
             if (response.schema.$ref && (typeof response.schema.$ref === 'string') && response.schema.$ref.startsWith('#/responses/')) {
                 response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
@@ -700,7 +712,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                 delete op.schemes;
                 if (op.parameters && op.parameters.length === 0) delete op.parameters;
 
-                common.recurse(op, { payload: { targetted: false } }, fixupSchema); // for x-ms-odata etc
+                common.recurse(op, { payload: { targetted: false, options: options } }, fixupSchema); // for x-ms-odata etc
 
                 if (op.requestBody) {
                     var effectiveOperationId = op.operationId ? common.sanitiseAll(op.operationId) : common.sanitiseAll(method + p).toCamelCase();
@@ -778,7 +790,7 @@ function main(openapi, options) {
         processParameter(param, null, null, sname, openapi, options);
     }
 
-    common.recurse(openapi.components.responses, { payload: { targetted: false } }, fixupSchema);
+    common.recurse(openapi.components.responses, { payload: { targetted: false, options: options } }, fixupSchema);
     for (let r in openapi.components.responses) {
         let sname = common.sanitise(r);
         if (r != sname) {
@@ -832,10 +844,10 @@ function main(openapi, options) {
         }
     }
 
-    common.recurse(openapi.components.schemas, { payload: { targetted: true } }, fixupSchema);
-    common.recurse(openapi.components.schemas, { payload: { targetted: true } }, fixupSchema); // second pass for fixed x-anyOf's etc
-    common.recurse(openapi, { payload: { targetted: false } }, fixupSchema); // pass across whole definition for $refs in vendor extensions
-    common.recurse(openapi, { payload: { targetted: false } }, fixupSchema); // second pass for fixed x-anyOf's etc
+    common.recurse(openapi.components.schemas, { payload: { targetted: true, options: options } }, fixupSchema);
+    common.recurse(openapi.components.schemas, { payload: { targetted: true, options: options } }, fixupSchema); // second pass for fixed x-anyOf's etc
+    common.recurse(openapi, { payload: { targetted: false, options: options } }, fixupSchema); // pass across whole definition for $refs in vendor extensions
+    common.recurse(openapi, { payload: { targetted: false, options: options } }, fixupSchema); // second pass for fixed x-anyOf's etc
 
     if (options.debug) {
         openapi["x-s2o-consumes"] = openapi.consumes || [];

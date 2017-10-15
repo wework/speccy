@@ -557,7 +557,9 @@ function processResponse(response, name, op, openapi, options) {
                 var sc = statusCodes.find(function (e) {
                     return e.code == name;
                 });
-                response.description = (sc ? sc.phrase : '');
+                if ((typeof response === 'object') && (!Array.isArray(response))) {
+                    response.description = (sc ? sc.phrase : '');
+                }
             }
             else {
                 throwError('(Patchable) response.description is mandatory', options);

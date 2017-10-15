@@ -9,6 +9,7 @@ var co = require('co');
 var maybe = require('call-me-maybe');
 var fetch = require('node-fetch');
 var yaml = require('js-yaml');
+var jptr = require('jgexml/jpath.js');
 
 var common = require('./common.js');
 var statusCodes = require('./statusCodes.js').statusCodes;
@@ -729,7 +730,8 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                         entry.refs = [];
                         requestBodyCache[rbSha256] = entry;
                     }
-                    requestBodyCache[rbSha256].refs.push(containerName + ' ' + method + ' ' + p); // might be easier to use a JSON Pointer here
+                    let ptr = '#/'+containerName+'/'+jptr.jpescape(p)+'/'+method+'/requestBody';
+                    requestBodyCache[rbSha256].refs.push(ptr);
                 }
 
             }
@@ -882,10 +884,9 @@ function main(openapi, options) {
             rbNamesGenerated.push(entry.name);
             openapi.components.requestBodies[entry.name] = entry.body;
             for (let r in entry.refs) {
-                var address = entry.refs[r].split(' ');
                 var ref = {};
                 ref.$ref = '#/components/requestBodies/' + entry.name;
-                openapi[address[0]][address[2]][address[1]].requestBody = ref; // might be easier to use a JSON Pointer here
+                jptr.jptr(openapi,entry.refs[r],ref);
             }
         }
     }

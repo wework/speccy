@@ -91,7 +91,7 @@ function processResult(err, options) {
 
 argv.source = argv._[0];
 var u = url.parse(argv.source);
-if (u.protocol) {
+if (u.protocol && u.protocol.startsWith('http')) {
     converter.convertUrl(argv.source, argv, processResult);
 }
 else {

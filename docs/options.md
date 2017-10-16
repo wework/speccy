@@ -11,6 +11,7 @@ expectFailure|Boolean|Input|Flag to invert the status of a validation step
 externals|[Array](externals.md)|Output|Information required to unresolve a resolved definition back into its component parts
 fail|Boolean|Input|Command-line flag used by `testRunner`
 file|String|Input|Used to pass filename back to `testRunner`
+handlers|Object|Input|Map of additional [protocol/scheme handlers](handlers.md), must be functions which return a Promise
 help|Boolean|Reserved|Command-line flag to display help
 indent|String|Input|Command-line flag to control JSON indenting
 jsonschema|String|Input|Path to alternative JSON schema (in JSON or YAML) for validation

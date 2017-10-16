@@ -80,8 +80,21 @@ function resolveExternal(root, pointer, options, callback) {
         pointer = fnComponents[0];
     }
     base = base.join('/');
-    if (options.verbose) console.log((u.protocol ? 'GET ' : 'file://') + base + '/' + pointer);
-    if (u.protocol) {
+    let effectiveBase = (u.protocol ? u.host+u.path : base);
+
+    let u2 = url.parse(pointer);
+    let effectiveProtocol = (u2.protocol ? u2.protocol : (u.protocol ? u.protocol : 'file:'));
+    if (u2.protocol) pointer = u2.path;
+    if (options.verbose) console.log(effectiveProtocol + '//' + effectiveBase + '/' + pointer);
+
+    if (options.handlers && options.handlers[effectiveProtocol]) {
+        return options.handlers[effectiveProtocol](base,pointer,fragment,options)
+            .then(function(data){
+                callback(data);
+                return data;
+            });
+    }
+    else if (u.protocol && u.protocol.startsWith('http')) {
         return fetch(base + '/' + pointer)
             .then(function (res) {
                 return res.text();

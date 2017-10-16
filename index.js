@@ -913,6 +913,17 @@ function main(openapi, options) {
     return openapi;
 }
 
+function extractServerParameters(server) {
+    server.url = server.url.split('{{').join('{');
+    server.url = server.url.split('}}').join('}');
+    server.url.replace(/\{(.+?)\}/g, function (match, group1) { // TODO extend to :parameters (not port)?
+        if (!server.variables) {
+            server.variables = {};
+        }
+        server.variables[group1] = { default: 'unknown' };
+    });
+}
+
 function convertObj(swagger, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
@@ -949,20 +960,14 @@ function convertObj(swagger, options, callback) {
             for (let s of swagger.schemes) {
                 let server = {};
                 server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
-                server.url = server.url.split('{{').join('{');
-                server.url = server.url.split('}}').join('}');
-                server.url.replace(/\{(.+?)\}/g, function (match, group1) { // TODO extend to :parameters (not port)?
-                    if (!server.variables) {
-                        server.variables = {};
-                    }
-                    server.variables[group1] = { default: 'unknown' };
-                });
+                extractServerParameters(server);
                 openapi.servers.push(server);
             }
         }
         else if (swagger.basePath) {
             let server = {};
             server.url = swagger.basePath;
+            extractServerParameters(server);
             openapi.servers.push(server);
         }
         delete openapi.host;

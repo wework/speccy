@@ -890,7 +890,7 @@ function main(openapi, options) {
             }
             entry.name = entry.name + suffix;
             rbNamesGenerated.push(entry.name);
-            openapi.components.requestBodies[entry.name] = entry.body;
+            openapi.components.requestBodies[entry.name] = common.clone(entry.body);
             for (let r in entry.refs) {
                 var ref = {};
                 ref.$ref = '#/components/requestBodies/' + entry.name;

@@ -178,8 +178,8 @@ function processSecurityScheme(scheme, options) {
         var flowName = scheme.flow;
         if (scheme.flow == 'application') flowName = 'clientCredentials';
         if (scheme.flow == 'accessCode') flowName = 'authorizationCode';
-        if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl || '/';
-        if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl || '/';
+        if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl.split('?')[0] || '/';
+        if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl.split('?')[0] || '/';
         flow.scopes = scheme.scopes || {};
         scheme.flows = {};
         scheme.flows[flowName] = flow;

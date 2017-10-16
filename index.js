@@ -738,7 +738,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                         entry.refs = [];
                         requestBodyCache[rbSha256] = entry;
                     }
-                    let ptr = '#/'+containerName+'/'+jptr.jpescape(p)+'/'+method+'/requestBody';
+                    let ptr = '#/'+containerName+'/'+encodeURIComponent(jptr.jpescape(p))+'/'+method+'/requestBody';
                     requestBodyCache[rbSha256].refs.push(ptr);
                 }
 

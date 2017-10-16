@@ -985,23 +985,26 @@ function convertObj(swagger, options, callback) {
             let server = {};
             server.url = xMsPHost.hostTemplate;
             server.variables = {};
-            for (let param of xMsPHost.parameters) {
+            for (let msp in xMsPHost.parameters) {
+                let param = xMsPHost.parameters[p];
                 if (param.$ref) {
                     param = common.resolveInternal(openapi, param.$ref);
                 }
-                delete param.required; // all true
-                delete param.type; // all strings
-                delete param.in; // all 'host'
-                if (typeof param.default === 'undefined') {
-                    if (param.enum) {
-                        param.default = param.enum[0];
+                if (!msp.startsWith('x-')) {
+                    delete param.required; // all true
+                    delete param.type; // all strings
+                    delete param.in; // all 'host'
+                    if (typeof param.default === 'undefined') {
+                        if (param.enum) {
+                            param.default = param.enum[0];
+                        }
+                        else {
+                            param.default = '';
+                        }
                     }
-                    else {
-                        param.default = '';
-                    }
+                    server.variables[param.name] = param;
+                    delete param.name;
                 }
-                server.variables[param.name] = param;
-                delete param.name;
             }
             openapi.servers.push(server);
             delete openapi['x-ms-parameterized-host'];

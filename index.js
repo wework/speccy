@@ -1050,6 +1050,17 @@ function convertObj(swagger, options, callback) {
                     return reject(new Error('(Patchable) info.termsOfService cannot be null'));
                 }
             }
+            if (url.URL && options.whatwg) {
+                try {
+                    url.URL.parse(openapi.info.termsOfService);
+                }
+                catch (ex) {
+                    if (options.patch) {
+                        delete openapi.info.termsOfService;
+                    }
+                    else return reject(new Error('(Patchable) info.termsOfService must be a URL'));
+                }
+            }
         }
 
         openapi.components = {};

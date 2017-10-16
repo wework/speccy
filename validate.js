@@ -429,10 +429,12 @@ function checkPathItem(pathItem, openapi, options) {
 
             contextAppend(options, 'responses');
             for (let r in op.responses) {
-                contextAppend(options, r);
-                var response = op.responses[r];
-                checkResponse(response, contextServers, openapi, options);
-                options.context.pop();
+                if (!r.startsWith('x-')) {
+                    contextAppend(options, r);
+                    var response = op.responses[r];
+                    checkResponse(response, contextServers, openapi, options);
+                    options.context.pop();
+                }
             }
             options.context.pop();
 

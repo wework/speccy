@@ -329,6 +329,14 @@ function processParameter(param, op, path, index, openapi, options) {
                 throwError('(Patchable) parameter.type is mandatory for non-body parameters', options);
             }
         }
+        if (param.type && typeof param.type === 'object' && param.type.$ref) {
+            // $ref anywhere sensibility
+            param.type = resolveInternal(openapi, param.type.$ref);
+        }
+        if (param.description && typeof param.description === 'object' && param.description.$ref) {
+            // $ref anywhere sensibility
+            param.description = resolveInternal(openapi, param.description.$ref);
+        }
 
         var oldCollectionFormat = param.collectionFormat;
         if (param.collectionFormat) {

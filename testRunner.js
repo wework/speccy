@@ -128,7 +128,9 @@ function handleResult(err, options) {
     if (typeof result !== 'boolean') try {
         if (!options.yaml) {
             resultStr = yaml.safeDump(result, { lineWidth: -1 }); // should be representable safely in yaml
-            resultStr.should.not.be.exactly('{}');
+            let resultStr2 = yaml.safeDump(result, { lineWidth: -1, noRefs: true }); // have no identity ref_s
+            resultStr.should.not.be.exactly('{}','Result should not be empty');
+            resultStr.should.equal(resultStr2,'Result should have no object identity ref_s');
         }
 
         validator.validate(result, options, finalise);

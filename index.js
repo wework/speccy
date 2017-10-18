@@ -917,6 +917,12 @@ function main(openapi, options) {
     if (openapi.components.headers && Object.keys(openapi.components.headers).length === 0) {
         delete openapi.components.headers;
     }
+    if (openapi.components.schemas && Object.keys(openapi.components.schemas).length === 0) {
+        delete openapi.components.schemas;
+    }
+    if (openapi.components && Object.keys(openapi.components).length === 0) {
+        delete openapi.components;
+    }
 
     return openapi;
 }

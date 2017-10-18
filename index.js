@@ -423,7 +423,7 @@ function processParameter(param, op, path, index, openapi, options) {
         singularRequestBody = false;
         result.content = {};
         var contentType = 'application/x-www-form-urlencoded';
-        if ((consumes.length) && (consumes.indexOf('multipart/form-data') > 0)) {
+        if ((consumes.length) && (consumes.indexOf('multipart/form-data') >= 0)) {
             contentType = 'multipart/form-data';
         }
 

@@ -121,7 +121,7 @@ function fixupSchema(obj, key, state, options) {
         obj.required = obj.required.concat(obj[key]);
         delete obj[key];
     }
-    if ((key == '$ref') && (typeof obj[key] === 'string')) {
+    if (common.isRef(obj,key)) {
         if (obj[key].startsWith('#/definitions/')) {
             //only the first part of a schema component name must be sanitised
             let keys = obj[key].replace('#/definitions/', '').split('/');
@@ -390,7 +390,7 @@ function processParameter(param, op, path, index, openapi, options) {
                     param.schema.items = param.items;
                     delete param.items;
                     common.recurse(param.schema.items, null, function (obj, key, state) {
-                        if ((key == 'collectionFormat') && (typeof obj[key] == 'string')) {
+                        if ((key == 'collectionFormat') && (typeof obj[key] === 'string')) {
                             if (oldCollectionFormat && obj[key] !== oldCollectionFormat) {
                                 throwOrWarn('Nested collectionFormats are not supported', param, options);
                             }
@@ -1111,7 +1111,7 @@ function convertObj(swagger, options, callback) {
 
         if (options.resolve) {
             common.recurse(openapi, null, function (obj, key, state) {
-                if ((key === '$ref') && (typeof obj[key] === 'string')) {
+                if (common.isRef(obj,key)) {
                     if (!obj[key].startsWith('#/')) {
                         actions.push(common.resolveExternal(openapi, obj[key], options, function (data) {
                             var external = {};
@@ -1121,6 +1121,7 @@ function convertObj(swagger, options, callback) {
                             external.updated = data;
                             options.externals.push(external);
                             state.parent[state.pkey] = data;
+                            // TODO nested external $refs
                         }));
                     }
                 }

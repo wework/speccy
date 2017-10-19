@@ -648,7 +648,7 @@ function validateSync(openapi, options, callback) {
     }
 
     common.recurse(openapi, null, function (obj, key, state) {
-        if ((key === '$ref') && (typeof obj[key] === 'string')) {
+        if (common.isRef(obj,key)) {
             options.context.push(state.path);
             obj[key].should.not.startWith('#/definitions/');
             var refUrl = url.parse(obj[key]);
@@ -817,11 +817,12 @@ function validate(openapi, options, callback) {
     var actions = [];
 
     common.recurse(openapi, null, function (obj, key, state) {
-        if ((key === '$ref') && (typeof obj[key] === 'string')) {
+        if (common.isRef(obj,key)) {
             if (!obj[key].startsWith('#/')) {
                 options.context.push(state.path);
                 actions.push(common.resolveExternal(openapi, obj[key], options, function (data) {
                     state.parent[state.pkey] = data;
+                    // TODO nested external $refs
                 }));
             }
         }

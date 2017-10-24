@@ -1121,7 +1121,7 @@ function convertObj(swagger, options, callback) {
                             external.updated = data;
                             options.externals.push(external);
                             state.parent[state.pkey] = data;
-                            // TODO nested external $refs
+                            // TODO nested external $refs - see validate.js
                         }));
                     }
                 }

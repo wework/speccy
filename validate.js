@@ -810,27 +810,32 @@ function validateSync(openapi, options, callback) {
     return options.valid;
 }
 
-function validate(openapi, options, callback) {
-    options.valid = false;
-    options.context = [ '#/' ];
-    options.warnings = [];
-    var actions = [];
-
-    common.recurse(openapi, null, function (obj, key, state) {
+function findExternalRefs(master, options, actions) {
+    common.recurse(master, {}, function (obj, key, state) {
         if (common.isRef(obj,key)) {
-            if (!obj[key].startsWith('#/')) {
+            if (!obj[key].startsWith('#')) {
                 options.context.push(state.path);
-                actions.push(common.resolveExternal(openapi, obj[key], options, function (data) {
-                    state.parent[state.pkey] = data;
-                    // TODO nested external $refs
+                actions.push(common.resolveExternal(master, obj[key], options, function (data, newSource) {
+                    state.parent[state.pkey] = findExternalRefs(data,options,actions);
                 }));
             }
         }
     });
+    return master;
+}
+
+function validate(openapi, options, callback) {
+    options.valid = false;
+    options.context = [ '#/' ];
+    options.warnings = [];
+
+    var actions = [];
+    findExternalRefs(openapi, options, actions);
 
     co(function* () {
-        // resolve multiple promises in parallel
-        var res = yield actions;
+        for (var promise of actions) {
+            yield promise; // because we mutate the array
+        }
         options.context = [];
         validateSync(openapi, options, callback);
     })

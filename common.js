@@ -72,7 +72,8 @@ function readFileAsync(filename, encoding) {
 function resolveExternal(root, pointer, options, callback) {
     var u = url.parse(options.source);
     var base = options.source.split('\\').join('/').split('/');
-    base.pop(); // drop the actual filename
+    let doc = base.pop(); // drop the actual filename
+    if (!doc) base.pop(); // in case it ended with a /
     let fragment = '';
     let fnComponents = pointer.split('#');
     if (fnComponents.length > 1) {
@@ -80,12 +81,11 @@ function resolveExternal(root, pointer, options, callback) {
         pointer = fnComponents[0];
     }
     base = base.join('/');
-    let effectiveBase = (u.protocol ? u.host+u.path : base);
 
     let u2 = url.parse(pointer);
     let effectiveProtocol = (u2.protocol ? u2.protocol : (u.protocol ? u.protocol : 'file:'));
     if (u2.protocol) pointer = u2.path;
-    if (options.verbose) console.log(effectiveProtocol + '//' + effectiveBase + '/' + pointer);
+    if (options.verbose) console.log(base+'/'+pointer);
 
     if (options.handlers && options.handlers[effectiveProtocol]) {
         return options.handlers[effectiveProtocol](base,pointer,fragment,options)

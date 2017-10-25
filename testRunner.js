@@ -93,7 +93,7 @@ function finalise(err, options) {
     if (!argv.quiet) {
         console.log(normal + options.file);
         var colour = ((options.expectFailure ? !result : result) ? green : red);
-        if (src) {
+        if (src && src.info) {
             console.log(colour + '  %s %s', src.info.title, src.info.version);
             console.log('  %s', src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
         }

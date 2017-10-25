@@ -654,7 +654,8 @@ function validateSync(openapi, options, callback) {
             var refUrl = url.parse(obj[key]);
             if (!refUrl.protocol && !refUrl.path) {
                 should(obj[key]+'/$ref').not.be.equal(state.path,'Circular reference');
-                should(jptr.jptr(openapi, obj[key])).not.be.exactly(false, 'Cannot resolve reference: ' + obj[key]);
+                let val = jptr.jptr(openapi,obj[key])||false;
+                should(val).not.be.exactly(false, 'Cannot resolve reference: ' + obj[key]);
             }
             options.context.pop();
         }

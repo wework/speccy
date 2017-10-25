@@ -829,6 +829,7 @@ function validate(openapi, options, callback) {
     options.valid = false;
     options.context = [ '#/' ];
     options.warnings = [];
+    if (!options.cache) options.cache = {};
 
     var actions = [];
     if (options.resolve) {

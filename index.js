@@ -957,7 +957,7 @@ function findExternalRefs(master,options,actions) {
     });
 }
 
-function fixInfo(openapi, options) {
+function fixInfo(openapi, options, reject) {
     if (!openapi.info) {
         if (options.patch) {
             openapi.info = { version: '', title: '' };
@@ -1020,7 +1020,7 @@ function fixInfo(openapi, options) {
     }
 }
 
-function fixPaths(openapi, options) {
+function fixPaths(openapi, options, reject) {
     if (!openapi.paths) {
         if (options.patch) {
             openapi.paths = {};
@@ -1036,8 +1036,8 @@ function convertObj(swagger, options, callback) {
         options.externals = [];
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
             options.openapi = common.clone(swagger);
-            fixInfo(options.openapi, options);
-            fixPaths(options.openapi, options);
+            fixInfo(options.openapi, options, reject);
+            fixPaths(options.openapi, options, reject);
             var actions = [];
             if (options.resolve) {
                 findExternalRefs(options.openapi, options, actions);
@@ -1140,8 +1140,8 @@ function convertObj(swagger, options, callback) {
             delete openapi['x-ms-parameterized-host'];
         }
 
-        fixInfo(openapi, options);
-        fixPaths(openapi, options);
+        fixInfo(openapi, options, reject);
+        fixPaths(openapi, options, reject);
 
         openapi.components = {};
         openapi.components.schemas = openapi.definitions || {};

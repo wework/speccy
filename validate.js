@@ -831,7 +831,9 @@ function validate(openapi, options, callback) {
     options.warnings = [];
 
     var actions = [];
-    findExternalRefs(openapi, options, actions);
+    if (options.resolve) {
+        findExternalRefs(openapi, options, actions);
+    }
 
     co(function* () {
         for (var promise of actions) {

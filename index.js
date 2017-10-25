@@ -1037,6 +1037,7 @@ function fixPaths(openapi, options, reject) {
 function convertObj(swagger, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         options.externals = [];
+        if (!options.cache) options.cache = {};
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
             options.openapi = common.clone(swagger);
             fixInfo(options.openapi, options, reject);

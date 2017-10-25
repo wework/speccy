@@ -85,7 +85,20 @@ function resolveExternal(root, pointer, options, callback) {
     let u2 = url.parse(pointer);
     let effectiveProtocol = (u2.protocol ? u2.protocol : (u.protocol ? u.protocol : 'file:'));
     if (u2.protocol) pointer = u2.path;
-    if (options.verbose) console.log('GET',base+'/'+pointer);
+
+    let target = base+'/'+pointer;
+
+    if (options.cache[target]) {
+        if (options.verbose) console.log('CACHED',target);
+        let data = options.cache[target];
+        if (fragment) {
+            data = resolveInternal(data, fragment);
+        }
+        callback(data);
+        return Promise.resolve(data);
+    }
+
+    if (options.verbose) console.log('GET',target);
 
     if (options.handlers && options.handlers[effectiveProtocol]) {
         return options.handlers[effectiveProtocol](base,pointer,fragment,options)
@@ -95,14 +108,14 @@ function resolveExternal(root, pointer, options, callback) {
             });
     }
     else if (u.protocol && u.protocol.startsWith('http')) {
-        // TODO implement a cache, or leave this to custom handlers?
-        return fetch(base + '/' + pointer, {agent:options.agent})
+        return fetch(target, {agent:options.agent})
             .then(function (res) {
                 return res.text();
             })
             .then(function (data) {
                 try {
                     data = yaml.safeLoad(data, { json: true });
+                    options.cache[target] = data;
                     if (fragment) {
                         data = resolveInternal(data, fragment);
                     }
@@ -113,10 +126,11 @@ function resolveExternal(root, pointer, options, callback) {
             });
     }
     else {
-        return readFileAsync(base + '/' + pointer, options.encoding || 'utf8')
+        return readFileAsync(target, options.encoding || 'utf8')
         .then(function(data){
             try {
                 data = yaml.safeLoad(data, { json: true });
+                options.cache[target] = data;
                 if (fragment) {
                     data = resolveInternal(data, fragment);
                 }
@@ -126,6 +140,7 @@ function resolveExternal(root, pointer, options, callback) {
             return data;
         });
     }
+
 }
 
 function resolveInternal(root, pointer) {

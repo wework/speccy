@@ -13,5 +13,5 @@ script:
   - travis_wait node testRunner -q openapi-definitions/
 #  - travis_wait node testRunner -q hapi/APIs/
   - travis_wait node testRunner -q -n openapi3-examples/pass
-  - travis_wait node testRunner -q -n -f openapi3-examples/fail
+  - travis_wait node testRunner -q -r -n -f openapi3-examples/fail
 

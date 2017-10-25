@@ -957,13 +957,90 @@ function findExternalRefs(master,options,actions) {
     });
 }
 
+function fixInfo(openapi, options) {
+    if (!openapi.info) {
+        if (options.patch) {
+            openapi.info = { version: '', title: '' };
+        }
+        else {
+            return reject(new Error('(Patchable) info object is mandatory'));
+        }
+    }
+    if ((typeof openapi.info.title === 'undefined') || (openapi.info.title === null)) {
+        if (options.patch) {
+            openapi.info.title = '';
+        }
+        else {
+            return reject(new Error('(Patchable) info.title cannot be null'));
+        }
+    }
+    if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
+        if (options.patch) {
+            openapi.info.version = '';
+        }
+        else {
+            return reject(new Error('(Patchable) info.version cannot be null'));
+        }
+    }
+    if (typeof openapi.info.version !== 'string') {
+        if (options.patch) {
+            openapi.info.version = openapi.info.version.toString();
+        }
+        else {
+            return reject(new Error('(Patchable) info.version cannot be null'));
+        }
+    }
+    if (typeof openapi.info.logo !== 'undefined') {
+        if (options.patch) {
+            openapi.info['x-logo'] = openapi.info.logo;
+            delete openapi.info.logo;
+        }
+        else return reject(new Error('(Patchable) info should not have logo property'));
+    }
+    if (typeof openapi.info.termsOfService !== 'undefined') {
+        if (openapi.info.termsOfService === null) {
+            if (options.patch) {
+                openapi.info.termsOfService = '';
+            }
+            else {
+                return reject(new Error('(Patchable) info.termsOfService cannot be null'));
+            }
+        }
+        if (url.URL && options.whatwg) {
+            try {
+                url.URL.parse(openapi.info.termsOfService);
+            }
+            catch (ex) {
+                if (options.patch) {
+                    delete openapi.info.termsOfService;
+                }
+                else return reject(new Error('(Patchable) info.termsOfService must be a URL'));
+            }
+        }
+    }
+}
+
+function fixPaths(openapi, options) {
+    if (!openapi.paths) {
+        if (options.patch) {
+            openapi.paths = {};
+        }
+        else {
+            return reject(new Error('(Patchable) paths object is mandatory'));
+        }
+    }
+}
+
 function convertObj(swagger, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
-            options.openapi = swagger;
+            options.openapi = common.clone(swagger);
+            fixInfo(options.openapi, options);
+            fixPaths(options.openapi, options);
             if (options.direct) return resolve(options.openapi)
             else return resolve(options);
         }
+
         if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
             return reject(new Error('Unsupported swagger/OpenAPI version: ' + swagger.swagger));
         }
@@ -1044,66 +1121,8 @@ function convertObj(swagger, options, callback) {
             delete openapi['x-ms-parameterized-host'];
         }
 
-        if (!openapi.info) {
-            if (options.patch) {
-                openapi.info = { version: '', title: '' };
-            }
-            else {
-                return reject(new Error('(Patchable) info object is mandatory'));
-            }
-        }
-        if ((typeof openapi.info.title === 'undefined') || (openapi.info.title === null)) {
-            if (options.patch) {
-                openapi.info.title = '';
-            }
-            else {
-                return reject(new Error('(Patchable) info.title cannot be null'));
-            }
-        }
-        if ((typeof openapi.info.version === 'undefined') || (openapi.info.version === null)) {
-            if (options.patch) {
-                openapi.info.version = '';
-            }
-            else {
-                return reject(new Error('(Patchable) info.version cannot be null'));
-            }
-        }
-        if (typeof openapi.info.version !== 'string') {
-            if (options.patch) {
-                openapi.info.version = openapi.info.version.toString();
-            }
-            else {
-                return reject(new Error('(Patchable) info.version cannot be null'));
-            }
-        }
-        if (typeof openapi.info.logo !== 'undefined') {
-            if (options.patch) {
-                openapi.info['x-logo'] = openapi.info.logo;
-                delete openapi.info.logo;
-            }
-            else return reject(new Error('(Patchable) info should not have logo property'));
-        }
-        if (typeof openapi.info.termsOfService !== 'undefined') {
-            if (openapi.info.termsOfService === null) {
-                if (options.patch) {
-                    openapi.info.termsOfService = '';
-                }
-                else {
-                    return reject(new Error('(Patchable) info.termsOfService cannot be null'));
-                }
-            }
-            if (url.URL && options.whatwg) {
-                try {
-                    url.URL.parse(openapi.info.termsOfService);
-                }
-                catch (ex) {
-                    if (options.patch) {
-                        delete openapi.info.termsOfService;
-                    }
-                    else return reject(new Error('(Patchable) info.termsOfService must be a URL'));
-                }
-            }
-        }
+        fixInfo(openapi, options);
+        fixPaths(openapi, options);
 
         openapi.components = {};
         openapi.components.schemas = openapi.definitions || {};

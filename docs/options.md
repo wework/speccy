@@ -2,6 +2,7 @@
 
 Parameter|Type|Input/Output|Description
 |---|---|---|---|
+agent|Object|Input|http(s).Agent to be used when fetching resources
 components|Boolean|Input|Command-line flag to indicate unresolve information should be displayed
 context|Array|Output|The context stack of associated with errors in a validation step, you normally want the last entry only
 debug|Boolean|Input|Flag to enable debug mode, adds specification-extensions

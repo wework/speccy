@@ -1222,7 +1222,7 @@ function convertUrl(url, options, callback) {
         if (options.verbose) {
             console.log('GET ' + url);
         }
-        fetch(url).then(function (res) {
+        fetch(url, {agent:options.agent}).then(function (res) {
             return res.text();
         }).then(function (body) {
             return convertStr(body, options, callback);

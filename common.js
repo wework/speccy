@@ -95,6 +95,7 @@ function resolveExternal(root, pointer, options, callback) {
             });
     }
     else if (u.protocol && u.protocol.startsWith('http')) {
+        // TODO implement a cache, or leave this to custom handlers?
         return fetch(base + '/' + pointer)
             .then(function (res) {
                 return res.text();

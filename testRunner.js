@@ -11,6 +11,8 @@ var common = require('./common.js');
 var swagger2openapi = require('./index.js');
 var validator = require('./validate.js');
 
+var globalExpectFailure = false;
+
 var argv = require('yargs')
     .usage('testRunner [options] [{path-to-specs}...]')
     .string('encoding')
@@ -118,6 +120,7 @@ function handleResult(err, options) {
         options = err.options || { file: 'unknown', src: { info: { version: '', title: '' } } };
         options.context = [];
         options.warnings = [];
+        options.expectFailure = globalExpectFailure;
         finalise(err,options);
     }
     else {
@@ -206,6 +209,7 @@ function* check(file, force, expectFailure) {
 }
 
 function processPathSpec(pathspec, expectFailure) {
+    globalExpectFailure = expectFailure;
     if (pathspec.startsWith('@')) {
         pathspec = pathspec.substr(1, pathspec.length - 1);
         var list = fs.readFileSync(pathspec, 'utf8').split('\r').join('').split('\n');

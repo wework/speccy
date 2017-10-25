@@ -938,11 +938,31 @@ function extractServerParameters(server) {
     });
 }
 
+function findExternalRefs(master,options,actions) {
+    common.recurse(master, null, function (obj, key, state) {
+        if (common.isRef(obj,key)) {
+            if (!obj[key].startsWith('#')) {
+                actions.push(common.resolveExternal(master, obj[key], options, function (data) {
+                    var external = {};
+                    external.context = state.path;
+                    external.$ref = obj[key];
+                    external.original = common.clone(data);
+                    external.updated = data;
+                    options.externals.push(external);
+                    findExternalRefs(data,options,actions);
+                    state.parent[state.pkey] = data;
+                }));
+            }
+        }
+    });
+}
+
 function convertObj(swagger, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
             options.openapi = swagger;
-            return resolve(options);
+            if (options.direct) return resolve(options.openapi)
+            else return resolve(options);
         }
         if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
             return reject(new Error('Unsupported swagger/OpenAPI version: ' + swagger.swagger));
@@ -1108,26 +1128,6 @@ function convertObj(swagger, options, callback) {
 
         var actions = [];
         options.externals = [];
-
-        function findExternalRefs(master,options,actions) {
-            common.recurse(master, null, function (obj, key, state) {
-                if (common.isRef(obj,key)) {
-                    if (!obj[key].startsWith('#')) {
-                        actions.push(common.resolveExternal(master, obj[key], options, function (data) {
-                            var external = {};
-                            external.context = state.path;
-                            external.$ref = obj[key];
-                            external.original = common.clone(data);
-                            external.updated = data;
-                            options.externals.push(external);
-                            findExternalRefs(data,options,actions);
-                            state.parent[state.pkey] = data;
-                        }));
-                    }
-                }
-            });
-        }
-
         if (options.resolve) {
             findExternalRefs(openapi, options, actions);
         }

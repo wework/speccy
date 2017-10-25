@@ -1058,6 +1058,7 @@ function convertObj(swagger, options, callback) {
             .catch(function (err) {
                 reject(err);
             });
+            return;
         }
 
         if ((!swagger.swagger) || (swagger.swagger != "2.0")) {

@@ -818,7 +818,7 @@ function findExternalRefs(master, options, actions) {
                 actions.push(common.resolveExternal(master, obj[key], options, function (data, newSource) {
                     state.parent[state.pkey] = findExternalRefs(data,options,actions);
                 }));
-                actions.context.pop();
+                options.context.pop();
             }
         }
     });

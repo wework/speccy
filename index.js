@@ -950,6 +950,9 @@ function findExternalRefs(master,options,actions) {
                     external.updated = data;
                     options.externals.push(external);
                     findExternalRefs(data,options,actions);
+                    if (options.patch && obj.description && !data.description) {
+                        data.description = obj.description;
+                    }
                     state.parent[state.pkey] = data;
                 }));
             }

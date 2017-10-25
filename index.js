@@ -1033,12 +1033,31 @@ function fixPaths(openapi, options) {
 
 function convertObj(swagger, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
+        options.externals = [];
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
             options.openapi = common.clone(swagger);
             fixInfo(options.openapi, options);
             fixPaths(options.openapi, options);
-            if (options.direct) return resolve(options.openapi)
-            else return resolve(options);
+            var actions = [];
+            if (options.resolve) {
+                findExternalRefs(options.openapi, options, actions);
+            }
+
+            co(function* () {
+                // resolve multiple promises in parallel
+                for (let action of actions) {
+                    yield action; // because we can mutate the array
+                }
+                if (options.direct) {
+                    return resolve(options.openapi);
+                }
+                else {
+                    return resolve(options);
+                }
+            })
+            .catch(function (err) {
+                reject(err);
+            });
         }
 
         if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
@@ -1146,7 +1165,6 @@ function convertObj(swagger, options, callback) {
         delete openapi.securityDefinitions;
 
         var actions = [];
-        options.externals = [];
         if (options.resolve) {
             findExternalRefs(openapi, options, actions);
         }

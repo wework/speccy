@@ -408,8 +408,11 @@ function checkPathItem(pathItem, openapi, options) {
             op.responses.should.not.be.empty();
             if (op.summary) op.summary.should.have.type('string');
             if (op.description) op.description.should.have.type('string');
-            if (op.operationId) op.operationId.should.have.type('string');
-            // TODO operationIds MUST be unique
+            if (typeof op.operationId !== 'undefined') {
+                op.operationId.should.have.type('string');
+                should(options.operationIds.indexOf(op.operationId)).be.exactly(-1,'operationIds must be unique');
+                options.operationIds.push(op.operationId);
+            }
 
             if (op.servers) {
                 contextAppend(options, 'servers');
@@ -829,6 +832,7 @@ function validate(openapi, options, callback) {
     options.valid = false;
     options.context = [ '#/' ];
     options.warnings = [];
+    options.operationIds = [];
     if (!options.cache) options.cache = {};
 
     var actions = [];

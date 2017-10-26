@@ -21,6 +21,7 @@ laxRefs|Boolean|Input|**No longer has any effect as this is now the default**
 laxurls|Boolean|Input|Flag to validation step to ignore empty URLs
 nopatch|Boolean|Input|Command-line flag by `testRunner` to unset `patch`
 openapi|Object|Output|The OpenApi 3.x definition returned from a conversion step
+operationIds|Array[string]|Output|Used by validation to track uniqueness of operationIds
 origin|String|Input|The URL of the definition, set by convertUrl method
 original|Object|Input|Used by `testRunner` to round-trip the original definition
 outfile|String|Input|The output file to write to

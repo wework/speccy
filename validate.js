@@ -290,7 +290,7 @@ function checkSchema(schema, parent, prop, openapi, options) {
         validateUrl(schema.externalDocs.url, [openapi.servers], 'externalDocs', options).should.not.throw();
     }
     if (prop) options.context.pop();
-    else validateSchema(schema, openapi, options); // top level only
+    if (!prop || prop === 'schema') validateSchema(schema, openapi, options); // top level only
 }
 
 function checkExample(ex, contextServers, openapi, options) {

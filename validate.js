@@ -34,6 +34,9 @@ var validateMetaSchema = ajv.compile(jsonSchema);
 var openapi3Schema = require('./schemas/openapi-3.0.json');
 var validateOpenAPI3 = ajv.compile(openapi3Schema);
 
+const dummySchema = { anyOf: {} };
+const emptySchema = {};
+
 function contextAppend(options, s) {
     options.context.push((options.context[options.context.length - 1] + '/' + s).split('//').join('/'));
 }
@@ -68,12 +71,226 @@ function validateSchema(schema, openapi, options) {
     if (errors && errors.length) {
         throw (new Error('Schema invalid: ' + util.inspect(errors)));
     }
+    return !(errors && errors.length);
+}
+
+function checkSchema(schema, parent, prop, openapi, options) {
+    if (prop) contextAppend(options, prop);
+    schema.should.be.an.Object();
+
+    if (typeof schema.$ref !== 'undefined') {
+        schema.$ref.should.be.a.String();
+        if (prop) options.context.pop();
+        return; // all other properties SHALL be ignored
+    }
+
+    for (let k in schema) {
+        if (!k.startsWith('x-')) {
+            should(['type','items','format','properties','required','minimum','maximum',
+            'exclusiveMinimum','exclusiveMaximum','enum','default','description','title',
+            'readOnly','writeOnly','anyOf','allOf','oneOf','not','discriminator','maxItems',
+            'minItems','additionalItems','additionalProperties','example','maxLength',
+            'minLength','pattern','uniqueItems','xml','externalDocs','nullable',
+            'minProperties','maxProperties','multipleOf'].indexOf(k)).
+            be.greaterThan(-1,'Schema object cannot have additionalProperty: '+k);
+        }
+    }
+
+    if (schema.multipleOf) {
+        schema.multipleOf.should.be.a.Number();
+        schema.multipleOf.should.be.greaterThan(0);
+    }
+    if (schema.maximum) {
+        schema.maximum.should.be.a.Number();
+    }
+    if (schema.exclusiveMaximum) {
+        schema.exclusiveMaximum.should.be.a.Boolean();
+    }
+    if (schema.minimum) {
+        schema.minimum.should.be.a.Number();
+    }
+    if (schema.exclusiveMinimum) {
+        schema.exclusiveMinimum.should.be.a.Boolean();
+    }
+    if (schema.maxLength) {
+        schema.maxLength.should.be.a.Number();
+        schema.maxLength.should.be.greaterThan(-1);
+    }
+    if (schema.minLength) {
+        schema.minLength.should.be.a.Number();
+        schema.minLength.should.be.greaterThan(-1);
+    }
+    if (schema.pattern) {
+        try {
+            let regex = new RegExp(schema.pattern);
+        }
+        catch (ex) {
+            should.fail(false,true,'pattern does not conform to ECMA-262');
+        }
+    }
+    if (typeof schema.items !== 'undefined') {
+        schema.items.should.be.an.Object();
+        schema.items.should.not.be.an.Array();
+    }
+    if (schema.additionalItems) {
+        if (typeof schema.additionalItems === 'boolean') {
+        }
+        else if (typeof schema.additionalItems == 'object') {
+            schema.additionalItems.should.not.be.an.Array();
+            checkSchema(schema.additionalItems,schema,'additionalItems',openapi,options);
+        }
+        else should.fail(false,true,'additionalItems must be a boolean or schema');
+    }
+    if (schema.additionalProperties) {
+        if (typeof schema.additionalProperties === 'boolean') {
+        }
+        else if (typeof schema.additionalProperties == 'object') {
+            schema.additionalProperties.should.not.be.an.Array();
+            checkSchema(schema.additionalProperties,schema,'additionalProperties',openapi,options);
+        }
+        else should.fail(false,true,'additionalProperties must be a boolean or schema');
+    }
+    if (schema.maxItems) {
+        schema.maxItems.should.be.a.Number();
+        schema.maxItems.should.be.greaterThan(-1);
+    }
+    if (schema.minItems) {
+        schema.minItems.should.be.a.Number();
+        schema.minItems.should.be.greaterThan(-1);
+    }
+    if (typeof schema.uniqueItems !== 'undefined') {
+        schema.uniqueItems.should.be.a.Boolean();
+    }
+    if (schema.maxProperties) {
+        schema.maxProperties.should.be.a.Number();
+        schema.maxProperties.should.be.greaterThan(-1);
+    }
+    if (schema.minProperties) {
+        schema.minProperties.should.be.a.Number();
+        schema.minProperties.should.be.greaterThan(-1);
+    }
+    if (typeof schema.required !== 'undefined') {
+        schema.required.should.be.an.Array();
+        schema.required.should.not.be.empty();
+    }
+    if (schema.properties) {
+        schema.properties.should.be.an.Object();
+        for (let prop in schema.properties) {
+            let subSchema = schema.properties[prop];
+            checkSchema(subSchema,schema,'properties/'+prop,openapi,options);
+        }
+    }
+    if (schema.patternProperties) {
+        schema.patternProperties.should.be.an.Object();
+        for (let prop in schema.pattenProperties) {
+            try {
+                let regex = new RegExp(prop);
+            }
+            catch (ex) {
+                should.fail(false,true,'patternProperty '+prop+' does not conform to ECMA-262');
+            }
+            let subSchema = schema.patternProperties[prop];
+            checkSchema(subSchema,schema,'properties/'+prop,openapi,options);
+        }
+    }
+    if (typeof schema.enum !== 'undefined') {
+        schema.enum.should.be.an.Array();
+        schema.enum.should.not.be.empty();
+    }
+    if (typeof schema.type !== 'undefined') {
+        schema.type.should.be.a.String(); // not an array
+        schema.type.should.equalOneOf('integer','number','string','boolean','object','array'); // not null
+        if (schema.type === 'array') {
+            schema.should.have.property('items');
+        }
+    }
+    if (schema.allOf) {
+        schema.allOf.should.be.an.Array();
+        schema.allOf.should.not.be.empty();
+        for (let subSchema of schema.allOf) {
+            checkSchema(subSchema,schema,'allOf',openapi,options);
+        }
+    }
+    if (schema.anyOf) {
+        schema.anyOf.should.be.an.Array();
+        schema.anyOf.should.not.be.empty();
+        for (let subSchema of schema.anyOf) {
+            checkSchema(subSchema,schema,'anyOf',openapi,options);
+        }
+    }
+    if (schema.oneOf) {
+        schema.oneOf.should.be.an.Array();
+        schema.oneOf.should.not.be.empty();
+        for (let subSchema of schema.oneOf) {
+            checkSchema(subSchema,schema,'oneOf',openapi,options);
+        }
+    }
+    if (schema.not) {
+        checkSchema(schema.not,schema,'not',openapi,options);
+    }
+    if (typeof schema.title !== 'undefined') {
+        schema.title.should.be.a.String(); //?
+    }
+    if (typeof schema.description !== 'undefined') {
+        schema.description.should.be.a.String();
+    }
+    if (typeof schema.default !== 'undefined') {
+        schema.should.have.property('type');
+        let realType = typeof schema.default;
+        let schemaType = schema.type;
+        if (Array.isArray(schema.default)) realType = 'array';
+        if (schemaType === 'integer') schemaType = 'number';
+        schemaType.should.equal(realType);
+    }
+    if (typeof schema.format !== 'undefined') {
+        schema.format.should.be.a.String();
+        if (schema.type && ['date-time','email','hostname','ipv4','ipv6','uri','uriref',
+            'byte','binary','date','password'].indexOf(schema.format) >= 0) {
+            schema.type.should.equal('string');
+        }
+        if (schema.type && ['int32','int64'].indexOf(schema.format) >= 0) {
+            if (schema.type !== 'string' && schema.type !== 'number') { // common case - googleapis
+               schema.type.should.equal('integer');
+            }
+        }
+        if (schema.type && ['float','double'].indexOf(schema.format) >= 0) {
+            if (schema.type !== 'string') { // occasionally seen
+                schema.type.should.equal('number');
+            }
+        }
+    }
+
+    if (typeof schema.nullable !== 'undefined') {
+        schema.nullable.should.be.a.Boolean();
+    }
+    if (typeof schema.readOnly !== 'undefined') {
+        schema.readOnly.should.be.a.Boolean();
+    }
+    if (typeof schema.writeOnly !== 'undefined') {
+        schema.writeOnly.should.be.a.Boolean();
+    }
+    if (typeof schema.deprecated !== 'undefined') {
+        schema.deprecated.should.be.a.Boolean();
+    }
+    if (typeof schema.discriminator !== 'undefined') {
+        schema.discriminator.should.be.an.Object();
+        schema.discriminator.should.have.property('propertyName');
+        if (!(parent.oneOf || parent.anyOf || parent.allOf)) {
+            should.fail(false,true,'discriminator requires oneOf, anyOf or allOf in parent schema');
+        }
+    }
+    if (typeof schema.xml !== 'undefined') {
+        schema.xml.should.be.an.Object();
+    }
+    // example can be any type
+
     if (schema.externalDocs) {
         schema.externalDocs.should.have.key('url');
         schema.externalDocs.url.should.have.type('string');
         validateUrl(schema.externalDocs.url, [openapi.servers], 'externalDocs', options).should.not.throw();
     }
-    return !(errors && errors.length);
+    if (prop) options.context.pop();
+    else validateSchema(schema, openapi, options); // top level only
 }
 
 function checkExample(ex, contextServers, openapi, options) {
@@ -133,7 +350,7 @@ function checkContent(content, contextServers, openapi, options) {
             }
             options.context.pop();
         }
-        if (contentType.schema) validateSchema(contentType.schema, openapi, options);
+        if (contentType.schema) checkSchema(contentType.schema, emptySchema, 'schema', openapi, options);
         options.context.pop();
     }
     options.context.pop();
@@ -236,7 +453,7 @@ function checkHeader(header, contextServers, openapi, options) {
         if (typeof header.allowReserved !== 'undefined') {
             header.allowReserved.should.be.type('boolean');
         }
-        validateSchema(header.schema, openapi, options);
+        checkSchema(header.schema, emptySchema, 'schema', openapi, options);
     }
     if (header.content) {
         header.should.not.have.property('schema');
@@ -352,7 +569,7 @@ function checkParam(param, index, path, contextServers, openapi, options) {
         if (typeof param.allowReserved !== 'undefined') {
             param.allowReserved.should.be.type('boolean');
         }
-        validateSchema(param.schema, openapi, options);
+        checkSchema(param.schema, emptySchema, 'schema', openapi, options);
     }
     if (param.content) {
         param.should.not.have.property('schema');
@@ -546,6 +763,11 @@ function validateSync(openapi, options, callback) {
         contextAppend(options, 'license');
         openapi.info.license.should.have.key('name');
         openapi.info.license.name.should.have.type('string');
+        if (typeof openapi.info.license.url !== 'undefined') {
+            openapi.info.license.url.should.be.a.String();
+            openapi.info.license.url.should.not.be.empty();
+            (function () { validateUrl(openapi.info.license.url, contextServers, 'license.url', options) }).should.not.throw();
+        }
         options.context.pop();
     }
     if (typeof openapi.info.termsOfService !== 'undefined') {
@@ -732,7 +954,7 @@ function validateSync(openapi, options, callback) {
         for (let s in openapi.components.schemas) {
             options.context.push('#/components/schemas/' + s);
             validateComponentName(s).should.be.equal(true, 'component name invalid');
-            validateSchema(openapi.components.schemas[s], openapi, options);
+            checkSchema(openapi.components.schemas[s], dummySchema, '', openapi, options);
             options.context.pop();
         }
         options.context.pop();

@@ -381,7 +381,7 @@ function checkPathItem(pathItem, path, openapi, options) {
     for (let p in pathItem.parameters) {
         let param = checkParam(pathItem.parameters[p], p, path, contextServers, openapi, options);
         if (pathParameters[param.in+':'+param.name]) {
-            should.fail('Duplicate path-level parameter '+param.name);
+            should.fail(false,true,'Duplicate path-level parameter '+param.name);
         }
         else {
             pathParameters[param.in+':'+param.name] = param;
@@ -458,7 +458,7 @@ function checkPathItem(pathItem, path, openapi, options) {
                 for (let p in op.parameters) {
                     let param = checkParam(op.parameters[p], p, path, contextServers, openapi, options);
                     if (opParameters[param.in+':'+param.name]) {
-                        should.fail('Duplicate operation-level parameter '+param.name);
+                        should.fail(false,true,'Duplicate operation-level parameter '+param.name);
                     }
                     else {
                         opParameters[param.in+':'+param.name] = param;
@@ -469,7 +469,7 @@ function checkPathItem(pathItem, path, openapi, options) {
                 let contextParameters = Object.assign({},localPathParameters,opParameters);
                 path.replace(/\{(.+?)\}/g, function (match, group1) {
                     if (!contextParameters['path:'+group1]) {
-                        should.fail('Templated parameter '+group1+' not found');
+                        should.fail(false,true,'Templated parameter '+group1+' not found');
                     }
                 });
 
@@ -698,7 +698,7 @@ function validateSync(openapi, options, callback) {
                 return '{'+(pCount++)+'}';
             });
             if (paths[template] && !openapi["x-hasEquivalentPaths"]) {
-                should.fail('Identical path templates detected');
+                should.fail(false,true,'Identical path templates detected');
             }
             paths[template] = {};
             checkPathItem(openapi.paths[p], p, openapi, options);

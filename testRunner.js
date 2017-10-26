@@ -76,6 +76,9 @@ var options = argv;
 options.patch = !argv.nopatch;
 
 function finalise(err, options) {
+    if (!argv.quiet || err) {
+        console.log(normal + options.file);
+    }
     if (err) {
         console.log(red + options.context.pop() + '\n' + err.message);
         if (err.stack && err.name !== 'AssertionError') {
@@ -91,7 +94,6 @@ function finalise(err, options) {
     var result = options.valid;
 
     if (!argv.quiet) {
-        console.log(normal + options.file);
         var colour = ((options.expectFailure ? !result : result) ? green : red);
         if (src && src.info) {
             console.log(colour + '  %s %s', src.info.title, src.info.version);

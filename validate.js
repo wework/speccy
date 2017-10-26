@@ -292,7 +292,7 @@ function checkResponse(response, contextServers, openapi, options) {
     }
 }
 
-function checkParam(param, index, contextServers, openapi, options) {
+function checkParam(param, index, path, contextServers, openapi, options) {
     contextAppend(options, index);
     if (param.$ref) {
         should(param.$ref).be.type('string');
@@ -308,7 +308,9 @@ function checkParam(param, index, contextServers, openapi, options) {
     if (param.in == 'path') {
         param.should.have.property('required');
         param.required.should.be.exactly(true, 'Path parameters must have an explicit required:true');
-        // TODO path parameters MUST appear in the path template
+        if (path) { // if we're not looking at a param from #/components (checked when used)
+            should(path.indexOf('{'+param.name+'}')).be.greaterThan(-1,'path parameters must appear in the path');
+        }
     }
     if (typeof param.required !== 'undefined') should(param.required).have.type('boolean');
     param.should.not.have.property('items');
@@ -366,14 +368,25 @@ function checkParam(param, index, contextServers, openapi, options) {
         param.should.have.property('schema', 'Parameter should have schema or content');
     }
     options.context.pop();
-    return true;
+    return param;
 }
 
-function checkPathItem(pathItem, openapi, options) {
+function checkPathItem(pathItem, path, openapi, options) {
 
     var contextServers = [];
     contextServers.push(openapi.servers);
     if (pathItem.servers) contextServers.push(pathItem.servers);
+
+    let pathParameters = {};
+    for (let p in pathItem.parameters) {
+        let param = checkParam(pathItem.parameters[p], p, path, contextServers, openapi, options);
+        if (pathParameters[param.in+':'+param.name]) {
+            should.fail('Duplicate path-level parameter '+param.name);
+        }
+        else {
+            pathParameters[param.in+':'+param.name] = param;
+        }
+    }
 
     for (let o in pathItem) {
         contextAppend(options, o);
@@ -384,9 +397,6 @@ function checkPathItem(pathItem, openapi, options) {
             should(op.startsWith('#/')).equal(false,'PathItem $refs must be external ('+op+')');
         }
         else if (o === 'parameters') {
-            for (let p in pathItem.parameters) {
-                checkParam(pathItem.parameters[p], p, contextServers, openapi, options);
-            }
         }
         else if (o === 'servers') {
             contextAppend(options, 'servers');
@@ -441,14 +451,28 @@ function checkPathItem(pathItem, openapi, options) {
             }
             options.context.pop();
 
-            // TODO parameters must be unique on in: and name: (including
-            // non-overridden path-level parameters)
-
             if (op.parameters) {
+                let localPathParameters = common.clone(pathParameters);
+                let opParameters = {};
                 contextAppend(options, 'parameters');
                 for (let p in op.parameters) {
-                    checkParam(op.parameters[p], p, contextServers, openapi, options);
+                    let param = checkParam(op.parameters[p], p, path, contextServers, openapi, options);
+                    if (opParameters[param.in+':'+param.name]) {
+                        should.fail('Duplicate operation-level parameter '+param.name);
+                    }
+                    else {
+                        opParameters[param.in+':'+param.name] = param;
+                        delete localPathParameters[param.in+':'+param.name];
+                    }
                 }
+
+                let contextParameters = Object.assign({},localPathParameters,opParameters);
+                path.replace(/\{(.+?)\}/g, function (match, group1) {
+                    if (!contextParameters['path:'+group1]) {
+                        should.fail('Templated parameter '+group1+' not found');
+                    }
+                });
+
                 options.context.pop();
             }
             if (op.externalDocs) {
@@ -466,7 +490,7 @@ function checkPathItem(pathItem, openapi, options) {
                         contextAppend(options, c);
                         for (let p in callback) {
                             let cbPi = callback[p];
-                            checkPathItem(cbPi, openapi, options);
+                            checkPathItem(cbPi, p, openapi, options);
                         }
                         options.context.pop();
                     }
@@ -663,13 +687,21 @@ function validateSync(openapi, options, callback) {
         }
     });
 
-    // TODO Templated paths with the same hierarchy but different templated names MUST NOT exist as they are identical.
+    let paths = {};
 
     for (let p in openapi.paths) {
         options.context.push('#/paths/' + jptr.jpescape(p));
         if (!p.startsWith('x-')) {
             p.should.startWith('/');
-            checkPathItem(openapi.paths[p], openapi, options);
+            let pCount = 0;
+            let template = p.replace(/\{(.+?)\}/g, function (match, group1) {
+                return '{'+(pCount++)+'}';
+            });
+            if (paths[template] && !openapi["x-hasEquivalentPaths"]) {
+                should.fail('Identical path templates detected');
+            }
+            paths[template] = {};
+            checkPathItem(openapi.paths[p], p, openapi, options);
         }
         options.context.pop();
     }
@@ -677,7 +709,7 @@ function validateSync(openapi, options, callback) {
         for (let p in openapi["x-ms-paths"]) {
             options.context.push('#/x-ms-paths/' + jptr.jpescape(p));
             p.should.startWith('/');
-            checkPathItem(openapi["x-ms-paths"][p], openapi, options);
+            checkPathItem(openapi["x-ms-paths"][p], p, openapi, options);
             options.context.pop();
         }
     }
@@ -685,7 +717,7 @@ function validateSync(openapi, options, callback) {
     if (openapi.components && openapi.components.parameters) {
         options.context.push('#/components/parameters/');
         for (let p in openapi.components.parameters) {
-            checkParam(openapi.components.parameters[p], p, contextServers, openapi, options);
+            checkParam(openapi.components.parameters[p], p, '', contextServers, openapi, options);
             contextAppend(options, p);
             validateComponentName(p).should.be.equal(true, 'component name invalid');
             options.context.pop();
@@ -776,9 +808,9 @@ function validateSync(openapi, options, callback) {
             validateComponentName(c).should.be.equal(true, 'component name invalid');
             let cb = openapi.components.callbacks[c];
             if (!cb.$ref) {
-                for (let u in cb) {
-                    let cbPi = cb[u];
-                    checkPathItem(cbPi, openapi, options);
+                for (let exp in cb) {
+                    let cbPi = cb[exp];
+                    checkPathItem(cbPi, exp, openapi, options);
                 }
             }
             options.context.pop();

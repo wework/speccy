@@ -65,6 +65,7 @@ function fixupSchema(obj, key, state, options) {
             }
             else {
                 obj[key] = obj.oneOf[0].type;
+                if (obj.oneOf[0].items) obj.items = obj.oneOf[0].items; // TODO and other props?
                 delete obj.oneOf;
             }
 

@@ -416,7 +416,7 @@ function checkLink(link, options) {
         // validate operationId exists (external refs?)
     }
     else {
-        link.should.have.property('operationdRef');
+        link.should.have.property('operationRef');
     }
     if (typeof link.parameters != 'undefined') {
         link.parameters.should.be.type('object');

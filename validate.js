@@ -131,6 +131,7 @@ function checkSchema(schema, parent, prop, openapi, options) {
     if (typeof schema.items !== 'undefined') {
         schema.items.should.be.an.Object();
         schema.items.should.not.be.an.Array();
+        checkSchema(schema.items,schema,'items',openapi,options);
     }
     if (schema.additionalItems) {
         if (typeof schema.additionalItems === 'boolean') {

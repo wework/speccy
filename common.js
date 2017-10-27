@@ -15,6 +15,10 @@ function uniqueOnly(value, index, self) {
     return self.indexOf(value) === index;
 }
 
+function hasDuplicates(array) {
+    return (new Set(array)).size !== array.length;
+}
+
 function sha256(s) {
     var shasum = crypto.createHash('sha256');
     shasum.update(s);
@@ -172,6 +176,7 @@ module.exports = {
 
     clone: clone,
     uniqueOnly: uniqueOnly,
+    hasDuplicates: hasDuplicates,
     recurse: recurse,
     sha256: sha256,
     getVersion: getVersion,

@@ -172,6 +172,7 @@ function checkSchema(schema, parent, prop, openapi, options) {
     if (typeof schema.required !== 'undefined') {
         schema.required.should.be.an.Array();
         schema.required.should.not.be.empty();
+        common.hasDuplicates(schema.required).should.be.exactly(false,'required items must be unique');
     }
     if (schema.properties) {
         schema.properties.should.be.an.Object();
@@ -196,6 +197,7 @@ function checkSchema(schema, parent, prop, openapi, options) {
     if (typeof schema.enum !== 'undefined') {
         schema.enum.should.be.an.Array();
         schema.enum.should.not.be.empty();
+        // items only SHOULD be unique
     }
     if (typeof schema.type !== 'undefined') {
         schema.type.should.be.a.String(); // not an array

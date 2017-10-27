@@ -1067,7 +1067,7 @@ function convertObj(swagger, options, callback) {
         }
 
         if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
-            return reject(new Error('Unsupported swagger/OpenAPI version: ' + swagger.swagger));
+            return reject(new Error('Unsupported swagger/OpenAPI version: ' + (swagger.openapi ? swagger.openapi : swagger.swagger)));
         }
 
         var openapi = options.openapi = {};
@@ -1254,9 +1254,9 @@ function convertStream(readable, options, callback) {
         readable.on('data', function (chunk) {
             data += chunk;
         })
-            .on('end', function () {
-                return convertStr(data, options, callback);
-            });
+        .on('end', function () {
+            return convertStr(data, options, callback);
+        });
     }));
 }
 

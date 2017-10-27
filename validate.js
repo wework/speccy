@@ -28,6 +28,7 @@ ajv._opts.defaultMeta = metaSchema.id;
 
 var common = require('./common.js');
 var jptr = require('reftools/lib/jptr.js');
+var walkSchema = require('./walkSchema.js').walkSchema;
 
 var jsonSchema = require('./schemas/json_v5.json');
 var validateMetaSchema = ajv.compile(jsonSchema);
@@ -74,13 +75,14 @@ function validateSchema(schema, openapi, options) {
     return !(errors && errors.length);
 }
 
-function checkSchema(schema, parent, prop, openapi, options) {
-    if (prop) contextAppend(options, prop);
+function checkSubSchema(schema, parent, state) {
+    let prop = state.property;
+    if (prop) contextAppend(state.options, prop);
     schema.should.be.an.Object();
 
     if (typeof schema.$ref !== 'undefined') {
         schema.$ref.should.be.a.String();
-        if (prop) options.context.pop();
+        if (prop) state.options.context.pop();
         return; // all other properties SHALL be ignored
     }
 
@@ -131,14 +133,12 @@ function checkSchema(schema, parent, prop, openapi, options) {
     if (typeof schema.items !== 'undefined') {
         schema.items.should.be.an.Object();
         schema.items.should.not.be.an.Array();
-        checkSchema(schema.items,schema,'items',openapi,options);
     }
     if (schema.additionalItems) {
         if (typeof schema.additionalItems === 'boolean') {
         }
         else if (typeof schema.additionalItems == 'object') {
             schema.additionalItems.should.not.be.an.Array();
-            checkSchema(schema.additionalItems,schema,'additionalItems',openapi,options);
         }
         else should.fail(false,true,'additionalItems must be a boolean or schema');
     }
@@ -147,7 +147,6 @@ function checkSchema(schema, parent, prop, openapi, options) {
         }
         else if (typeof schema.additionalProperties == 'object') {
             schema.additionalProperties.should.not.be.an.Array();
-            checkSchema(schema.additionalProperties,schema,'additionalProperties',openapi,options);
         }
         else should.fail(false,true,'additionalProperties must be a boolean or schema');
     }
@@ -177,10 +176,6 @@ function checkSchema(schema, parent, prop, openapi, options) {
     }
     if (schema.properties) {
         schema.properties.should.be.an.Object();
-        for (let prop in schema.properties) {
-            let subSchema = schema.properties[prop];
-            checkSchema(subSchema,schema,'properties/'+prop,openapi,options);
-        }
     }
     if (schema.patternProperties) {
         schema.patternProperties.should.be.an.Object();
@@ -191,8 +186,6 @@ function checkSchema(schema, parent, prop, openapi, options) {
             catch (ex) {
                 should.fail(false,true,'patternProperty '+prop+' does not conform to ECMA-262');
             }
-            let subSchema = schema.patternProperties[prop];
-            checkSchema(subSchema,schema,'properties/'+prop,openapi,options);
         }
     }
     if (typeof schema.enum !== 'undefined') {
@@ -210,26 +203,17 @@ function checkSchema(schema, parent, prop, openapi, options) {
     if (schema.allOf) {
         schema.allOf.should.be.an.Array();
         schema.allOf.should.not.be.empty();
-        for (let subSchema of schema.allOf) {
-            checkSchema(subSchema,schema,'allOf',openapi,options);
-        }
     }
     if (schema.anyOf) {
         schema.anyOf.should.be.an.Array();
         schema.anyOf.should.not.be.empty();
-        for (let subSchema of schema.anyOf) {
-            checkSchema(subSchema,schema,'anyOf',openapi,options);
-        }
     }
     if (schema.oneOf) {
         schema.oneOf.should.be.an.Array();
         schema.oneOf.should.not.be.empty();
-        for (let subSchema of schema.oneOf) {
-            checkSchema(subSchema,schema,'oneOf',openapi,options);
-        }
     }
     if (schema.not) {
-        checkSchema(schema.not,schema,'not',openapi,options);
+        schema.not.should.be.an.Object();
     }
     if (typeof schema.title !== 'undefined') {
         schema.title.should.be.a.String(); //?
@@ -290,10 +274,18 @@ function checkSchema(schema, parent, prop, openapi, options) {
     if (schema.externalDocs) {
         schema.externalDocs.should.have.key('url');
         schema.externalDocs.url.should.have.type('string');
-        validateUrl(schema.externalDocs.url, [openapi.servers], 'externalDocs', options).should.not.throw();
+        validateUrl(schema.externalDocs.url, [state.openapi.servers], 'externalDocs', state.options).should.not.throw();
     }
-    if (prop) options.context.pop();
-    if (!prop || prop === 'schema') validateSchema(schema, openapi, options); // top level only
+    if (prop) state.options.context.pop();
+    if (!prop || prop === 'schema') validateSchema(schema, state.openapi, state.options); // top level only
+}
+
+function checkSchema(schema,parent,prop,openapi,options) {
+    let state = {};
+    state.openapi = openapi;
+    state.options = options;
+    state.property = prop;
+    walkSchema(schema,parent,state,checkSubSchema);
 }
 
 function checkExample(ex, contextServers, openapi, options) {

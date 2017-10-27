@@ -12,6 +12,7 @@ var yaml = require('js-yaml');
 var jptr = require('reftools/lib/jptr.js');
 
 var common = require('./common.js');
+var walkSchema = require('./walkSchema.js').walkSchema;
 var statusCodes = require('./statusCodes.js').statusCodes;
 
 // TODO split out into params, security etc
@@ -35,93 +36,102 @@ function throwOrWarn(message, container, options) {
     }
 }
 
-function fixupSchema(obj, key, state, options) {
-    if (state.payload.targetted && (key == 'type') && (Array.isArray(obj[key]))) {
-        if (obj[key].length < 2) {
-            obj[key] = (obj[key].length ? obj[key][0] : 'string');
+function fixUpSubSchema(schema) {
+    if (schema.discriminator && typeof schema.discriminator === 'string') {
+        schema.discriminator = { propertyName: schema.discriminator };
+    }
+    if (schema.items && Array.isArray(schema.items)) {
+        if (schema.items.length === 0) {
+            schema.items = {};
+        }
+        else if (schema.items.length === 1) {
+            schema.items = schema.items[0];
+        }
+        else schema.items = { anyOf: schema.items };
+    }
+    if (schema.type && Array.isArray(schema.type)) {
+        if (schema.type.length === 0) {
+            delete schema.type;
         }
         else {
-            obj.oneOf = [];
-            for (let type of obj[key]) {
-                var schema = {};
+            schema.oneOf = [];
+            for (let type of schema.type) {
+                let newSchema = {};
                 if (type === 'null') {
-                    obj.nullable = true;
+                    schema.nullable = true;
                 }
                 else {
-                    schema.type = type;
-                }
-                if (type == 'array') {
+                    newSchema.type = type;
                     for (let prop of common.arrayProperties) {
-                        if (typeof obj[prop] !== 'undefined') {
-                            schema[prop] = obj[prop];
-                            delete obj[prop];
+                        if (typeof schema.prop !== 'undefined') {
+                            newSchema[prop] = schema[prop];
+                            delete schema[prop];
                         }
                     }
                 }
-                if (schema.type) obj.oneOf.push(schema);
+                if (newSchema.type) {
+                    schema.oneOf.push(newSchema);
+                }
             }
-            if (obj.oneOf.length != 1) {
-                delete obj[key];
+            delete schema.type;
+            if (schema.oneOf.length < 2) {
+                // TODO
             }
-            else {
-                obj[key] = obj.oneOf[0].type;
-                if (obj.oneOf[0].items) obj.items = obj.oneOf[0].items; // TODO and other props?
-                delete obj.oneOf;
-            }
+        }
+        // do not else this
+        if (schema.type && Array.isArray(schema.type) && schema.type.length === 1) {
+            schema.type = schema.type[0];
+        }
+    }
+    if (schema.type && schema.type === 'null') {
+        delete schema.type;
+        schema.nullable = true;
+    }
+    if ((schema.type === 'array') && (!schema.items)) {
+        schema.items = {};
+    }
+    if (typeof schema.required === 'boolean') {
+        delete schema.required; // TODO if we're in a property we should push up to the
+        // *parent* required array if it exists...
+    }
+    // TODO if we have a nested properties (object inside an object) and the *parent*
+    // type is not set, force it to object
+    // TODO if default is set but type is not set, force type to typeof default
+}
 
-        }
+function fixUpSubSchemaExtensions(schema) {
+    if (schema["x-required"] && Array.isArray(schema["x-required"])) {
+        if (!schema.required) schema.required = [];
+        schema.required = schema.required.concat(schema["x-required"]);
+        delete schema["x-required"];
     }
-    if ((key == 'required') && (typeof obj[key] === 'boolean') && state.payload.targetted) {
-        delete obj[key]; // TODO check we're at the right level(s) if poss.
+    if (schema["x-anyOf"]) {
+        schema.anyOf = schema["x-anyOf"];
+        delete schema["x-anyOf"];
     }
-    if (state.payload.targetted && (key == 'properties') && (typeof obj[key] === 'object')) {
-        if ((state.pkey !== 'properties') && (typeof obj.type === 'undefined')) {
-            obj.type = 'object';
-        }
+    if (schema["x-oneOf"]) {
+        schema.anyOf = schema["x-oneOf"];
+        delete schema["x-oneOf"];
     }
-    if (state.payload.targetted && (key == 'discriminator') && (typeof obj[key] === 'string')) {
-        obj[key] = { propertyName: obj[key] };
+    if (schema["x-not"]) {
+        schema.anyOf = schema["x-not"];
+        delete schema["x-not"];
     }
-    if (key == 'x-anyOf') {
-        obj.anyOf = obj[key];
-        delete obj[key];
+    if (typeof schema["x-nullable"] === 'boolean') {
+        schema.nullable = schema["x-nullable"];
+        delete schema["x-nullable"];
     }
-    if (key == 'x-oneOf') {
-        obj.oneOf = obj[key];
-        delete obj[key];
-    }
-    if (key == 'x-not') {
-        obj.not = obj[key];
-        delete obj[key];
-    }
-    if ((key == 'type') && (obj[key] == 'null')) {
-        delete obj[key];
-        obj.nullable = true;
-    }
-    if (state.payload.targetted && (key == 'x-nullable') && (typeof obj[key] === 'boolean')) {
-        obj.nullable = obj[key];
-        delete obj[key];
-    }
-    if (state.payload.targetted && (key == 'items') && Array.isArray(obj[key])) {
-        if (obj[key].length == 0) {
-            obj[key] = {};
-        }
-        else if (obj[key].length == 1) {
-            obj[key] = obj[key][0];
-        }
-        else {
-            obj[key] = {
-                anyOf: obj[key]
-            };
-        }
-    }
-    if ((key == 'x-required') && Array.isArray(obj[key])) {
-        if (!obj.required) {
-            obj.required = [];
-        }
-        obj.required = obj.required.concat(obj[key]);
-        delete obj[key];
-    }
+}
+
+function fixUpSchema(schema) {
+    let state = {};
+    walkSchema(schema,{},state,function(schema,parent,state){
+        fixUpSubSchemaExtensions(schema);
+        fixUpSubSchema(schema);
+    });
+}
+
+function fixupRefs(obj, key, state, options) {
     if (common.isRef(obj,key)) {
         if (obj[key].startsWith('#/definitions/')) {
             //only the first part of a schema component name must be sanitised
@@ -408,7 +418,7 @@ function processParameter(param, op, path, index, openapi, options) {
         }
 
         if (param.schema) {
-            common.recurse(param.schema, { payload: { targetted: true, options: options } }, fixupSchema);
+            fixUpSchema(param.schema);
         }
 
         if (param["x-ms-skip-url-encoding"]) {
@@ -489,7 +499,7 @@ function processParameter(param, op, path, index, openapi, options) {
         for (let mimetype of consumes) {
             result.content[mimetype] = {};
             result.content[mimetype].schema = common.clone(param.schema) || {};
-            common.recurse(result.content[mimetype].schema, { payload: { targetted: true, options: options } }, fixupSchema);
+            fixUpSchema(result.content[mimetype].schema);
         }
     }
 
@@ -577,7 +587,7 @@ function processResponse(response, name, op, openapi, options) {
         }
         if (response.schema) {
 
-            common.recurse(response.schema, { payload: { targetted: true, options: options } }, fixupSchema);
+            fixUpSchema(response.schema);
 
             if (response.schema.$ref && (typeof response.schema.$ref === 'string') && response.schema.$ref.startsWith('#/responses/')) {
                 response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
@@ -724,8 +734,6 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                 delete op.schemes;
                 if (op.parameters && op.parameters.length === 0) delete op.parameters;
 
-                common.recurse(op, { payload: { targetted: false, options: options } }, fixupSchema); // for x-ms-odata etc
-
                 if (op.requestBody) {
                     var effectiveOperationId = op.operationId ? common.sanitiseAll(op.operationId) : common.sanitiseAll(method + p).toCamelCase();
                     var rbName = common.sanitise(op.requestBody['x-s2o-name'] || effectiveOperationId || '');
@@ -788,7 +796,11 @@ function main(openapi, options) {
             delete openapi.components.schemas[s];
         }
         componentNames.schemas[s] = sname + suffix;
+        fixUpSchema(openapi.components.schemas[sname+suffix])
     }
+
+    // fix all $refs to their new locations (and potentially new names)
+    common.recurse(openapi, { payload: { options: options } }, fixupRefs);
 
     for (let p in openapi.components.parameters) {
         let sname = common.sanitise(p);
@@ -803,7 +815,6 @@ function main(openapi, options) {
         processParameter(param, null, null, sname, openapi, options);
     }
 
-    common.recurse(openapi.components.responses, { payload: { targetted: false, options: options } }, fixupSchema);
     for (let r in openapi.components.responses) {
         let sname = common.sanitise(r);
         if (r != sname) {
@@ -856,11 +867,6 @@ function main(openapi, options) {
             }
         }
     }
-
-    common.recurse(openapi.components.schemas, { payload: { targetted: true, options: options } }, fixupSchema);
-    common.recurse(openapi.components.schemas, { payload: { targetted: true, options: options } }, fixupSchema); // second pass for fixed x-anyOf's etc
-    common.recurse(openapi, { payload: { targetted: false, options: options } }, fixupSchema); // pass across whole definition for $refs in vendor extensions
-    common.recurse(openapi, { payload: { targetted: false, options: options } }, fixupSchema); // second pass for fixed x-anyOf's etc
 
     if (options.debug) {
         openapi["x-s2o-consumes"] = openapi.consumes || [];

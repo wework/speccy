@@ -399,8 +399,7 @@
                 "enum": {
                     "type": "array",
                     "items": {},
-                    "minItems": 1,
-                    "uniqueItems": true
+                    "minItems": 1
                 },
                 "type": {
                     "type": "string",

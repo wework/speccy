@@ -1,19 +1,19 @@
 // @ts-check
 'use strict';
 
-var fs = require('fs');
-var url = require('url');
-var pathlib = require('path');
+const fs = require('fs');
+const url = require('url');
+const pathlib = require('path');
 
-var co = require('co');
-var maybe = require('call-me-maybe');
-var fetch = require('node-fetch');
-var yaml = require('js-yaml');
-var jptr = require('reftools/lib/jptr.js');
+const co = require('co');
+const maybe = require('call-me-maybe');
+const fetch = require('node-fetch');
+const yaml = require('js-yaml');
+const jptr = require('reftools/lib/jptr.js');
 
-var common = require('./common.js');
-var walkSchema = require('./walkSchema.js').walkSchema;
-var statusCodes = require('./statusCodes.js').statusCodes;
+const common = require('./common.js');
+const walkSchema = require('./walkSchema.js').walkSchema;
+const statusCodes = require('./statusCodes.js').statusCodes;
 
 // TODO split out into params, security etc
 // TODO handle specification-extensions with plugins?
@@ -22,7 +22,7 @@ const targetVersion = '3.0.0';
 var componentNames; // initialised in main
 
 function throwError(message, options) {
-    var err = new Error(message);
+    let err = new Error(message);
     err.options = options;
     throw err;
 }
@@ -178,7 +178,7 @@ function fixupRefs(obj, key, state, options) {
 function processSecurity(securityObject) {
     for (let s in securityObject) {
         for (let k in securityObject[s]) {
-            var sname = common.sanitise(k);
+            let sname = common.sanitise(k);
             if (k != sname) {
                 securityObject[s][sname] = securityObject[s][k];
                 delete securityObject[s][k];
@@ -193,8 +193,8 @@ function processSecurityScheme(scheme, options) {
         scheme.scheme = 'basic';
     }
     if (scheme.type == 'oauth2') {
-        var flow = {};
-        var flowName = scheme.flow;
+        let flow = {};
+        let flowName = scheme.flow;
         if (scheme.flow == 'application') flowName = 'clientCredentials';
         if (scheme.flow == 'accessCode') flowName = 'authorizationCode';
         if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl.split('?')[0].trim() || '/';
@@ -583,7 +583,7 @@ function processResponse(response, name, op, openapi, options) {
         if ((typeof response.description === 'undefined') || (response.description === null)
             || ((response.description === '') && options.patch)) {
             if (options.patch) {
-                var sc = statusCodes.find(function (e) {
+                let sc = statusCodes.find(function (e) {
                     return e.code == name;
                 });
                 if ((typeof response === 'object') && (!Array.isArray(response))) {
@@ -820,7 +820,7 @@ function main(openapi, options) {
             openapi.components.parameters[sname] = openapi.components.parameters[p];
             delete openapi.components.parameters[p];
         }
-        var param = openapi.components.parameters[sname];
+        let param = openapi.components.parameters[sname];
         processParameter(param, null, null, sname, openapi, options);
     }
 
@@ -853,9 +853,9 @@ function main(openapi, options) {
     }
 
     for (let r in openapi.components.requestBodies) { // converted ones
-        var rb = openapi.components.requestBodies[r];
-        var rbStr = JSON.stringify(rb);
-        var rbSha256 = common.sha256(rbStr);
+        let rb = openapi.components.requestBodies[r];
+        let rbStr = JSON.stringify(rb);
+        let rbSha256 = common.sha256(rbStr);
         let entry = {};
         entry.name = r;
         entry.body = rb;
@@ -959,7 +959,7 @@ function findExternalRefs(master,options,actions) {
         if (common.isRef(obj,key)) {
             if (!obj[key].startsWith('#')) {
                 actions.push(common.resolveExternal(master, obj[key], options, function (data) {
-                    var external = {};
+                    let external = {};
                     external.context = state.path;
                     external.$ref = obj[key];
                     external.original = common.clone(data);
@@ -1058,7 +1058,7 @@ function convertObj(swagger, options, callback) {
             options.openapi = common.clone(swagger);
             fixInfo(options.openapi, options, reject);
             fixPaths(options.openapi, options, reject);
-            var actions = [];
+            let actions = [];
             if (options.resolve) {
                 findExternalRefs(options.openapi, options, actions);
             }
@@ -1093,7 +1093,7 @@ function convertObj(swagger, options, callback) {
             if (!openapi["x-origin"]) {
                 openapi["x-origin"] = [];
             }
-            var origin = {};
+            let origin = {};
             origin.url = options.origin;
             origin.format = 'swagger';
             origin.version = swagger.swagger;
@@ -1132,7 +1132,7 @@ function convertObj(swagger, options, callback) {
         // TODO APIMatic extensions (x-server-configuration) ?
 
         if (swagger['x-ms-parameterized-host']) {
-            var xMsPHost = swagger['x-ms-parameterized-host'];
+            let xMsPHost = swagger['x-ms-parameterized-host'];
             let server = {};
             server.url = xMsPHost.hostTemplate;
             server.variables = {};
@@ -1185,7 +1185,7 @@ function convertObj(swagger, options, callback) {
         delete openapi.parameters;
         delete openapi.securityDefinitions;
 
-        var actions = [];
+        let actions = [];
         if (options.resolve) {
             findExternalRefs(openapi, options, actions);
         }
@@ -1211,7 +1211,7 @@ function convertObj(swagger, options, callback) {
 
 function convertStr(str, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
-        var obj = null;
+        let obj = null;
         try {
             obj = JSON.parse(str);
         }
@@ -1265,7 +1265,7 @@ function convertFile(filename, options, callback) {
 
 function convertStream(readable, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
-        var data = '';
+        let data = '';
         readable.on('data', function (chunk) {
             data += chunk;
         })

@@ -870,7 +870,7 @@ function main(openapi, options) {
 
     if (!options.debug) {
         for (let p in openapi.components.parameters) {
-            param = openapi.components.parameters[p];
+            let param = openapi.components.parameters[p];
             if (param["x-s2o-delete"]) {
                 delete openapi.components.parameters[p];
             }

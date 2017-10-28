@@ -54,7 +54,7 @@ function fixUpSubSchema(schema) {
             delete schema.type;
         }
         else {
-            schema.oneOf = [];
+            if (!schema.oneOf) schema.oneOf = [];
             for (let type of schema.type) {
                 let newSchema = {};
                 if (type === 'null') {
@@ -74,8 +74,16 @@ function fixUpSubSchema(schema) {
                 }
             }
             delete schema.type;
-            if (schema.oneOf.length < 2) {
-                // TODO
+            if (schema.oneOf.length === 0) {
+                delete schema.oneOf; // means was just null => nullable
+            }
+            else if (schema.oneOf.length < 2) {
+                schema.type = schema.oneOf[0].type;
+                if (Object.keys(schema.oneOf[0]).length > 1) {
+                    throwOrWarn('Lost properties from oneOf',schema,options);
+                }
+                delete schema.oneOf;
+
             }
         }
         // do not else this
@@ -407,7 +415,8 @@ function processParameter(param, op, path, index, openapi, options) {
                             }
                             delete obj[key]; // not lossless
                         }
-                        // TODO recursively process items
+                        // items in 2.0 was a subset of JSON-Schema items object, it gets
+                        // fixed up below
                     });
                 }
                 for (let prop of common.parameterTypeProperties) {
@@ -422,9 +431,9 @@ function processParameter(param, op, path, index, openapi, options) {
         }
 
         if (param["x-ms-skip-url-encoding"]) {
-            param.allowReserved = true;
-            if (param.in === 'query') {
-                delete param["x-ms-skip-url-encoding"]; // might be in:path, not allowed in OAS3
+            if (param.in === 'query') { // might be in:path, not allowed in OAS3
+                param.allowReserved = true;
+                delete param["x-ms-skip-url-encoding"];
             }
         }
     }

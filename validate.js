@@ -709,10 +709,30 @@ function checkPathItem(pathItem, path, openapi, options) {
                 }
                 options.context.pop();
             }
+            if (op.security) {
+                checkSecurity(op.security);
+            }
         }
         options.context.pop();
     }
     return true;
+}
+
+function checkSecurity(security) {
+    contextAppend(options, 'security');
+    security.should.be.an.Array();
+    for (let sr of security) {
+        sr.should.be.an.Object();
+        for (let i in sr) {
+            sr[i].should.be.an.Array();
+            let sec = jptr.jptr(openapi,'#/components/securitySchemes/'+i);
+            sec.should.not.be.exactly(false,'Could not dereference securityScheme '+i);
+            if (sec.type !== 'oauth2') {
+                sr[i].should.be.empty();
+            }
+        }
+    }
+    options.context.pop();
 }
 
 function validateSync(openapi, options, callback) {
@@ -815,6 +835,10 @@ function validateSync(openapi, options, callback) {
             }
         }
         options.context.pop();
+    }
+
+    if (openapi.security) {
+	checkSecurity(openapi.security);
     }
 
     if (openapi.components && openapi.components.securitySchemes) {

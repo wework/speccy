@@ -710,7 +710,7 @@ function checkPathItem(pathItem, path, openapi, options) {
                 options.context.pop();
             }
             if (op.security) {
-                checkSecurity(op.security);
+                checkSecurity(op.security,options);
             }
         }
         options.context.pop();
@@ -718,7 +718,7 @@ function checkPathItem(pathItem, path, openapi, options) {
     return true;
 }
 
-function checkSecurity(security) {
+function checkSecurity(security,options) {
     contextAppend(options, 'security');
     security.should.be.an.Array();
     for (let sr of security) {
@@ -838,7 +838,7 @@ function validateSync(openapi, options, callback) {
     }
 
     if (openapi.security) {
-	checkSecurity(openapi.security);
+	checkSecurity(openapi.security,options);
     }
 
     if (openapi.components && openapi.components.securitySchemes) {

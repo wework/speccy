@@ -736,10 +736,7 @@ function checkSecurity(security,openapi,options) {
 }
 
 function validateSync(openapi, options, callback) {
-    options.valid = false;
-    options.context = [];
-    options.warnings = [];
-    options.operationIds = [];
+    setupOptions(options);
 
     if (options.jsonschema) {
         let schemaStr = fs.readFileSync(options.jsonschema, 'utf8');
@@ -747,7 +744,6 @@ function validateSync(openapi, options, callback) {
         validateOpenAPI3 = ajv.compile(openapi3Schema);
     }
 
-    options.context.push('#/');
     openapi.should.not.have.key('swagger');
     openapi.should.have.key('openapi');
     openapi.openapi.should.have.type('string');
@@ -1102,12 +1098,16 @@ function findExternalRefs(master, options, actions) {
     return master;
 }
 
-function validate(openapi, options, callback) {
+function setupOptions(options) {
     options.valid = false;
     options.context = [ '#/' ];
     options.warnings = [];
     options.operationIds = [];
     if (!options.cache) options.cache = {};
+}
+
+function validate(openapi, options, callback) {
+    setupOptions(options);
 
     var actions = [];
     if (options.resolve) {

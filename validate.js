@@ -739,6 +739,7 @@ function validateSync(openapi, options, callback) {
     options.valid = false;
     options.context = [];
     options.warnings = [];
+    options.operationIds = [];
 
     if (options.jsonschema) {
         let schemaStr = fs.readFileSync(options.jsonschema, 'utf8');

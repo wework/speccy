@@ -282,6 +282,8 @@ function checkSubSchema(schema, parent, state) {
 
 function checkSchema(schema,parent,prop,openapi,options) {
     let state = {};
+    state.depth = 0;
+    state.seen = [];
     state.openapi = openapi;
     state.options = options;
     state.property = prop;

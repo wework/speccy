@@ -1,13 +1,23 @@
 'use strict';
 
+const util = require('util');
+
 function walkSchema(schema, parent, state, callback) {
 
+    if (typeof state.depth === 'undefined') state = { depth: 0, seen: [], top:true };
     if (typeof schema.$ref !== 'undefined') {
         let temp = {$ref:schema.$ref};
         callback(temp,parent,state);
         return temp; // all other properties SHALL be ignored
     }
     callback(schema,parent,state);
+    if (state.seen.indexOf(schema)>=0) {
+        return schema;
+    }
+    //else
+    state.seen.push(schema);
+    state.top = false;
+    state.depth++;
 
     if (typeof schema.items !== 'undefined') {
         state.property = 'items';
@@ -61,6 +71,7 @@ function walkSchema(schema, parent, state, callback) {
         state.property = 'not';
         walkSchema(schema.not,schema,state,callback);
     }
+    state.depth--;
     return schema;
 }
 

@@ -566,6 +566,22 @@ function checkParam(param, index, path, contextServers, openapi, options) {
         if (typeof param.allowReserved !== 'undefined') {
             param.allowReserved.should.be.type('boolean');
         }
+        if (typeof param.example !== 'undefined') {
+            param.should.not.have.key('examples');
+        }
+        if (typeof param.examples !== 'undefined') {
+            contextAppend(options, 'examples');
+            param.should.not.have.key('example');
+            param.examples.should.be.an.Object();
+            param.examples.should.not.be.an.Array();
+            for (let e in param.examples) {
+                contextAppend(options, e);
+                let example = param.examples[e];
+                checkExample(example, contextServers, openapi, options);
+                options.context.pop();
+            }
+            options.context.pop();
+        }
         checkSchema(param.schema, emptySchema, 'schema', openapi, options);
     }
     if (param.content) {

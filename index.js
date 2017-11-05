@@ -162,7 +162,7 @@ function fixupRefs(obj, key, state, options) {
             obj[key] = '#/components/responses/' + common.sanitise(obj[key].replace('#/responses/', ''));
         }
     }
-    if ((key == 'x-ms-odata') && (typeof obj[key] === 'string')) {
+    if ((key === 'x-ms-odata') && (typeof obj[key] === 'string')) {
         let keys = obj[key].replace('#/definitions/', '').replace('#/components/schemas/','').split('/');
         let newKey = componentNames.schemas[keys[0]]; //lookup
         if (!newKey) {
@@ -188,15 +188,15 @@ function processSecurity(securityObject) {
 }
 
 function processSecurityScheme(scheme, options) {
-    if (scheme.type == 'basic') {
+    if (scheme.type === 'basic') {
         scheme.type = 'http';
         scheme.scheme = 'basic';
     }
-    if (scheme.type == 'oauth2') {
+    if (scheme.type === 'oauth2') {
         let flow = {};
         let flowName = scheme.flow;
-        if (scheme.flow == 'application') flowName = 'clientCredentials';
-        if (scheme.flow == 'accessCode') flowName = 'authorizationCode';
+        if (scheme.flow === 'application') flowName = 'clientCredentials';
+        if (scheme.flow === 'accessCode') flowName = 'authorizationCode';
         if (typeof scheme.authorizationUrl !== 'undefined') flow.authorizationUrl = scheme.authorizationUrl.split('?')[0].trim() || '/';
         if (typeof scheme.tokenUrl !== 'undefined') flow.tokenUrl = scheme.tokenUrl.split('?')[0].trim() || '/';
         flow.scopes = scheme.scopes || {};
@@ -247,19 +247,19 @@ function processHeader(header, options) {
                     throwError('(Patchable) collectionFormat is only applicable to header.type array', options);
                 }
             }
-            if (header.collectionFormat == 'csv') {
+            if (header.collectionFormat === 'csv') {
                 header.style = 'simple';
             }
-            if (header.collectionFormat == 'ssv') {
+            if (header.collectionFormat === 'ssv') {
                 throwOrWarn('collectionFormat:ssv is no longer supported for headers', header, options); // not lossless
             }
-            if (header.collectionFormat == 'pipes') {
+            if (header.collectionFormat === 'pipes') {
                 throwOrWarn('collectionFormat:pipes is no longer supported for headers', header, options); // not lossless
             }
-            if (header.collectionFormat == 'multi') {
+            if (header.collectionFormat === 'multi') {
                 header.explode = true;
             }
-            if (header.collectionFormat == 'tsv') {
+            if (header.collectionFormat === 'tsv') {
                 throwOrWarn('collectionFormat:tsv is no longer supported', header, options); // not lossless
             }
             delete header.collectionFormat;
@@ -367,32 +367,32 @@ function processParameter(param, op, path, index, openapi, options) {
                     throwError('(Patchable) collectionFormat is only applicable to param.type array', options);
                 }
             }
-            if ((param.collectionFormat == 'csv') && ((param.in == 'query') || (param.in == 'cookie'))) {
+            if ((param.collectionFormat === 'csv') && ((param.in === 'query') || (param.in === 'cookie'))) {
                 param.style = 'form';
             }
-            if ((param.collectionFormat == 'csv') && ((param.in == 'path') || (param.in == 'header'))) {
+            if ((param.collectionFormat === 'csv') && ((param.in === 'path') || (param.in === 'header'))) {
                 param.style = 'simple';
             }
-            if (param.collectionFormat == 'ssv') {
-                if (param.in == 'query') {
+            if (param.collectionFormat === 'ssv') {
+                if (param.in === 'query') {
                     param.style = 'spaceDelimited';
                 }
                 else {
                     throwOrWarn('collectionFormat:ssv is no longer supported except for in:query parameters', param, options); // not lossless
                 }
             }
-            if (param.collectionFormat == 'pipes') {
-                if (param.in == 'query') {
+            if (param.collectionFormat === 'pipes') {
+                if (param.in === 'query') {
                     param.style = 'pipeDelimited';
                 }
                 else {
                     throwOrWarn('collectionFormat:pipes is no longer supported except for in:query parameters', param, options); // not lossless
                 }
             }
-            if (param.collectionFormat == 'multi') {
+            if (param.collectionFormat === 'multi') {
                 param.explode = true;
             }
-            if (param.collectionFormat == 'tsv') {
+            if (param.collectionFormat === 'tsv') {
                 throwOrWarn('collectionFormat:tsv is no longer supported', param, options); // not lossless
             }
             delete param.collectionFormat;
@@ -409,7 +409,7 @@ function processParameter(param, op, path, index, openapi, options) {
                     param.schema.items = param.items;
                     delete param.items;
                     common.recurse(param.schema.items, null, function (obj, key, state) {
-                        if ((key == 'collectionFormat') && (typeof obj[key] === 'string')) {
+                        if ((key === 'collectionFormat') && (typeof obj[key] === 'string')) {
                             if (oldCollectionFormat && obj[key] !== oldCollectionFormat) {
                                 throwOrWarn('Nested collectionFormats are not supported', param, options);
                             }
@@ -438,7 +438,7 @@ function processParameter(param, op, path, index, openapi, options) {
         }
     }
 
-    if (param.in == 'formData') {
+    if (param.in === 'formData') {
         // convert to requestBody component
         singularRequestBody = false;
         result.content = {};
@@ -474,12 +474,12 @@ function processParameter(param, op, path, index, openapi, options) {
             if (typeof param.default !== 'undefined') target.default = param.default;
             if (target.properties) target.properties = param.properties;
             if (param.allOf) target.allOf = param.allOf; // new are anyOf, oneOf, not, x- vendor extensions?
-            if ((param.type == 'array') && (param.items)) {
+            if ((param.type === 'array') && (param.items)) {
                 target.items = param.items;
             }
         }
     }
-    if (param.type == 'file') {
+    if (param.type === 'file') {
         // convert to requestBody
         if (param.required) result.required = param.required;
         result.content = {};
@@ -488,7 +488,7 @@ function processParameter(param, op, path, index, openapi, options) {
         result.content["application/octet-stream"].schema.type = 'string';
         result.content["application/octet-stream"].schema.format = 'binary';
     }
-    if (param.in == 'body') {
+    if (param.in === 'body') {
         result.content = {};
         if (param.name) result['x-s2o-name'] = (op && op.operationId ? common.sanitiseAll(op.operationId) : '') + ('_' + param.name).toCamelCase();
         if (param.description) result.description = param.description;
@@ -497,7 +497,7 @@ function processParameter(param, op, path, index, openapi, options) {
         if (param.schema && param.schema.$ref) {
             result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/', '');
         }
-        else if (param.schema && (param.schema.type == 'array') && param.schema.items && param.schema.items.$ref) {
+        else if (param.schema && (param.schema.type === 'array') && param.schema.items && param.schema.items.$ref) {
             result['x-s2o-name'] = param.schema.items.$ref.replace('#/components/schemas/', '') + 'Array';
         }
 
@@ -555,7 +555,7 @@ function processParameter(param, op, path, index, openapi, options) {
         delete param[prop];
     }
 
-    if ((param.in == 'path') && ((typeof param.required === 'undefined') || (param.required !== true))) {
+    if ((param.in === 'path') && ((typeof param.required === 'undefined') || (param.required !== true))) {
         if (options.patch) {
             param.required = true;
         }
@@ -584,7 +584,7 @@ function processResponse(response, name, op, openapi, options) {
             || ((response.description === '') && options.patch)) {
             if (options.patch) {
                 let sc = statusCodes.find(function (e) {
-                    return e.code == name;
+                    return e.code === name;
                 });
                 if ((typeof response === 'object') && (!Array.isArray(response))) {
                     response.description = (sc ? sc.phrase : '');
@@ -616,7 +616,7 @@ function processResponse(response, name, op, openapi, options) {
                     response.content[mimetype].examples.response = example;
                     delete response.examples[mimetype];
                 }
-                if (response.content[mimetype].schema.type == 'file') {
+                if (response.content[mimetype].schema.type === 'file') {
                     delete response.content[mimetype].schema;
                 }
             }
@@ -631,9 +631,10 @@ function processResponse(response, name, op, openapi, options) {
             response.content[mimetype].examples.response.value = response.examples[mimetype];
         }
         delete response.examples;
+
         if (response.headers) {
             for (let h in response.headers) {
-                if (h.toLowerCase() == 'status code') {
+                if (h.toLowerCase() === 'status code') {
                     if (options.patch) {
                         delete response.headers[h];
                     }
@@ -686,7 +687,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                                 param = common.resolveInternal(openapi, param.$ref);
                             }
                             var match = op.parameters.find(function (e, i, a) {
-                                return ((e.name == param.name) && (e.in == param.in));
+                                return ((e.name === param.name) && (e.in === param.in));
                             });
 
                             if (!match && (param.in === 'formData') || (param.in === 'body') || (param.type === 'file')) {
@@ -704,7 +705,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
 
                 if (op.security) processSecurity(op.security);
 
-                //don't need to remove requestBody for non-supported ops "SHALL be ignored"
+                //don't need to remove requestBody for non-supported ops as they "SHALL be ignored"
 
                 // responses
                 if (!op.responses) {
@@ -741,6 +742,59 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                 delete op.consumes;
                 delete op.produces;
                 delete op.schemes;
+
+                if (op["x-ms-examples"]) {
+                    for (let e in op["x-ms-examples"]) {
+                        let example = op["x-ms-examples"][e];
+                        let se = common.sanitiseAll(e);
+                        if (example.parameters) {
+                            for (let p in example.parameters) {
+                                let value = example.parameters[p];
+                                for (var param of op.parameters.concat(path.parameters||[])) {
+                                    if (param.$ref) {
+                                        param = jptr.jptr(openapi,param.$ref);
+                                    }
+                                    if ((param.name === p) && (!param.example)) {
+                                        if (!param.examples) {
+                                            param.examples = {};
+                                        }
+                                        param.examples[e] = {value: value};
+                                    }
+                                }
+                            }
+                        }
+                        if (example.responses) {
+                            for (let r in example.responses) {
+                                if (example.responses[r].headers) {
+                                    for (let h in example.responses[r].headers) {
+                                        let value = example.responses[r].headers[h];
+                                        for (let rh in op.responses[r].headers) {
+                                            if (rh === h) {
+                                                let header = op.responses[r].headers[rh];
+                                                header.example = value;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (example.responses[r].body) {
+                                    openapi.components.examples[se] = { value: common.clone(example.responses[r].body) };
+                                    if (op.responses[r] && op.responses[r].content) {
+                                        for (let ct in op.responses[r].content) {
+                                            let contentType = op.responses[r].content[ct];
+                                            if (!contentType.examples) {
+                                                contentType.examples = {};
+                                            }
+                                            contentType.examples[e] = { $ref: '#/components/examples/'+se };
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    delete op["x-ms-examples"];
+                }
+
                 if (op.parameters && op.parameters.length === 0) delete op.parameters;
 
                 if (op.requestBody) {
@@ -837,7 +891,7 @@ function main(openapi, options) {
         processResponse(response, sname, null, openapi, options);
         if (response.headers) {
             for (let h in response.headers) {
-                if (h.toLowerCase() == 'status code') {
+                if (h.toLowerCase() === 'status code') {
                     if (options.patch) {
                         delete response.headers[h];
                     }

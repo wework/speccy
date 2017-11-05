@@ -8,10 +8,11 @@ before_script:
   - git clone --depth 1 https://github.com/mermade/openapi-definitions.git
 #  - git clone --depth 1 https://github.com/SOM-Research/hapi.git
   - git clone --depth 1 https://github.com/mermade/openapi3-examples.git
+  - . ./bin/setflags.sh
 script:
-  - travis_wait node testRunner -q openapi-directory/APIs/
-  - travis_wait node testRunner -q openapi-definitions/
-#  - travis_wait node testRunner -q hapi/APIs/
-  - travis_wait node testRunner -q -n openapi3-examples/pass
-  - travis_wait node testRunner -q -r -n -f openapi3-examples/fail
+  - travis_wait node $nflags testRunner -q openapi-directory/APIs/
+  - travis_wait node $nflags testRunner -q openapi-definitions/
+#  - travis_wait node $nflags testRunner -q hapi/APIs/
+  - travis_wait node $nflags testRunner -q -n openapi3-examples/pass
+  - travis_wait node $nflags testRunner -q -r -n -f openapi3-examples/fail
 

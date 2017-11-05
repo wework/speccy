@@ -14,6 +14,8 @@ Convert Swagger 2.0 definitions into OpenApi 3.0.x
 
 Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
 
+**If you are using Node.js 4 - please use the --harmony flag**
+
 Usage:
 
 ```

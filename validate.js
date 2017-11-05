@@ -283,7 +283,7 @@ function checkSubSchema(schema, parent, state) {
 function checkSchema(schema,parent,prop,openapi,options) {
     let state = {};
     state.depth = 0;
-    state.seen = [];
+    state.seen = new WeakMap();
     state.openapi = openapi;
     state.options = options;
     state.property = prop;
@@ -837,12 +837,12 @@ function validateSync(openapi, options, callback) {
 
     if (openapi.tags) {
         contextAppend(options, 'tags');
-        let tagsSeen = [];
+        let tagsSeen = new Map();
         for (let tag of openapi.tags) {
             tag.should.have.property('name');
             tag.name.should.have.type('string');
-            should(tagsSeen.indexOf(tag.name)).be.exactly(-1,'Tag names must be unique');
-            tagsSeen.push(tag.name);
+            tagsSeen.has(tag.name).should.be.exactly(false,'Tag names must be unique');
+            tagsSeen.set(tag.name,true);
             if (tag.externalDocs) {
                 tag.externalDocs.should.have.key('url');
                 tag.externalDocs.url.should.have.type('string');

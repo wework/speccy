@@ -462,6 +462,7 @@ function processParameter(param, op, path, index, openapi, options) {
             var schema = result.content[contentType].schema;
             let target = result.content[contentType].schema.properties[param.name];
             if (param.description) target.description = param.description;
+            if (param.example) target.example = param.example;
             if (param.type) target.type = param.type;
 
             for (let prop of common.parameterTypeProperties) {
@@ -477,9 +478,13 @@ function processParameter(param, op, path, index, openapi, options) {
             if ((param.type === 'array') && (param.items)) {
                 target.items = param.items;
             }
+            if (param.type === 'file') {
+                target.type = 'string';
+                target.format = 'binary';
+            }
         }
     }
-    if (param.type === 'file') {
+    else if (param.type === 'file') {
         // convert to requestBody
         if (param.required) result.required = param.required;
         result.content = {};

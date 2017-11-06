@@ -840,14 +840,18 @@ function validateSync(openapi, options, callback) {
         let tagsSeen = new Map();
         for (let tag of openapi.tags) {
             tag.should.have.property('name');
+            contextAppend(options, tag.name);
             tag.name.should.have.type('string');
             tagsSeen.has(tag.name).should.be.exactly(false,'Tag names must be unique');
             tagsSeen.set(tag.name,true);
             if (tag.externalDocs) {
+                contextAppend(options, 'externalDocs');
                 tag.externalDocs.should.have.key('url');
                 tag.externalDocs.url.should.have.type('string');
                 (function () { validateUrl(tag.externalDocs.url, contextServers, 'tag.externalDocs', options) }).should.not.throw();
+                options.context.pop();
             }
+            options.context.pop();
         }
         options.context.pop();
     }

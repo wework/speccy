@@ -1,14 +1,14 @@
 // @ts-check
 'use strict';
 
-var fs = require('fs');
-var url = require('url');
-var URL = url.URL;
-var util = require('util');
+const fs = require('fs');
+const url = require('url');
+const URL = url.URL;
+const util = require('util');
 
-var yaml = require('js-yaml');
-var should = require('should');
-var co = require('co');
+const yaml = require('js-yaml');
+const should = require('should');
+const co = require('co');
 var ajv = require('ajv')({
     allErrors: true,
     verbose: true,
@@ -26,14 +26,15 @@ var metaSchema = require('ajv/lib/refs/json-schema-v5.json');
 ajv.addMetaSchema(metaSchema);
 ajv._opts.defaultMeta = metaSchema.id;
 
-var common = require('./common.js');
-var jptr = require('reftools/lib/jptr.js');
-var walkSchema = require('./walkSchema.js').walkSchema;
+const common = require('./common.js');
+const jptr = require('reftools/lib/jptr.js');
+const walkSchema = require('./walkSchema.js').walkSchema;
+const wsGetDefaultState = require('./walkSchema.js').getDefaultState;
 
-var jsonSchema = require('./schemas/json_v5.json');
-var validateMetaSchema = ajv.compile(jsonSchema);
-var openapi3Schema = require('./schemas/openapi-3.0.json');
-var validateOpenAPI3 = ajv.compile(openapi3Schema);
+const jsonSchema = require('./schemas/json_v5.json');
+const validateMetaSchema = ajv.compile(jsonSchema);
+const openapi3Schema = require('./schemas/openapi-3.0.json');
+const validateOpenAPI3 = ajv.compile(openapi3Schema);
 
 const dummySchema = { anyOf: {} };
 const emptySchema = {};
@@ -281,9 +282,7 @@ function checkSubSchema(schema, parent, state) {
 }
 
 function checkSchema(schema,parent,prop,openapi,options) {
-    let state = {};
-    state.depth = 0;
-    state.seen = new WeakMap();
+    let state = wsGetDefaultState();
     state.openapi = openapi;
     state.options = options;
     state.property = prop;

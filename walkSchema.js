@@ -2,9 +2,13 @@
 
 const util = require('util');
 
+function getDefaultState() {
+    return { depth: 0, seen: new WeakMap(), top: true };
+}
+
 function walkSchema(schema, parent, state, callback) {
 
-    if (typeof state.depth === 'undefined') state = { depth: 0, seen: new WeakMap(), top:true };
+    if (typeof state.depth === 'undefined') state = getDefaultState();
     if (typeof schema.$ref !== 'undefined') {
         let temp = {$ref:schema.$ref};
         callback(temp,parent,state);
@@ -15,7 +19,7 @@ function walkSchema(schema, parent, state, callback) {
         return schema;
     }
     //else
-    state.seen.set(schema,true);
+    if ((typeof schema === 'object') && (schema !== null)) state.seen.set(schema,true);
     state.top = false;
     state.depth++;
 
@@ -76,5 +80,6 @@ function walkSchema(schema, parent, state, callback) {
 }
 
 module.exports = {
+    getDefaultState: getDefaultState,
     walkSchema: walkSchema
 };

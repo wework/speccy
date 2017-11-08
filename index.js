@@ -36,7 +36,7 @@ function throwOrWarn(message, container, options) {
     }
 }
 
-function fixUpSubSchema(schema) {
+function fixUpSubSchema(schema,parent) {
     if (schema.discriminator && typeof schema.discriminator === 'string') {
         schema.discriminator = { propertyName: schema.discriminator };
     }
@@ -99,15 +99,21 @@ function fixUpSubSchema(schema) {
         schema.items = {};
     }
     if (typeof schema.required === 'boolean') {
-        delete schema.required; // TODO if we're in a property we should push up to the
-        // *parent* required array if it exists...
+        if (schema.required && schema.name) {
+            if (typeof parent.required === 'undefined') {
+                parent.required = [];
+            }
+            if (Array.isArray(parent.required)) parent.required.push(schema.name);
+        }
+        delete schema.required;
     }
-    // TODO if we have a nested properties (object inside an object) and the *parent*
-    // type is not set, force it to object
+
+    // TODO if we have a nested properties (object inside an object) and the
+    // *parent* type is not set, force it to object
     // TODO if default is set but type is not set, force type to typeof default
 }
 
-function fixUpSubSchemaExtensions(schema) {
+function fixUpSubSchemaExtensions(schema,parent) {
     if (schema["x-required"] && Array.isArray(schema["x-required"])) {
         if (!schema.required) schema.required = [];
         schema.required = schema.required.concat(schema["x-required"]);
@@ -132,10 +138,9 @@ function fixUpSubSchemaExtensions(schema) {
 }
 
 function fixUpSchema(schema) {
-    let state = {};
-    walkSchema(schema,{},state,function(schema,parent,state){
-        fixUpSubSchemaExtensions(schema);
-        fixUpSubSchema(schema);
+    walkSchema(schema,{},{},function(schema,parent,state){
+        fixUpSubSchemaExtensions(schema,parent);
+        fixUpSubSchema(schema,parent);
     });
 }
 

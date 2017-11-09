@@ -54,20 +54,23 @@ function walkSchema(schema, parent, state, callback) {
         }
     }
     if (schema.allOf) {
-        for (let subSchema of schema.allOf) {
-            state.property = 'allOf';
+        for (let index in schema.allOf) {
+            let subSchema = schema.allOf[index];
+            state.property = 'allOf/'+index;
             walkSchema(subSchema,schema,state,callback);
         }
     }
     if (schema.anyOf) {
-        for (let subSchema of schema.anyOf) {
-            state.property = 'anyOf';
+        for (let index in schema.anyOf) {
+            let subSchema = schema.anyOf[index];
+            state.property = 'anyOf/'+index;
             walkSchema(subSchema,schema,state,callback);
         }
     }
     if (schema.oneOf) {
-        for (let subSchema of schema.oneOf) {
-            state.property = 'oneOf';
+        for (let index in schema.oneOf) {
+            let subSchema = schema.oneOf[index];
+            state.property = 'oneOf/'+index;
             walkSchema(subSchema,schema,state,callback);
         }
     }

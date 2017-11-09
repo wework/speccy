@@ -12,7 +12,7 @@
             "version": "2.0",
             "converter": {
                 "url": "https://github.com/mermade/swagger2openapi",
-                "version": "2.6.3"
+                "version": "2.10.7"
             }
         }
     ],
@@ -421,10 +421,20 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/octet-stream": {
+                        "multipart/form-data": {
                             "schema": {
-                                "type": "string",
-                                "format": "binary"
+                                "type": "object",
+                                "properties": {
+                                    "additionalMetadata": {
+                                        "description": "Additional data to pass to server",
+                                        "type": "string"
+                                    },
+                                    "file": {
+                                        "description": "file to upload",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
                             }
                         }
                     }

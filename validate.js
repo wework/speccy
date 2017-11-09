@@ -761,6 +761,7 @@ function validateSync(openapi, options, callback) {
         validateOpenAPI3 = ajv.compile(openapi3Schema);
     }
 
+    should(openapi).be.an.Object();
     openapi.should.not.have.key('swagger');
     openapi.should.have.key('openapi');
     openapi.openapi.should.have.type('string');

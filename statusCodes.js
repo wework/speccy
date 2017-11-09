@@ -160,6 +160,10 @@ var statusCodes = [
         "phrase": "I'm a teapot"
     },
     {
+        "code": "421",
+        "phrase": "Misdirected request"
+    },
+    {
         "code": "426",
         "phrase": "Upgrade Required"
     },

@@ -1229,21 +1229,21 @@ function convertObj(swagger, options, callback) {
         fixPaths(openapi, options, reject);
 
         openapi.components = {};
-        openapi.components.schemas = openapi.definitions || {};
-        openapi.components.responses = openapi.responses || {};
-        openapi.components.parameters = openapi.parameters || {};
+        if (openapi['x-callbacks']) {
+            openapi.components.callbacks = openapi['x-callbacks'];
+            delete openapi['x-callbacks'];
+        }
         openapi.components.examples = {};
-        openapi.components.requestBodies = {};
-        openapi.components.securitySchemes = openapi.securityDefinitions || {};
         openapi.components.headers = {};
         if (openapi['x-links']) {
             openapi.components.links = openapi['x-links'];
             delete openapi['x-links'];
         }
-        if (openapi['x-callbacks']) {
-            openapi.components.callbacks = openapi['x-callbacks'];
-            delete openapi['x-callbacks'];
-        }
+        openapi.components.parameters = openapi.parameters || {};
+        openapi.components.responses = openapi.responses || {};
+        openapi.components.requestBodies = {};
+        openapi.components.securitySchemes = openapi.securityDefinitions || {};
+        openapi.components.schemas = openapi.definitions || {};
         delete openapi.definitions;
         delete openapi.responses;
         delete openapi.parameters;

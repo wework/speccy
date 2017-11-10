@@ -180,7 +180,7 @@ function checkSubSchema(schema, parent, state) {
     }
     if (schema.patternProperties) {
         schema.patternProperties.should.be.an.Object();
-        for (let prop in schema.pattenProperties) {
+        for (let prop in schema.patternProperties) {
             try {
                 let regex = new RegExp(prop);
             }

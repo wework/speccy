@@ -47,7 +47,7 @@ function walkSchema(schema, parent, state, callback) {
         }
     }
     if (schema.patternProperties) {
-        for (let prop in schema.pattenProperties) {
+        for (let prop in schema.patternProperties) {
             let subSchema = schema.patternProperties[prop];
             state.property = 'patternProperties/'+prop;
             walkSchema(subSchema,schema,state,callback);

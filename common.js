@@ -159,6 +159,7 @@ const httpVerbs = [
 ];
 
 function sanitise(s) {
+    s = s.replace('[]','Array');
     var components = s.split('/');
     components[0] = components[0].replace(/[^A-Za-z0-9_\-\.]+|\s+/gm, '_');
     return components.join('/');

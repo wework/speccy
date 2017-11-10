@@ -3,7 +3,7 @@
 const util = require('util');
 
 function getDefaultState() {
-    return { depth: 0, seen: new WeakMap(), top: true };
+    return { depth: 0, seen: new WeakMap(), top: true, combine: false };
 }
 
 function walkSchema(schema, parent, state, callback) {
@@ -14,6 +14,22 @@ function walkSchema(schema, parent, state, callback) {
         callback(temp,parent,state);
         return temp; // all other properties SHALL be ignored
     }
+
+    if (state.combine) {
+        if (schema.allOf && Array.isArray(schema.allOf) && schema.allOf.length === 1) {
+            schema = Object.assign({},schema.allOf[0],schema);
+            delete schema.allOf;
+        }
+        if (schema.anyOf && Array.isArray(schema.anyOf) && schema.anyOf.length === 1) {
+            schema = Object.assign({},schema.anyOf[0],schema);
+            delete schema.anyOf;
+        }
+        if (schema.oneOf && Array.isArray(schema.oneOf) && schema.oneOf.length === 1) {
+            schema = Object.assign({},schema.oneOf[0],schema);
+            delete schema.oneOf;
+        }
+    }
+
     callback(schema,parent,state);
     if (state.seen.has(schema)) {
         return schema;

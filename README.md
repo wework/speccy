@@ -75,7 +75,7 @@ See [initial documentation](/docs/browser.md).
 
 ### OpenAPI 3.0.x validation
 
-The `testRunner` harness can also be used as a simple validator if given one or more existing OpenAPI 3.x definitions. The validator (however it is called) uses [WHATWG](https://whatwg.org/) URL parsing if available (node 7.x and above).
+The `testRunner` harness can also be used as a simple validator if given one or more existing OpenAPI 3.x definitions. The validator (however it is called) uses [WHATWG](https://whatwg.org/) URL parsing if available (node 7.x and above). The testRunner can have a linting mode enabled with the `--lint` option. Rules are defined [here](/linter/rules.json). Contributions of rules and rule actions for the linter are very much appreciated.
 
 ### Reference preservation
 

@@ -28,6 +28,8 @@ var argv = require('yargs')
     .boolean('laxurls')
     .alias('l', 'laxurls')
     .describe('laxurls', 'lax checking of empty urls')
+    .boolean('lint')
+    .describe('lint','lint the definition')
     .boolean('nopatch')
     .alias('n', 'nopatch')
     .describe('nopatch', 'do not patch minor errors in the source definition')
@@ -83,6 +85,9 @@ function finalise(err, options) {
         console.log(red + options.context.pop() + '\n' + err.message);
         if (err.stack && err.name !== 'AssertionError') {
             console.log(err.stack);
+        }
+        if (options.lintRule && options.lintRule.description !== err.message) {
+            console.warn(options.lintRule.description);
         }
         options.valid = !!options.expectFailure;
     }

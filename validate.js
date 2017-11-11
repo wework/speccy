@@ -30,6 +30,7 @@ const common = require('./common.js');
 const jptr = require('reftools/lib/jptr.js');
 const walkSchema = require('./walkSchema.js').walkSchema;
 const wsGetDefaultState = require('./walkSchema.js').getDefaultState;
+const linter = require('./linter/linter.js');
 
 const jsonSchema = require('./schemas/json_v5.json');
 const validateMetaSchema = ajv.compile(jsonSchema);
@@ -79,10 +80,12 @@ function validateSchema(schema, openapi, options) {
 function checkSubSchema(schema, parent, state) {
     let prop = state.property;
     if (prop) contextAppend(state.options, prop);
+    if (state.options.lint) state.options.linter('schema',schema,state.options);
     schema.should.be.an.Object();
 
     if (typeof schema.$ref !== 'undefined') {
         schema.$ref.should.be.a.String();
+        if (state.options.lint) state.options.linter('reference',schema,state.options);
         if (prop) state.options.context.pop();
         return; // all other properties SHALL be ignored
     }
@@ -138,7 +141,7 @@ function checkSubSchema(schema, parent, state) {
     if (schema.additionalItems) {
         if (typeof schema.additionalItems === 'boolean') {
         }
-        else if (typeof schema.additionalItems == 'object') {
+        else if (typeof schema.additionalItems === 'object') {
             schema.additionalItems.should.not.be.an.Array();
         }
         else should.fail(false,true,'additionalItems must be a boolean or schema');
@@ -146,7 +149,7 @@ function checkSubSchema(schema, parent, state) {
     if (schema.additionalProperties) {
         if (typeof schema.additionalProperties === 'boolean') {
         }
-        else if (typeof schema.additionalProperties == 'object') {
+        else if (typeof schema.additionalProperties === 'object') {
             schema.additionalProperties.should.not.be.an.Array();
         }
         else should.fail(false,true,'additionalProperties must be a boolean or schema');
@@ -253,9 +256,11 @@ function checkSubSchema(schema, parent, state) {
     }
     if (typeof schema.readOnly !== 'undefined') {
         schema.readOnly.should.be.a.Boolean();
+        schema.should.not.have.property('writeOnly');
     }
     if (typeof schema.writeOnly !== 'undefined') {
         schema.writeOnly.should.be.a.Boolean();
+        schema.should.not.have.property('readOnly');
     }
     if (typeof schema.deprecated !== 'undefined') {
         schema.deprecated.should.be.a.Boolean();
@@ -301,7 +306,7 @@ function checkExample(ex, contextServers, openapi, options) {
     if (typeof ex.value !== 'undefined') {
         ex.should.not.have.property('externalValue');
     }
-    //else { // not mandated by the spec.
+    //else { // not mandated by the spec. moved to linter rule
     //    ex.should.have.property('externalValue');
     //}
     if (typeof ex.externalValue !== 'undefined') {
@@ -309,7 +314,7 @@ function checkExample(ex, contextServers, openapi, options) {
         ex.should.not.have.property('value');
         (function () { validateUrl(ex.externalValue, contextServers, 'examples..externalValue', options) }).should.not.throw();
     }
-    //else { // not mandated by the spec.
+    //else { // not mandated by the spec. moved to linter rule
     //    ex.should.have.property('value');
     //}
     for (let k in ex) {
@@ -317,11 +322,14 @@ function checkExample(ex, contextServers, openapi, options) {
             should(['summary','description','value','externalValue'].indexOf(k)).be.greaterThan(-1,'Example object cannot have additionalProperty: '+k);
         }
     }
+    if (options.lint) options.linter('example',ex,options);
 }
 
 function checkContent(content, contextServers, openapi, options) {
     contextAppend(options, 'content');
     for (let ct in content) {
+        // TODO validate ct against https://tools.ietf.org/html/rfc6838#section-4.2
+        should(ct.indexOf('/')).be.greaterThan(-1,'content-type must match RFC 6838');
         contextAppend(options, jptr.jpescape(ct));
         var contentType = content[ct];
         should(contentType).be.an.Object();
@@ -329,6 +337,7 @@ function checkContent(content, contextServers, openapi, options) {
         if (typeof contentType.schema !== 'undefined') {
             contentType.schema.should.be.an.Object();
             contentType.schema.should.not.be.an.Array();
+            checkSchema(contentType.schema,{},'schema',openapi,options);
         }
         if (contentType.example) {
             contentType.should.not.have.property('examples');
@@ -340,7 +349,10 @@ function checkContent(content, contextServers, openapi, options) {
             contentType.examples.should.not.be.an.Array();
             for (let e in contentType.examples) {
                 let ex = contentType.examples[e];
-                if (!ex.$ref) {
+                if (ex.$ref) {
+                    if (options.lint) options.linter('reference',ex,options);
+                }
+                else {
                     checkExample(ex, contextServers, openapi, options);
                 }
             }
@@ -378,11 +390,13 @@ function checkServer(server, options) {
                 }
                 options.context.pop();
             }
+            if (options.lint) options.linter('serverVariable',server.variables[v],options);
             options.context.pop();
         }
         should(Object.keys(server.variables).length).be.exactly(srvVars);
         options.context.pop();
     }
+    if (options.lint) options.linter('server',server,options);
 }
 
 function checkServers(servers, options) {
@@ -422,12 +436,14 @@ function checkLink(link, options) {
     if (typeof link.server !== 'undefined') {
         checkServer(link.server, options);
     }
+    if (options.lint) options.linter('link',link,options);
 }
 
 function checkHeader(header, contextServers, openapi, options) {
     if (header.$ref) {
         var ref = header.$ref;
         should(header.$ref).be.type('string');
+        if (options.lint) options.linter('reference',header,options);
         header = common.resolveInternal(openapi, ref);
         should(header).not.be.exactly(false, 'Could not resolve reference ' + ref);
     }
@@ -463,12 +479,14 @@ function checkHeader(header, contextServers, openapi, options) {
     if (!header.schema && !header.content) {
         header.should.have.property('schema', 'Header should have schema or content');
     }
+    if (options.lint) options.linter('header',header,options);
 }
 
 function checkResponse(response, contextServers, openapi, options) {
     if (response.$ref) {
         var ref = response.$ref;
         should(response.$ref).be.type('string');
+        if (options.lint) options.linter('reference',response,options);
         response = common.resolveInternal(openapi, ref);
         should(response).not.be.exactly(false, 'Could not resolve reference ' + ref);
     }
@@ -478,6 +496,7 @@ function checkResponse(response, contextServers, openapi, options) {
     if (typeof response.schema !== 'undefined') {
         response.schema.should.be.an.Object();
         response.schema.should.not.be.an.Array();
+        checkSchema(contentType.schema,{},'schema',openapi,options);
     }
     if (response.headers) {
         contextAppend(options, 'headers');
@@ -503,12 +522,14 @@ function checkResponse(response, contextServers, openapi, options) {
         }
         options.context.pop();
     }
+    if (options.lint) options.linter('response',response,options);
 }
 
 function checkParam(param, index, path, contextServers, openapi, options) {
     contextAppend(options, index);
     if (param.$ref) {
         should(param.$ref).be.type('string');
+        if (options.lint) options.linter('reference',param,options);
         var ref = param.$ref;
         param = common.resolveInternal(openapi, ref);
         should(param).not.be.exactly(false, 'Could not resolve reference ' + ref);
@@ -518,7 +539,7 @@ function checkParam(param, index, path, contextServers, openapi, options) {
     param.should.have.property('in');
     param.in.should.have.type('string');
     param.in.should.equalOneOf('query', 'header', 'path', 'cookie');
-    if (param.in == 'path') {
+    if (param.in === 'path') {
         param.should.have.property('required');
         param.required.should.be.exactly(true, 'Path parameters must have an explicit required:true');
         if (path) { // if we're not looking at a param from #/components (checked when used)
@@ -541,21 +562,21 @@ function checkParam(param, index, path, contextServers, openapi, options) {
         param.should.not.have.property('content');
         if (typeof param.style !== 'undefined') {
             param.style.should.be.type('string');
-            if (param.in == 'path') {
+            if (param.in === 'path') {
                 param.style.should.not.be.exactly('form');
                 param.style.should.not.be.exactly('spaceDelimited');
                 param.style.should.not.be.exactly('pipeDelimited');
                 param.style.should.not.be.exactly('deepObject');
             }
-            if (param.in == 'query') {
+            if (param.in === 'query') {
                 param.style.should.not.be.exactly('matrix');
                 param.style.should.not.be.exactly('label');
                 param.style.should.not.be.exactly('simple');
             }
-            if (param.in == 'header') {
+            if (param.in === 'header') {
                 param.style.should.be.exactly('simple');
             }
-            if (param.in == 'cookie') {
+            if (param.in === 'cookie') {
                 param.style.should.be.exactly('form');
             }
         }
@@ -596,6 +617,7 @@ function checkParam(param, index, path, contextServers, openapi, options) {
     if (!param.schema && !param.content) {
         param.should.have.property('schema', 'Parameter should have schema or content');
     }
+    if (options.lint) options.linter('parameter',param,options);
     options.context.pop();
     return param;
 }
@@ -624,8 +646,10 @@ function checkPathItem(pathItem, path, openapi, options) {
             should(op).be.ok();
             op.should.have.type('string');
             should(op.startsWith('#/')).equal(false,'PathItem $refs must be external ('+op+')');
+            if (options.lint) options.linter('reference',op,options);
         }
         else if (o === 'parameters') {
+            // checked above
         }
         else if (o === 'servers') {
             contextAppend(options, 'servers');
@@ -715,7 +739,10 @@ function checkPathItem(pathItem, path, openapi, options) {
                 contextAppend(options, 'callbacks');
                 for (let c in op.callbacks) {
                     let callback = op.callbacks[c];
-                    if (!callback.$ref) {
+                    if (callback.$ref) {
+                        if (options.lint) options.linter('reference',callback,options);
+                    }
+                    else {
                         contextAppend(options, c);
                         for (let p in callback) {
                             let cbPi = callback[p];
@@ -729,9 +756,11 @@ function checkPathItem(pathItem, path, openapi, options) {
             if (op.security) {
                 checkSecurity(op.security,openapi,options);
             }
+            if (options.lint) options.linter('operation',op,options);
         }
         options.context.pop();
     }
+    if (options.lint) options.linter('pathItem',pathItem,options);
     return true;
 }
 
@@ -749,11 +778,12 @@ function checkSecurity(security,openapi,options) {
             }
         }
     }
+    if (options.lint) options.linter('security',security,options);
     options.context.pop();
 }
 
 function validateSync(openapi, options, callback) {
-    setupOptions(options);
+    setupOptions(options,openapi);
 
     if (options.jsonschema) {
         let schemaStr = fs.readFileSync(options.jsonschema, 'utf8');
@@ -857,7 +887,7 @@ function validateSync(openapi, options, callback) {
     }
 
     if (openapi.security) {
-	checkSecurity(openapi.security,openapi,options);
+        checkSecurity(openapi.security,openapi,options);
     }
 
     if (openapi.components && openapi.components.securitySchemes) {
@@ -869,7 +899,7 @@ function validateSync(openapi, options, callback) {
             scheme.type.should.have.type('string');
             scheme.type.should.not.be.exactly('basic', 'Security scheme basic should be http with scheme basic');
             scheme.type.should.equalOneOf('apiKey', 'http', 'oauth2', 'openIdConnect');
-            if (scheme.type == 'http') {
+            if (scheme.type === 'http') {
                 scheme.should.have.property('scheme');
                 scheme.scheme.should.have.type('string');
                 if (scheme.scheme != 'bearer') {
@@ -880,7 +910,7 @@ function validateSync(openapi, options, callback) {
                 scheme.should.not.have.property('scheme');
                 scheme.should.not.have.property('bearerFormat');
             }
-            if (scheme.type == 'apiKey') {
+            if (scheme.type === 'apiKey') {
                 scheme.should.have.property('name');
                 scheme.name.should.have.type('string');
                 scheme.should.have.property('in');
@@ -891,12 +921,12 @@ function validateSync(openapi, options, callback) {
                 scheme.should.not.have.property('name');
                 scheme.should.not.have.property('in');
             }
-            if (scheme.type == 'oauth2') {
+            if (scheme.type === 'oauth2') {
                 scheme.should.not.have.property('flow');
                 scheme.should.have.property('flows');
                 for (let f in scheme.flows) {
                     var flow = scheme.flows[f];
-                    if ((f == 'implicit') || (f == 'authorizationCode')) {
+                    if ((f === 'implicit') || (f === 'authorizationCode')) {
                         flow.should.have.property('authorizationUrl');
                         flow.authorizationUrl.should.have.type('string');
                         (function () { validateUrl(flow.authorizationUrl, contextServers, 'authorizationUrl', options) }).should.not.throw();
@@ -904,8 +934,8 @@ function validateSync(openapi, options, callback) {
                     else {
                         flow.should.not.have.property('authorizationUrl');
                     }
-                    if ((f == 'password') || (f == 'clientCredentials') ||
-                        (f == 'authorizationCode')) {
+                    if ((f === 'password') || (f === 'clientCredentials') ||
+                        (f === 'authorizationCode')) {
                         flow.should.have.property('tokenUrl');
                         flow.tokenUrl.should.have.type('string');
                         (function () { validateUrl(flow.tokenUrl, contextServers, 'tokenUrl', options) }).should.not.throw();
@@ -922,7 +952,7 @@ function validateSync(openapi, options, callback) {
             else {
                 scheme.should.not.have.property('flows');
             }
-            if (scheme.type == 'openIdConnect') {
+            if (scheme.type === 'openIdConnect') {
                 scheme.should.have.property('openIdConnectUrl');
                 scheme.openIdConnectUrl.should.have.type('string');
                 (function () { validateUrl(scheme.openIdConnectUrl, contextServers, 'openIdConnectUrl', options) }).should.not.throw();
@@ -1052,8 +1082,11 @@ function validateSync(openapi, options, callback) {
             options.context.push('#/components/examples/' + e);
             validateComponentName(e).should.be.equal(true, 'component name invalid');
             let ex = openapi.components.examples[e];
-            if (!ex.$ref) {
-               checkExample(ex, openapi.servers, openapi, options);
+            if (ex.$ref) {
+                if (options.lint) options.linter('reference',ex,options);
+            }
+            else {
+                checkExample(ex, openapi.servers, openapi, options);
             }
         }
         options.context.pop();
@@ -1067,7 +1100,10 @@ function validateSync(openapi, options, callback) {
             options.context.push('#/components/callbacks/' + c);
             validateComponentName(c).should.be.equal(true, 'component name invalid');
             let cb = openapi.components.callbacks[c];
-            if (!cb.$ref) {
+            if (cb.$ref) {
+                if (options.lint) options.linter('reference',cb,options);
+            }
+            else {
                 for (let exp in cb) {
                     let cbPi = cb[exp];
                     checkPathItem(cbPi, exp, openapi, options);
@@ -1086,7 +1122,10 @@ function validateSync(openapi, options, callback) {
             options.context.push('#/components/links/' + l);
             validateComponentName(l).should.be.equal(true, 'component name invalid');
             let link = openapi.components.links[l];
-            if (!link.$ref) {
+            if (link.$ref) {
+                if (options.lint) options.linter('reference',link,options);
+            }
+            else {
                 checkLink(link, options);
             }
             options.context.pop();
@@ -1101,6 +1140,7 @@ function validateSync(openapi, options, callback) {
     }
 
     options.valid = !options.expectFailure;
+    if (options.lint) options.linter('openapi',openapi,options);
     if (callback) callback(null, options);
     return options.valid;
 }
@@ -1120,16 +1160,18 @@ function findExternalRefs(master, options, actions) {
     return master;
 }
 
-function setupOptions(options) {
+function setupOptions(options,openapi) {
     options.valid = false;
     options.context = [ '#/' ];
     options.warnings = [];
     options.operationIds = [];
+    options.openapi = openapi;
+    if (options.lint && !options.linter) options.linter = linter.lint;
     if (!options.cache) options.cache = {};
 }
 
 function validate(openapi, options, callback) {
-    setupOptions(options);
+    setupOptions(options,openapi);
 
     var actions = [];
     if (options.resolve) {

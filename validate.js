@@ -328,8 +328,8 @@ function checkExample(ex, contextServers, openapi, options) {
 function checkContent(content, contextServers, openapi, options) {
     contextAppend(options, 'content');
     for (let ct in content) {
-        // TODO validate ct against https://tools.ietf.org/html/rfc6838#section-4.2
-        should(ct.indexOf('/')).be.greaterThan(-1,'content-type must match RFC 6838');
+        // validate ct against https://tools.ietf.org/html/rfc6838#section-4.2
+        should(/[a-zA-Z0-9!#$%^&\*_\-\+{}\|'.`~]+\/[a-zA-Z0-9!#$%^&\*_\-\+{}\|'.`~]+/.test(ct)).be.exactly(true,'media-type should match RFC6838 format'); // this is a SHOULD not MUST
         contextAppend(options, jptr.jpescape(ct));
         var contentType = content[ct];
         should(contentType).be.an.Object();
@@ -828,6 +828,7 @@ function validateSync(openapi, options, callback) {
             openapi.info.license.url.should.not.be.empty();
             (function () { validateUrl(openapi.info.license.url, contextServers, 'license.url', options) }).should.not.throw();
         }
+        if (options.lint) options.linter('license',openapi.info.license,options);
         options.context.pop();
     }
     if (typeof openapi.info.termsOfService !== 'undefined') {
@@ -846,8 +847,10 @@ function validateSync(openapi, options, callback) {
             openapi.info.contact.email.should.have.type('string');
             should(openapi.info.contact.email.indexOf('@')).be.greaterThan(-1,'Contact email must be a valid email address');
         }
+        if (options.lint) options.linter('contact',openapi.info.contact,options);
         options.context.pop();
     }
+    if (options.lint) options.linter('info',openapi.info,options);
     options.context.pop();
 
     var contextServers = [];
@@ -991,6 +994,13 @@ function validateSync(openapi, options, callback) {
                 should.fail(false,true,'Identical path templates detected');
             }
             paths[template] = {};
+            let templateCheck = p.replace(/\{(.+?)\}/g, function (match, group1) {
+                return '';
+            });
+            if ((templateCheck.indexOf('{')>=0) || (templateCheck.indexOf('}')>=0)) {
+                should.fail(false,true,'Mismatched {} in path template');
+            }
+
             checkPathItem(openapi.paths[p], p, openapi, options);
         }
         options.context.pop();

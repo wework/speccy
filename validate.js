@@ -918,7 +918,7 @@ function validateSync(openapi, options, callback) {
                 scheme.name.should.have.type('string');
                 scheme.should.have.property('in');
                 scheme.in.should.have.type('string');
-                scheme.in.should.equalOneOf('query', 'header');
+                scheme.in.should.equalOneOf('query', 'header', 'cookie');
             }
             else {
                 scheme.should.not.have.property('name');

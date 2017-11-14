@@ -59,7 +59,7 @@
     "9": {
         "name": "pathItem-summary-or-description",
         "object": "pathItem",
-        "enabled": true,
+        "enabled": false,
         "description": "pathItem should have summary or description",
         "or": ["summary", "description"]
     },

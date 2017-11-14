@@ -34,8 +34,8 @@ const linter = require('./linter/linter.js');
 
 const jsonSchema = require('./schemas/json_v5.json');
 const validateMetaSchema = ajv.compile(jsonSchema);
-const openapi3Schema = require('./schemas/openapi-3.0.json');
-const validateOpenAPI3 = ajv.compile(openapi3Schema);
+let openapi3Schema = require('./schemas/openapi-3.0.json');
+let validateOpenAPI3 = ajv.compile(openapi3Schema);
 
 const dummySchema = { anyOf: {} };
 const emptySchema = {};

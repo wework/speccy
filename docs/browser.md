@@ -2,22 +2,24 @@
 
 ## Webpack v3
 
+Many thanks to @RomanGotsiy for getting these sizes down somewhat.
+
 ```shell
 $ webpack
 $ ls -lh dist
-total 2.1M
--rw-r--r-- 1 Mike 197609 1.6M Sep 12 11:56 common.js
--rw-r--r-- 1 Mike 197609  70K Sep 12 11:56 Converter.js
--rw-r--r-- 1 Mike 197609 422K Sep 12 11:56 Validator.js
+total 1.7M
+-rw-r--r-- 1 b2b wheel 1.2M Nov 14 23:39 common.js
+-rw-r--r-- 1 b2b wheel  76K Nov 14 23:39 Converter.js
+-rw-r--r-- 1 b2b wheel 444K Nov 14 23:39 Validator.js
 ```
 
 ```shell
 $ webpack -p
 $ ls -lh dist
-total 1.1M
--rw-r--r-- 1 Mike 197609 832K Sep 12 12:03 common.js
--rw-r--r-- 1 Mike 197609  28K Sep 12 12:03 Converter.js
--rw-r--r-- 1 Mike 197609 192K Sep 12 12:03 Validator.js
+total 844K
+-rw-r--r-- 1 b2b wheel 594K Nov 14 23:36 common.js
+-rw-r--r-- 1 b2b wheel  29K Nov 14 23:36 Converter.js
+-rw-r--r-- 1 b2b wheel 214K Nov 14 23:36 Validator.js
 ```
 
 ## Browserify

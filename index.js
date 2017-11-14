@@ -684,11 +684,6 @@ function processPaths(container, containerName, options, requestBodyCache, opena
             if ((common.httpVerbs.indexOf(method) >= 0) || (method === 'x-amazon-apigateway-any-method')) {
                 var op = path[method];
 
-                if ((op['x-servers']) && (Array.isArray(op['x-servers']))) {
-                    op.servers = op['x-servers'];
-                    delete op['x-servers'];
-                }
-
                 if (op.parameters && Array.isArray(op.parameters)) {
                     if (path.parameters) {
                         for (let param of path.parameters) {
@@ -728,7 +723,10 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                     processResponse(response, r, op, openapi, options);
                 }
 
-                if (op.schemes && op.schemes.length) {
+                if ((op['x-servers']) && (Array.isArray(op['x-servers']))) {
+                    op.servers = op['x-servers'];
+                    delete op['x-servers'];
+                } else if (op.schemes && op.schemes.length) {
                     for (let scheme of op.schemes) {
                         if ((!openapi.schemes) || (openapi.schemes.indexOf(scheme) < 0)) {
                             if (!op.servers) {
@@ -1189,7 +1187,7 @@ function convertObj(swagger, options, callback) {
         delete openapi.basePath;
 
         if (openapi['x-servers'] && Array.isArray(openapi['x-servers'])) {
-            openapi.servers = openapi['x-servers'].concat(openapi.servers);
+            openapi.servers = openapi['x-servers'];
             delete openapi['x-servers'];
         }
 

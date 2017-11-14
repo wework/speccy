@@ -812,16 +812,16 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                     var rbName = common.sanitise(op.requestBody['x-s2o-name'] || effectiveOperationId || '');
                     delete op.requestBody['x-s2o-name'];
                     var rbStr = JSON.stringify(op.requestBody);
-                    var rbSha256 = common.sha256(rbStr);
-                    if (!requestBodyCache[rbSha256]) {
+                    var rbHash = common.hash(rbStr);
+                    if (!requestBodyCache[rbHash]) {
                         var entry = {};
                         entry.name = rbName;
                         entry.body = op.requestBody;
                         entry.refs = [];
-                        requestBodyCache[rbSha256] = entry;
+                        requestBodyCache[rbHash] = entry;
                     }
                     let ptr = '#/'+containerName+'/'+encodeURIComponent(jptr.jpescape(p))+'/'+method+'/requestBody';
-                    requestBodyCache[rbSha256].refs.push(ptr);
+                    requestBodyCache[rbHash].refs.push(ptr);
                 }
 
             }
@@ -919,12 +919,12 @@ function main(openapi, options) {
     for (let r in openapi.components.requestBodies) { // converted ones
         let rb = openapi.components.requestBodies[r];
         let rbStr = JSON.stringify(rb);
-        let rbSha256 = common.sha256(rbStr);
+        let rbHash = common.hash(rbStr);
         let entry = {};
         entry.name = r;
         entry.body = rb;
         entry.refs = [];
-        requestBodyCache[rbSha256] = entry;
+        requestBodyCache[rbHash] = entry;
     }
 
     processPaths(openapi.paths, 'paths', options, requestBodyCache, openapi);

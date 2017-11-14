@@ -1,6 +1,5 @@
 'use strict';
 
-const crypto = require('crypto');
 const fs = require('fs');
 const url = require('url');
 
@@ -19,10 +18,21 @@ function hasDuplicates(array) {
     return (new Set(array)).size !== array.length;
 }
 
-function sha256(s) {
-    var shasum = crypto.createHash('sha256');
-    shasum.update(s);
-    return shasum.digest('hex');
+/**
+ * simple hash implementation based on https://stackoverflow.com/a/7616484/1749888
+ * @param {string} s - string to hash
+ * @returns {number} numerical hash code
+ */
+function hash(s) {
+    let hash = 0;
+    let chr;
+    if (s.length === 0) return hash;
+    for (let i = 0; i < s.length; i++) {
+      chr   = s.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
 }
 
 String.prototype.toCamelCase = function camelize() {
@@ -179,7 +189,7 @@ module.exports = {
     uniqueOnly: uniqueOnly,
     hasDuplicates: hasDuplicates,
     recurse: recurse,
-    sha256: sha256,
+    hash: hash,
     getVersion: getVersion,
     resolveExternal: resolveExternal,
     resolveInternal: jptr,

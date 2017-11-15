@@ -538,11 +538,19 @@ function processParameter(param, op, path, index, openapi, options) {
                     && (result.content["multipart/form-data"])) {
                     op.requestBody.content["multipart/form-data"].schema.properties =
                         Object.assign(op.requestBody.content["multipart/form-data"].schema.properties, result.content["multipart/form-data"].schema.properties);
+                    op.requestBody.content["multipart/form-data"].schema.required = (op.requestBody.content["multipart/form-data"].schema.required || []).concat(result.content["multipart/form-data"].schema.required||[]);
+                    if (!op.requestBody.content["multipart/form-data"].schema.required.length) {
+                        delete op.requestBody.content["multipart/form-data"].schema.required;
+                    }
                 }
                 else if ((op.requestBody.content && op.requestBody.content["application/x-www-form-urlencoded"])
                     && (result.content["application/x-www-form-urlencoded"])) {
                     op.requestBody.content["application/x-www-form-urlencoded"].schema.properties =
                         Object.assign(op.requestBody.content["application/x-www-form-urlencoded"].schema.properties, result.content["application/x-www-form-urlencoded"].schema.properties);
+                    op.requestBody.content["application/x-www-form-urlencoded"].schema.required = (op.requestBody.content["application/x-www-form-urlencoded"].schema.required || []).concat(result.content["application/x-www-form-urlencoded"].schema.required||[]);
+                    if (!op.requestBody.content["application/x-www-form-urlencoded"].schema.required.length) {
+                        delete op.requestBody.content["application/x-www-form-urlencoded"].schema.required;
+                    }
                 }
                 else {
                     op.requestBody = Object.assign(op.requestBody, result);

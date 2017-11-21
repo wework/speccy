@@ -73,7 +73,7 @@ function resolveExternal(root, pointer, options, callback) {
     let effectiveProtocol = (u2.protocol ? u2.protocol : (u.protocol ? u.protocol : 'file:'));
     if (u2.protocol) pointer = u2.path;
 
-    let target = base+'/'+pointer;
+    let target = (base ? base+'/': '')+pointer;
 
     if (options.cache[target]) {
         if (options.verbose) console.log('CACHED',target);
@@ -81,7 +81,7 @@ function resolveExternal(root, pointer, options, callback) {
         if (fragment) {
             data = resolveInternal(data, fragment);
         }
-        callback(data);
+        callback(data,target);
         return Promise.resolve(data);
     }
 
@@ -90,7 +90,7 @@ function resolveExternal(root, pointer, options, callback) {
     if (options.handlers && options.handlers[effectiveProtocol]) {
         return options.handlers[effectiveProtocol](base,pointer,fragment,options)
             .then(function(data){
-                callback(data);
+                callback(data,target);
                 return data;
             });
     }
@@ -108,7 +108,7 @@ function resolveExternal(root, pointer, options, callback) {
                     }
                 }
                 catch (ex) { }
-                callback(data);
+                callback(data,target);
                 return data;
             });
     }
@@ -123,7 +123,7 @@ function resolveExternal(root, pointer, options, callback) {
                 }
             }
             catch (ex) { }
-            callback(data);
+            callback(data,target);
             return data;
         });
     }

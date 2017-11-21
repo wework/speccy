@@ -8,6 +8,7 @@ context|String|A JSON Pointer containing the path to the containing property whi
 $ref|String|The original `$ref` property
 original|Object|The original Swagger 2.0 version of the resolved reference
 updated|Object|The OpenAPI 3.0 version of the resolved reference
+source|String|The resolved source of the external `$ref`
 
 ## Example
 
@@ -16,6 +17,7 @@ updated|Object|The OpenAPI 3.0 version of the resolved reference
   {
     "context": "#/paths/~1subscriptions~1{subscriptionId}~1providers~1Microsoft.Commerce~1RateCard/get/x-ms-examples/GetRateCard",
     "$ref": "../examples/GetRatecard.json",
+    "source": "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/2fb9a0b3b902335ff0b0033711c234431931ec9d/specification/commerce/resource-manager/Microsoft.Commerce/2015-06-01-preview/examples/GetRatecard.json",
     "original": {
       "title": "Get RateCard",
       "parameters": {

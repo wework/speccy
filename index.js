@@ -266,6 +266,7 @@ function processHeader(header, options) {
             }
             if (header.collectionFormat === 'tsv') {
                 throwOrWarn('collectionFormat:tsv is no longer supported', header, options); // not lossless
+                header["x-collectionFormat"] = 'tsv';
             }
             delete header.collectionFormat;
         }
@@ -399,6 +400,7 @@ function processParameter(param, op, path, index, openapi, options) {
             }
             if (param.collectionFormat === 'tsv') {
                 throwOrWarn('collectionFormat:tsv is no longer supported', param, options); // not lossless
+                param["x-collectionFormat"] = 'tsv';
             }
             delete param.collectionFormat;
         }

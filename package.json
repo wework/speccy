@@ -1,6 +1,6 @@
 {
   "name": "swagger2openapi",
-  "version": "2.11.2",
+  "version": "2.11.3",
   "description": "Convert Swagger 2.0 definitions to OpenApi 3.0 and validate",
   "main": "index.js",
   "bin": {

@@ -636,7 +636,7 @@ function processResponse(response, name, op, openapi, options) {
                     delete response.examples[mimetype];
                 }
                 if (response.content[mimetype].schema.type === 'file') {
-                    delete response.content[mimetype].schema;
+                    response.content[mimetype].schema = { type: 'string', format: 'binary' };
                 }
             }
             delete response.schema;

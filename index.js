@@ -300,11 +300,10 @@ function fixParamRef(param, options) {
  * @returns requestBody
  */
 function processParameter(param, op, path, index, openapi, options) {
-    var result = {};
-    var singularRequestBody = true;
+    let result = {};
+    let singularRequestBody = true;
 
-    var consumes = ((op && op.consumes) || []).concat(openapi.consumes || []);
-    consumes = consumes.filter(common.uniqueOnly);
+    let consumes = ((op && op.consumes) || (openapi.consumes || [])).filter(common.uniqueOnly);
 
     if (param.$ref && (typeof param.$ref === 'string')) {
         // if we still have a ref here, it must be an internal one
@@ -622,7 +621,7 @@ function processResponse(response, name, op, openapi, options) {
                 response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
             }
 
-            var produces = ((op && op.produces) || []).concat(openapi.produces || []).filter(common.uniqueOnly);
+            let produces = ((op && op.produces) || (openapi.produces || [])).filter(common.uniqueOnly);
             if (!produces.length) produces.push('*/*'); // TODO verify default
 
             response.content = {};

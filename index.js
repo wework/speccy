@@ -1297,6 +1297,7 @@ function convertStr(str, options, callback) {
             catch (ex) { }
         }
         if (obj) {
+            options.original = obj;
             return convertObj(obj, options, callback)
         }
         else {

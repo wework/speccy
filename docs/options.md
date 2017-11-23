@@ -23,7 +23,7 @@ nopatch|Boolean|Input|Command-line flag by `testRunner` to unset `patch`
 openapi|Object|Output|The OpenApi 3.x definition returned from a conversion step
 operationIds|Array[string]|Output|Used by validation to track uniqueness of operationIds
 origin|String|Input|The URL of the definition, set by convertUrl method
-original|Object|Input|Used by `testRunner` to round-trip the original definition
+original|Object|Bi-directional|Used by `testRunner` to round-trip the original definition, set by non-object `ConvertXXX` methods
 outfile|String|Input|The output file to write to
 output|Boolean|Input|Internal flag to testRunner to write output openapi.yaml files
 patch|Boolean|Input|Flag to fix-up minor errors in the source definition before conversion

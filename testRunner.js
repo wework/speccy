@@ -173,32 +173,39 @@ function* check(file, force, expectFailure) {
 
     if ((name.indexOf('.yaml') >= 0) || (name.indexOf('.json') >= 0) || force) {
 
-        var srcStr = fs.readFileSync(path.resolve(file), options.encoding);
-        var src;
-        try {
-            src = JSON.parse(srcStr);
-        }
-        catch (ex) {
+        if (!file.startsWith('http')) {
+            var srcStr = fs.readFileSync(path.resolve(file), options.encoding);
+            var src;
             try {
-                src = yaml.safeLoad(srcStr, { schema: yaml.JSON_SCHEMA, json: true });
+                src = JSON.parse(srcStr);
             }
             catch (ex) {
-                var warning = 'Could not parse file ' + file + '\n' + ex.message;
-                console.log(red + warning);
-                warnings.push(warning);
+                try {
+                    src = yaml.safeLoad(srcStr, { schema: yaml.JSON_SCHEMA, json: true });
+                }
+                catch (ex) {
+                    var warning = 'Could not parse file ' + file + '\n' + ex.message;
+                    console.log(red + warning);
+                    warnings.push(warning);
+                }
             }
-        }
 
-        if (!src || ((!src.swagger && !src.openapi))) {
-            genStackNext();
-            return true;
+            if (!src || ((!src.swagger && !src.openapi))) {
+                genStackNext();
+                return true;
+            }
         }
 
         options.original = src;
         options.source = file;
 
         try {
-            swagger2openapi.convertObj(src, common.clone(options), handleResult);
+            if (file.startsWith('http')) {
+                swagger2openapi.convertUrl(file, common.clone(options), handleResult);
+            }
+            else {
+                swagger2openapi.convertObj(src, common.clone(options), handleResult);
+            }
         }
         catch (ex) {
             console.log(red + 'Converter threw an error: ' + ex.message);
@@ -223,6 +230,10 @@ function processPathSpec(pathspec, expectFailure) {
         for (var file of list) {
             genStack.push(check(file, false, expectFailure));
         }
+        genStackNext();
+    }
+    else if (pathspec.startsWith('http')) {
+        genStack.push(check(pathspec, true, expectFailure));
         genStackNext();
     }
     else if (fs.statSync(path.resolve(pathspec)).isFile()) {

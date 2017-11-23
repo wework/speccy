@@ -3,12 +3,12 @@
 
 'use strict';
 
-var fs = require('fs');
-var url = require('url');
-var util = require('util');
+const fs = require('fs');
+const url = require('url');
+const util = require('util');
 
-var yaml = require('js-yaml');
-var converter = require('./index.js');
+const yaml = require('js-yaml');
+const converter = require('./index.js');
 
 // @ts-ignore
 var argv = require('yargs')

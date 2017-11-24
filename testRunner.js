@@ -91,8 +91,10 @@ function finalise(err, options) {
         }
         options.valid = !!options.expectFailure;
     }
-    for (var warning of options.warnings) {
-        warnings.push(options.file + ' ' + warning);
+    if (options.warnings) {
+        for (var warning of options.warnings) {
+            warnings.push(options.file + ' ' + warning);
+        }
     }
 
     var src = options.original;
@@ -141,6 +143,10 @@ function handleResult(err, options) {
             let resultStr2 = yaml.safeDump(result, { lineWidth: -1, noRefs: true }); // have no identity ref_s
             resultStr.should.not.be.exactly('{}','Result should not be empty');
             resultStr.should.equal(resultStr2,'Result should have no object identity ref_s');
+            let lines = resultStr2.split('\n');
+            for (let line of lines) {
+                if (line.indexOf('ref_')>=0) console.warn(line);
+            }
         }
 
         validator.validate(result, options, finalise);

@@ -56,6 +56,18 @@ function readFileAsync(filename, encoding) {
     });
 }
 
+function resolveAllInternal(obj,context,options) {
+    recurse(obj,{},function(obj,key,state){
+        if (isRef(obj,key)) {
+            if (obj[key].startsWith('#')) {
+                if (options.verbose) console.warn('Internal resolution',obj[key]);
+                state.parent[state.pkey] = resolveInternal(context,obj[key]);
+            }
+        }
+    });
+    return obj;
+}
+
 function resolveExternal(root, pointer, options, callback) {
     var u = url.parse(options.source);
     var base = options.source.split('\\').join('/').split('/');
@@ -76,10 +88,12 @@ function resolveExternal(root, pointer, options, callback) {
 
     if (options.cache[target]) {
         if (options.verbose) console.log('CACHED',target);
-        let data = options.cache[target];
+        let context = clone(options.cache[target]);
+        let data = context;
         if (fragment) {
             data = resolveInternal(data, fragment);
         }
+        data = resolveAllInternal(data,context,options);
         callback(data,target);
         return Promise.resolve(data);
     }
@@ -100,13 +114,16 @@ function resolveExternal(root, pointer, options, callback) {
             })
             .then(function (data) {
                 try {
-                    data = yaml.safeLoad(data, { json: true });
+                    let context = data = yaml.safeLoad(data, { json: true });
                     options.cache[target] = data;
                     if (fragment) {
                         data = resolveInternal(data, fragment);
                     }
+                    data = resolveAllInternal(data,context,options);
                 }
-                catch (ex) { }
+                catch (ex) {
+                    if (options.verbose) console.warn(ex);
+                }
                 callback(data,target);
                 return data;
             });
@@ -115,13 +132,16 @@ function resolveExternal(root, pointer, options, callback) {
         return readFileAsync(target, options.encoding || 'utf8')
         .then(function(data){
             try {
-                data = yaml.safeLoad(data, { json: true });
+                let context = data = yaml.safeLoad(data, { json: true });
                 options.cache[target] = data;
                 if (fragment) {
                     data = resolveInternal(data, fragment);
                 }
+                data = resolveAllInternal(data,context,options);
             }
-            catch (ex) { }
+            catch (ex) {
+                if (options.verbose) console.warn(ex);
+            }
             callback(data,target);
             return data;
         });

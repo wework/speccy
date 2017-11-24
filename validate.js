@@ -630,6 +630,7 @@ function checkPathItem(pathItem, path, openapi, options) {
 
     let pathParameters = {};
     for (let p in pathItem.parameters) {
+        contextAppend(options, 'parameters');
         let param = checkParam(pathItem.parameters[p], p, path, contextServers, openapi, options);
         if (pathParameters[param.in+':'+param.name]) {
             should.fail(false,true,'Duplicate path-level parameter '+param.name);
@@ -637,6 +638,7 @@ function checkPathItem(pathItem, path, openapi, options) {
         else {
             pathParameters[param.in+':'+param.name] = param;
         }
+        options.context.pop();
     }
 
     for (let o in pathItem) {

@@ -79,8 +79,8 @@ The `testRunner` harness can also be used as a simple validator if given one or 
 
 ### Reference preservation
 
-swagger2openapi preserves `$ref` JSON references in your API definition, and does not dereference
-every item, as with some model-based parsers.
+swagger2openapi preserves almost all `$ref` JSON references in your API definition, and does not dereference
+every item, as with some model-based parsers. The exception is internal references within externally referenced documents.
 
 ### Schema transformations
 

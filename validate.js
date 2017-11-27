@@ -328,9 +328,9 @@ function checkExample(ex, contextServers, openapi, options) {
 function checkContent(content, contextServers, openapi, options) {
     contextAppend(options, 'content');
     for (let ct in content) {
+        contextAppend(options, jptr.jpescape(ct));
         // validate ct against https://tools.ietf.org/html/rfc6838#section-4.2
         should(/[a-zA-Z0-9!#$%^&\*_\-\+{}\|'.`~]+\/[a-zA-Z0-9!#$%^&\*_\-\+{}\|'.`~]+/.test(ct)).be.exactly(true,'media-type should match RFC6838 format'); // this is a SHOULD not MUST
-        contextAppend(options, jptr.jpescape(ct));
         var contentType = content[ct];
         should(contentType).be.an.Object();
         should(contentType).not.be.an.Array();

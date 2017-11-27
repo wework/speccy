@@ -2,7 +2,7 @@
 
 ![logo](https://github.com/Mermade/swagger2openapi/blob/master/docs/logo.png?raw=true)
 
-[![OpenAPI Validation](https://openapi-converter.herokuapp.com/api/v1/badge?url=https://openapi-converter.herokuapp.com/examples/openapi.json)](https://openapi-converter.herokuapp.com/api/v1/validate?url=https://openapi-converter.herokuapp.com/examples/openapi.json)
+[![OpenAPI Validation](https://mermade.org.uk/openapi-converter/api/v1/badge?url=https://mermade.org.uk/openapi-converter/examples/openapi.json)](https://mermade.org.uk/openapi-converter/api/v1/validate?url=https://mermade.org.uk/openapi-converter/examples/openapi.json)
 ![Build](https://img.shields.io/travis/Mermade/swagger2openapi/master.svg)
 [![Tested on APIs.guru](https://api.apis.guru/badges/tested_on.svg)](https://APIs.guru)
 [![Tested on Mermade OpenAPIs](https://img.shields.io/badge/Additional%20Specs-34882-brightgreen.svg)](https://github.com/mermade/openapi-definitions)
@@ -65,7 +65,7 @@ validator.validate(openapi, options, function(err, options){
 
 See here for complete [documentation](/docs/options.md) of the `options` object.
 
-Or use the [online version](https://openapi-converter.herokuapp.com) which also includes its own [API](http://petstore.swagger.io/?url=https://openapi-converter.herokuapp.com/contract/swagger.json).
+Or use the [online version](https://mermade.org.uk/openapi-converter) which also includes its own [API](http://petstore.swagger.io/?url=https://mermade.org.uk/openapi-converter/contract/swagger.json).
 
 ### Browser Support
 

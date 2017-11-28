@@ -44,7 +44,9 @@
     "conversion",
     "validator",
     "validation",
-    "resolver"
+    "resolver",
+    "lint",
+    "linter"
   ],
   "devDependencies": {
     "babel-core": "^6.24.1",

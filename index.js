@@ -149,7 +149,7 @@ function fixupRefs(obj, key, state, options) {
         if (obj[key].startsWith('#/definitions/')) {
             //only the first part of a schema component name must be sanitised
             let keys = obj[key].replace('#/definitions/', '').split('/');
-            let newKey = componentNames.schemas[keys[0]]; //lookup
+            let newKey = componentNames.schemas[decodeURIComponent(keys[0])]; // lookup, resolves a $ref
             if (!newKey) {
                 throwOrWarn('Could not resolve reference '+obj[key],obj,state.payload.options);
             }
@@ -169,7 +169,7 @@ function fixupRefs(obj, key, state, options) {
     }
     if ((key === 'x-ms-odata') && (typeof obj[key] === 'string')) {
         let keys = obj[key].replace('#/definitions/', '').replace('#/components/schemas/','').split('/');
-        let newKey = componentNames.schemas[keys[0]]; //lookup
+        let newKey = componentNames.schemas[decodeURIComponent(keys[0])]; // lookup, resolves a $ref
         if (!newKey) {
             throwOrWarn('Could not resolve reference '+obj[key],obj,state.payload.options);
         }
@@ -308,7 +308,7 @@ function processParameter(param, op, path, index, openapi, options) {
     if (param.$ref && (typeof param.$ref === 'string')) {
         // if we still have a ref here, it must be an internal one
         fixParamRef(param, options);
-        var ptr = param.$ref.replace('#/components/parameters/', '');
+        var ptr = decodeURIComponent(param.$ref.replace('#/components/parameters/', ''));
         var rbody = false;
         let target = openapi.components.parameters[ptr]; // resolves a $ref, must have been sanitised already
 
@@ -457,7 +457,7 @@ function processParameter(param, op, path, index, openapi, options) {
         if (param.schema) {
             result.content[contentType].schema = param.schema;
             if (param.schema.$ref) {
-                result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/', '');
+                result['x-s2o-name'] = decodeURIComponent(param.schema.$ref.replace('#/components/schemas/', ''));
             }
         }
         else {
@@ -506,10 +506,10 @@ function processParameter(param, op, path, index, openapi, options) {
         if (param.required) result.required = param.required;
 
         if (param.schema && param.schema.$ref) {
-            result['x-s2o-name'] = param.schema.$ref.replace('#/components/schemas/', '');
+            result['x-s2o-name'] = decodeURIComponent(param.schema.$ref.replace('#/components/schemas/', ''));
         }
         else if (param.schema && (param.schema.type === 'array') && param.schema.items && param.schema.items.$ref) {
-            result['x-s2o-name'] = param.schema.items.$ref.replace('#/components/schemas/', '') + 'Array';
+            result['x-s2o-name'] = decodeURIComponent(param.schema.items.$ref.replace('#/components/schemas/', '')) + 'Array';
         }
 
         if (!consumes.length) {
@@ -557,7 +557,7 @@ function processParameter(param, op, path, index, openapi, options) {
                     op.requestBody = Object.assign(op.requestBody, result);
                     if (!op.requestBody['x-s2o-name']) {
                         if (op.requestBody.schema && op.requestBody.schema.$ref) {
-                            op.requestBody['x-s2o-name'] = op.requestBody.schema.$ref.replace('#/components/schemas/', '').split('/').join('');
+                            op.requestBody['x-s2o-name'] = decodeURIComponent(op.requestBody.schema.$ref.replace('#/components/schemas/', '')).split('/').join('');
                         }
                         else if (op.operationId) {
                             op.requestBody['x-s2o-name'] = common.sanitiseAll(op.operationId);
@@ -594,7 +594,7 @@ function processResponse(response, name, op, openapi, options) {
         }
         else {
             if (response.$ref.startsWith('#/responses/')) {
-                response.$ref = '#/components/responses/' + common.sanitise(response.$ref.replace('#/responses/', ''));
+                response.$ref = '#/components/responses/' + common.sanitise(decodeURIComponent(response.$ref.replace('#/responses/', '')));
             }
         }
     }
@@ -618,7 +618,7 @@ function processResponse(response, name, op, openapi, options) {
             fixUpSchema(response.schema);
 
             if (response.schema.$ref && (typeof response.schema.$ref === 'string') && response.schema.$ref.startsWith('#/responses/')) {
-                response.schema.$ref = '#/components/responses/' + common.sanitise(response.schema.$ref.replace('#/responses/', ''));
+                response.schema.$ref = '#/components/responses/' + common.sanitise(decodeURIComponent(response.schema.$ref.replace('#/responses/', '')));
             }
 
             let produces = ((op && op.produces) || (openapi.produces || [])).filter(common.uniqueOnly);

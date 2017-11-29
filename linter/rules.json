@@ -32,7 +32,8 @@
         "object": "operation",
         "enabled": true,
         "description": "operation should have non-empty tags array",
-        "truthy": "tags"
+        "truthy": "tags",
+        "skip": "isCallback"
     },
     "6": {
         "name": "path-keys-no-trailing-slash",

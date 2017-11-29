@@ -445,7 +445,7 @@ function checkHeader(header, contextServers, openapi, options) {
         should(header.$ref).be.type('string');
         if (options.lint) options.linter('reference',header,options);
         header = common.resolveInternal(openapi, ref);
-        should(header).not.be.exactly(false, 'Could not resolve reference ' + ref);
+        should(header).not.be.exactly(false, 'Cannot resolve reference: ' + ref);
     }
     header.should.not.have.property('name');
     header.should.not.have.property('in');
@@ -488,7 +488,7 @@ function checkResponse(response, contextServers, openapi, options) {
         should(response.$ref).be.type('string');
         if (options.lint) options.linter('reference',response,options);
         response = common.resolveInternal(openapi, ref);
-        should(response).not.be.exactly(false, 'Could not resolve reference ' + ref);
+        should(response).not.be.exactly(false, 'Cannot resolve reference: ' + ref);
     }
     response.should.have.property('description');
     should(response.description).have.type('string', 'response description should be of type string');
@@ -532,7 +532,7 @@ function checkParam(param, index, path, contextServers, openapi, options) {
         if (options.lint) options.linter('reference',param,options);
         var ref = param.$ref;
         param = common.resolveInternal(openapi, ref);
-        should(param).not.be.exactly(false, 'Could not resolve reference ' + ref);
+        should(param).not.be.exactly(false, 'Cannot resolve reference: ' + ref);
     }
     param.should.have.property('name');
     param.name.should.have.type('string');
@@ -686,6 +686,15 @@ function checkPathItem(pathItem, path, openapi, options) {
                 contextServers.push(op.servers);
             }
 
+            if (op.tags) {
+                contextAppend(options, 'tags');
+                op.tags.should.be.an.Array();
+                for (let tag of op.tags) {
+                    tag.should.be.a.String();
+                }
+                options.context.pop();
+            }
+
             if (op.requestBody && op.requestBody.content) {
                 contextAppend(options, 'requestBody');
                 op.requestBody.should.have.property('content');
@@ -748,7 +757,9 @@ function checkPathItem(pathItem, path, openapi, options) {
                         contextAppend(options, c);
                         for (let p in callback) {
                             let cbPi = callback[p];
+                            options.isCallback = true;
                             checkPathItem(cbPi, p, openapi, options);
+                            options.isCallBack = false;
                         }
                         options.context.pop();
                     }
@@ -850,6 +861,11 @@ function validateSync(openapi, options, callback) {
             should(openapi.info.contact.email.indexOf('@')).be.greaterThan(-1,'Contact email must be a valid email address');
         }
         if (options.lint) options.linter('contact',openapi.info.contact,options);
+        for (let k in openapi.info.contact) {
+            if (!k.startsWith('x-')) {
+                should(['name','url','email'].indexOf(k)).be.greaterThan(-1,'info object cannot have additionalProperty: '+k);
+            }
+        }
         options.context.pop();
     }
     if (options.lint) options.linter('info',openapi.info,options);
@@ -1118,7 +1134,9 @@ function validateSync(openapi, options, callback) {
             else {
                 for (let exp in cb) {
                     let cbPi = cb[exp];
+                    options.isCallback = true;
                     checkPathItem(cbPi, exp, openapi, options);
+                    options.isCallback = false;
                 }
             }
             options.context.pop();

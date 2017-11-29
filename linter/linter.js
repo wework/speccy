@@ -25,6 +25,9 @@ function lint(objectName,object,options) {
         let rule = rules[r];
         if ((rule.object[0] === '*') || (rule.object.indexOf(objectName)>=0)) {
             options.lintRule = rule;
+            if (rule.skip && options[rule.skip]) {
+                continue;
+            }
             if (rule.truthy) {
                 for (let property of rule.truthy) {
                     object.should.have.property(property);

@@ -126,5 +126,12 @@
         "enabled": true,
         "description": "markdown descriptions should not contain 'eval('",
         "notContain": { "properties": [ "description","title" ], "value": "eval(" }
+    },
+    "19": {
+        "name":"tag-description",
+        "object":"tag",
+        "enabled":true,
+        "description": "tag object should have a description",
+        "truthy": "description"
     }
 }

@@ -902,6 +902,7 @@ function validateSync(openapi, options, callback) {
                 (function () { validateUrl(tag.externalDocs.url, contextServers, 'tag.externalDocs', options) }).should.not.throw();
                 options.context.pop();
             }
+            if (options.lint) options.linter('tag',tag,options);
             options.context.pop();
         }
         options.context.pop();

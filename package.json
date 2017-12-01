@@ -33,7 +33,7 @@
     "node-readfiles": "^0.2.0",
     "reftools": "0.0.18",
     "should": "^13.0.1",
-    "yargs": "^9.0.1"
+    "yargs": "^10.0.3"
   },
   "keywords": [
     "swagger",

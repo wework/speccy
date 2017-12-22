@@ -1,4 +1,4 @@
-var statusCodes = [
+const statusCodes = [
     {
         "code": "default",
         "phrase": "Default response"
@@ -198,6 +198,10 @@ var statusCodes = [
     {
         "code": "102",
         "phrase": "Processing"
+    },
+    {
+        "code": "103",
+        "phrase": "Early Hints"
     },
     {
         "code": "207",

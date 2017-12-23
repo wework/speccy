@@ -767,7 +767,7 @@ function processPaths(container, containerName, options, requestBodyCache, opena
                         if (example.parameters) {
                             for (let p in example.parameters) {
                                 let value = example.parameters[p];
-                                for (var param of op.parameters.concat(path.parameters||[])) {
+                                for (var param of (op.parameters||[]).concat(path.parameters||[])) {
                                     if (param.$ref) {
                                         param = jptr.jptr(openapi,param.$ref);
                                     }

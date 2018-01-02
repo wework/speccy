@@ -268,7 +268,7 @@ function checkSubSchema(schema, parent, state) {
     if (typeof schema.discriminator !== 'undefined') {
         schema.discriminator.should.be.an.Object();
         schema.discriminator.should.have.property('propertyName');
-        if (!(parent.oneOf || parent.anyOf || parent.allOf)) {
+        if ((Object.keys(parent).length>0) && !(parent.oneOf || parent.anyOf || parent.allOf)) {
             should.fail(false,true,'discriminator requires oneOf, anyOf or allOf in parent schema');
         }
     }

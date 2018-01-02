@@ -167,7 +167,7 @@ function fixupRefs(obj, key, state, options) {
             obj[key] = '#/components/responses/' + common.sanitise(obj[key].replace('#/responses/', ''));
         }
     }
-    if ((key === 'x-ms-odata') && (typeof obj[key] === 'string')) {
+    if ((key === 'x-ms-odata') && (typeof obj[key] === 'string') && (obj[key].startsWith('#/'))) {
         let keys = obj[key].replace('#/definitions/', '').replace('#/components/schemas/','').split('/');
         let newKey = componentNames.schemas[decodeURIComponent(keys[0])]; // lookup, resolves a $ref
         if (!newKey) {

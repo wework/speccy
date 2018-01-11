@@ -483,6 +483,7 @@ function processParameter(param, op, path, index, openapi, options) {
             if (param.allOf) target.allOf = param.allOf; // new are anyOf, oneOf, not, x- vendor extensions?
             if ((param.type === 'array') && (param.items)) {
                 target.items = param.items;
+                if (target.items.collectionFormat) delete target.items.collectionFormat;
             }
             if (param.type === 'file') {
                 target.type = 'string';

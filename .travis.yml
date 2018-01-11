@@ -10,7 +10,7 @@ before_script:
   - git clone --depth 1 https://github.com/mermade/openapi3-examples.git
   - . ./bin/setflags.sh
 script:
-  - travis_wait node $nflags testRunner -q openapi-directory/APIs/
+  - travis_wait node $nflags testRunner -q -l openapi-directory/APIs/
   - travis_wait node $nflags testRunner -q openapi-definitions/
 #  - travis_wait node $nflags testRunner -q hapi/APIs/
   - travis_wait node $nflags testRunner -q -n openapi3-examples/pass

@@ -268,9 +268,10 @@ function checkSubSchema(schema, parent, state) {
     if (typeof schema.discriminator !== 'undefined') {
         schema.discriminator.should.be.an.Object();
         schema.discriminator.should.have.property('propertyName');
-        if ((Object.keys(parent).length>0) && !(parent.oneOf || parent.anyOf || parent.allOf)) {
-            should.fail(false,true,'discriminator requires oneOf, anyOf or allOf in parent schema');
-        }
+        //"To avoid redundancy, the discriminator MAY be added to a parent schema definition..."
+        //if ((Object.keys(parent).length>0) && !(parent.oneOf || parent.anyOf || parent.allOf)) {
+        //    should.fail(false,true,'discriminator requires oneOf, anyOf or allOf in parent schema');
+        //}
     }
     if (typeof schema.xml !== 'undefined') {
         schema.xml.should.be.an.Object();

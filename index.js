@@ -1189,10 +1189,10 @@ function convertObj(swagger, options, callback) {
         openapi = Object.assign(openapi, common.clone(swagger));
         delete openapi.swagger;
 
-        if (swagger.host && swagger.schemes) {
-            for (let s of swagger.schemes) {
+        if (swagger.host) {
+            for (let s of swagger.schemes || ['']) {
                 let server = {};
-                server.url = s + '://' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
+                server.url = (s ? s+':' : '') + '//' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
                 extractServerParameters(server);
                 openapi.servers.push(server);
             }

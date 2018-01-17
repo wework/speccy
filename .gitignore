@@ -10,7 +10,6 @@ utils/
 in/
 out/
 dev/
-test/
 
 # Logs
 logs

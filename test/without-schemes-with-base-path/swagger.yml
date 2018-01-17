@@ -1,0 +1,8 @@
+---
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Swagger 2.0 Without Scheme with Base Path
+host: example.com
+basePath: "/api"
+paths: {}

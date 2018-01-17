@@ -9,7 +9,7 @@ const tests = fs.readdirSync(__dirname).filter(file => {
     return fs.statSync(path.join(__dirname, file)).isDirectory()
 });
 
-tests.forEach(async (test) => {
+tests.forEach((test) => {
     describe(test, () => {
         it('should match expected output', (done) => {
             const swagger = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'swagger.yml').toString()));

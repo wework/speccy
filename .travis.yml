@@ -15,4 +15,4 @@ script:
 #  - travis_wait node $nflags testRunner -q hapi/APIs/
   - travis_wait node $nflags testRunner -q -n openapi3-examples/pass
   - travis_wait node $nflags testRunner -q -r -n -f openapi3-examples/fail
-  - npm test
+  - node node_modules/.bin/mocha $nflags

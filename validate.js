@@ -45,6 +45,8 @@ function contextAppend(options, s) {
 }
 
 function validateUrl(s, contextServers, context, options) {
+    s.should.be.a.String();
+    s.should.not.be.Null();
     if (!options.laxurls) s.should.not.be.exactly('', 'Invalid empty URL ' + context);
     var base = options.origin || 'http://localhost/';
     if (contextServers && contextServers.length) {
@@ -280,8 +282,7 @@ function checkSubSchema(schema, parent, state) {
 
     if (schema.externalDocs) {
         schema.externalDocs.should.have.key('url');
-        schema.externalDocs.url.should.have.type('string');
-        validateUrl(schema.externalDocs.url, [state.openapi.servers], 'externalDocs', state.options).should.not.throw();
+        should.doesNotThrow(function() { validateUrl(schema.externalDocs.url, [state.openapi.servers], 'externalDocs', state.options)}, 'Invalid externalDocs.url');
     }
     if (prop) state.options.context.pop();
     if (!prop || prop === 'schema') validateSchema(schema, state.openapi, state.options); // top level only
@@ -311,9 +312,8 @@ function checkExample(ex, contextServers, openapi, options) {
     //    ex.should.have.property('externalValue');
     //}
     if (typeof ex.externalValue !== 'undefined') {
-        ex.externalValue.should.have.type('string');
         ex.should.not.have.property('value');
-        (function () { validateUrl(ex.externalValue, contextServers, 'examples..externalValue', options) }).should.not.throw();
+        should.doesNotThrow(function () { validateUrl(ex.externalValue, contextServers, 'examples..externalValue', options) },'Invalid examples..externalValue');
     }
     //else { // not mandated by the spec. moved to linter rule
     //    ex.should.have.property('value');
@@ -367,7 +367,7 @@ function checkContent(content, contextServers, openapi, options) {
 
 function checkServer(server, options) {
     server.should.have.property('url');
-    (function () { validateUrl(server.url, [], 'server.url', options) }).should.not.throw();
+    should.doesNotThrow(function () { validateUrl(server.url, [], 'server.url', options) },'Invalid server.url');
     let srvVars = 0;
     server.url.replace(/\{(.+?)\}/g, function (match, group1) {
         srvVars++;
@@ -743,8 +743,7 @@ function checkPathItem(pathItem, path, openapi, options) {
             if (op.externalDocs) {
                 contextAppend(options, 'externalDocs');
                 op.externalDocs.should.have.key('url');
-                op.externalDocs.url.should.have.type('string');
-                (function () { validateUrl(op.externalDocs.url, contextServers, 'externalDocs', options) }).should.not.throw();
+                should.doesNotThrow(function () { validateUrl(op.externalDocs.url, contextServers, 'externalDocs', options) },'Invalid externalDocs.url');
                 options.context.pop();
             }
             if (op.callbacks) {
@@ -838,24 +837,20 @@ function validateSync(openapi, options, callback) {
         openapi.info.license.should.have.key('name');
         openapi.info.license.name.should.have.type('string');
         if (typeof openapi.info.license.url !== 'undefined') {
-            openapi.info.license.url.should.be.a.String();
-            openapi.info.license.url.should.not.be.empty();
-            (function () { validateUrl(openapi.info.license.url, contextServers, 'license.url', options) }).should.not.throw();
+            should.doesNotThrow(function () { validateUrl(openapi.info.license.url, contextServers, 'license.url', options) },'Invalid license.url');
         }
         if (options.lint) options.linter('license',openapi.info.license,options);
         options.context.pop();
     }
     if (typeof openapi.info.termsOfService !== 'undefined') {
-        should(openapi.info.termsOfService).not.be.Null();
-        (function () { validateUrl(openapi.info.termsOfService, contextServers, 'termsOfService', options) }).should.not.throw();
+        should.doesNotThrow(function () { validateUrl(openapi.info.termsOfService, contextServers, 'termsOfService', options) },'Invalid termsOfService.url');
     }
     if (typeof openapi.info.contact !== 'undefined') {
         contextAppend(options, 'contact');
         openapi.info.contact.should.be.type('object');
         openapi.info.contact.should.not.be.an.Array();
         if (typeof openapi.info.contact.url !== 'undefined') {
-            openapi.info.contact.url.should.be.type('string');
-            (function () { validateUrl(openapi.info.contact.url, contextServers, 'url', options) }).should.not.throw();
+            should.doesNotThrow(function () { validateUrl(openapi.info.contact.url, contextServers, 'url', options) },'Invalid contact.url');
         }
         if (typeof openapi.info.contact.email !== 'undefined') {
             openapi.info.contact.email.should.have.type('string');
@@ -882,8 +877,7 @@ function validateSync(openapi, options, callback) {
     if (openapi.externalDocs) {
         contextAppend(options, 'externalDocs');
         openapi.externalDocs.should.have.key('url');
-        openapi.externalDocs.url.should.have.type('string');
-        (function () { validateUrl(openapi.externalDocs.url, contextServers, 'externalDocs', options) }).should.not.throw();
+        should.doesNotThrow(function () { validateUrl(openapi.externalDocs.url, contextServers, 'externalDocs', options) },'Invalid externalDocs.url');
         options.context.pop();
     }
 
@@ -899,8 +893,7 @@ function validateSync(openapi, options, callback) {
             if (tag.externalDocs) {
                 contextAppend(options, 'externalDocs');
                 tag.externalDocs.should.have.key('url');
-                tag.externalDocs.url.should.have.type('string');
-                (function () { validateUrl(tag.externalDocs.url, contextServers, 'tag.externalDocs', options) }).should.not.throw();
+                should.doesNotThrow(function () { validateUrl(tag.externalDocs.url, contextServers, 'tag.externalDocs', options) },'Invalid externalDocs.url');
                 options.context.pop();
             }
             if (options.lint) options.linter('tag',tag,options);
@@ -951,8 +944,7 @@ function validateSync(openapi, options, callback) {
                     var flow = scheme.flows[f];
                     if ((f === 'implicit') || (f === 'authorizationCode')) {
                         flow.should.have.property('authorizationUrl');
-                        flow.authorizationUrl.should.have.type('string');
-                        (function () { validateUrl(flow.authorizationUrl, contextServers, 'authorizationUrl', options) }).should.not.throw();
+                        should.doesNotThrow(function () { validateUrl(flow.authorizationUrl, contextServers, 'authorizationUrl', options) },'Invalid authorizationUrl');
                     }
                     else {
                         flow.should.not.have.property('authorizationUrl');
@@ -960,14 +952,13 @@ function validateSync(openapi, options, callback) {
                     if ((f === 'password') || (f === 'clientCredentials') ||
                         (f === 'authorizationCode')) {
                         flow.should.have.property('tokenUrl');
-                        flow.tokenUrl.should.have.type('string');
-                        (function () { validateUrl(flow.tokenUrl, contextServers, 'tokenUrl', options) }).should.not.throw();
+                        should.doesNotThrow(function () { validateUrl(flow.tokenUrl, contextServers, 'tokenUrl', options) },'Invalid tokenUrl');
                     }
                     else {
                         flow.should.not.have.property('tokenUrl');
                     }
                     if (typeof flow.refreshUrl !== 'undefined') {
-                        (function () { validateUrl(flow.refreshUrl, contextServers, 'refreshUrl', options) }).should.not.throw();
+                        should.doesNotThrow(function () { validateUrl(flow.refreshUrl, contextServers, 'refreshUrl', options) },'Invalid refreshUrl');
                     }
                     flow.should.have.property('scopes');
                 }
@@ -977,8 +968,7 @@ function validateSync(openapi, options, callback) {
             }
             if (scheme.type === 'openIdConnect') {
                 scheme.should.have.property('openIdConnectUrl');
-                scheme.openIdConnectUrl.should.have.type('string');
-                (function () { validateUrl(scheme.openIdConnectUrl, contextServers, 'openIdConnectUrl', options) }).should.not.throw();
+                should.doesNotThrow(function () { validateUrl(scheme.openIdConnectUrl, contextServers, 'openIdConnectUrl', options) },'Invalid openIdConnectUrl');
             }
             else {
                 scheme.should.not.have.property('openIdConnectUrl');

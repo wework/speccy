@@ -24,7 +24,12 @@ var componentNames; // initialised in main
 function throwError(message, options) {
     let err = new Error(message);
     err.options = options;
-    throw err;
+    if (options.promise) {
+        options.promise.reject(err);
+    }
+    else {
+        throw err;
+    }
 }
 
 function throwOrWarn(message, container, options) {
@@ -1127,6 +1132,9 @@ function fixPaths(openapi, options, reject) {
 function convertObj(swagger, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         options.externals = [];
+        options.promise = {};
+        options.promise.resolve = resolve;
+        options.promise.reject = reject;
         if (!options.cache) options.cache = {};
         if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
             options.openapi = common.clone(swagger);
@@ -1143,16 +1151,16 @@ function convertObj(swagger, options, callback) {
                     yield action; // because we can mutate the array
                 }
                 if (options.direct) {
-                    return resolve(options.openapi);
+                    resolve(options.openapi);
                 }
                 else {
-                    return resolve(options);
+                    resolve(options);
                 }
             })
             .catch(function (err) {
                 reject(err);
             });
-            return;
+            return; // we should have resolved or rejected by now
         }
 
         if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
@@ -1271,10 +1279,10 @@ function convertObj(swagger, options, callback) {
             }
             main(openapi, options);
             if (options.direct) {
-                resolve(options.openapi);
+                return resolve(options.openapi);
             }
             else {
-                resolve(options);
+                return resolve(options);
             }
         })
         .catch(function (err) {
@@ -1298,10 +1306,11 @@ function convertStr(str, options, callback) {
         }
         if (obj) {
             options.original = obj;
-            return convertObj(obj, options, callback)
+            convertObj(obj, options)
+            .then(options => resolve(options));
         }
         else {
-            reject(new Error('Could not resolve url'));
+            reject(new Error('Could not parse string'));
         }
     }));
 }
@@ -1315,9 +1324,11 @@ function convertUrl(url, options, callback) {
             console.log('GET ' + url);
         }
         fetch(url, {agent:options.agent}).then(function (res) {
+            if (res.status !== 200) throw new Error(`Received status code ${res.status}`);
             return res.text();
         }).then(function (body) {
-            return convertStr(body, options, callback);
+            convertStr(body, options)
+            .then(options => resolve(options));
         }).catch(function (err) {
             reject(err);
         });
@@ -1332,7 +1343,8 @@ function convertFile(filename, options, callback) {
             }
             else {
                 options.sourceFile = filename;
-                return convertStr(s, options, callback)
+                convertStr(s, options)
+                .then(options => resolve(options));
             }
         });
     }));
@@ -1345,7 +1357,7 @@ function convertStream(readable, options, callback) {
             data += chunk;
         })
         .on('end', function () {
-            return convertStr(data, options, callback);
+            resolve(convertStr(data, options, callback));
         });
     }));
 }

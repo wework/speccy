@@ -110,6 +110,7 @@ function resolveExternal(root, pointer, options, callback) {
     else if (u.protocol && u.protocol.startsWith('http')) {
         return fetch(target, {agent:options.agent})
             .then(function (res) {
+                if (res.status !== 200) throw new Error(`Received status code ${res.status}`);
                 return res.text();
             })
             .then(function (data) {
@@ -126,6 +127,9 @@ function resolveExternal(root, pointer, options, callback) {
                 }
                 callback(data,target);
                 return data;
+            })
+            .catch(function (err) {
+                if (options.verbose) console.warn(err);
             });
     }
     else {
@@ -144,6 +148,10 @@ function resolveExternal(root, pointer, options, callback) {
             }
             callback(data,target);
             return data;
+        })
+        .catch(function(err){
+            console.warn(err.message);
+            if (options.promise) options.promise.reject(err);
         });
     }
 

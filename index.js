@@ -1357,7 +1357,8 @@ function convertStream(readable, options, callback) {
             data += chunk;
         })
         .on('end', function () {
-            resolve(convertStr(data, options, callback));
+            convertStr(data, options)
+            .then(options => resolve(options));
         });
     }));
 }

@@ -12,9 +12,9 @@ tests.forEach(async (test) => {
     describe(test, () => {
         it('should match expected output', async () => {
             const swagger = require(path.join(__dirname, test, 'swagger.json'));
-            const oas = require(path.join(__dirname, test, 'oas.json'));
+            const openapi = require(path.join(__dirname, test, 'openapi.json'));
 
-            assert.deepEqual((await swagger2openapi.convertObj(swagger, {})).openapi, oas);
+            assert.deepEqual((await swagger2openapi.convertObj(swagger, {})).openapi, openapi);
         });
     });
 });

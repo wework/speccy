@@ -10,11 +10,17 @@ const tests = fs.readdirSync(__dirname).filter(file => {
 
 tests.forEach(async (test) => {
     describe(test, () => {
-        it('should match expected output', async () => {
+        it('should match expected output', (done) => {
             const swagger = require(path.join(__dirname, test, 'swagger.json'));
             const openapi = require(path.join(__dirname, test, 'openapi.json'));
 
-            assert.deepEqual((await swagger2openapi.convertObj(swagger, {})).openapi, openapi);
+            swagger2openapi.convertObj(swagger, {}, (err, result) => {
+                if (err) return done(err);
+
+                assert.deepEqual(result.openapi, openapi);
+
+                return done();
+            });
         });
     });
 });

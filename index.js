@@ -1169,7 +1169,6 @@ function convertObj(swagger, options, callback) {
 
         var openapi = options.openapi = {};
         openapi.openapi = targetVersion; // semver
-        openapi.servers = [];
 
         if (options.origin) {
             if (!openapi["x-origin"]) {
@@ -1194,6 +1193,7 @@ function convertObj(swagger, options, callback) {
                 let server = {};
                 server.url = (s ? s+':' : '') + '//' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
                 extractServerParameters(server);
+                if (!openapi.servers) openapi.servers = [];
                 openapi.servers.push(server);
             }
         }
@@ -1201,6 +1201,7 @@ function convertObj(swagger, options, callback) {
             let server = {};
             server.url = swagger.basePath;
             extractServerParameters(server);
+            if (!openapi.servers) openapi.servers = [];
             openapi.servers.push(server);
         }
         delete openapi.host;
@@ -1239,6 +1240,7 @@ function convertObj(swagger, options, callback) {
                     delete param.name;
                 }
             }
+            if (!openapi.servers) openapi.servers = [];
             openapi.servers.push(server);
             delete openapi['x-ms-parameterized-host'];
         }

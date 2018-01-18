@@ -1,6 +1,5 @@
 {
     "openapi": "3.0.0",
-    "servers": [],
     "info": {
         "title": "Test",
         "version": ""

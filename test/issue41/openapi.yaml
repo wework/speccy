@@ -1,0 +1,33 @@
+{
+    "openapi": "3.0.0",
+    "servers": [],
+    "info": {
+        "title": "Test",
+        "version": ""
+    },
+    "paths": {
+        "/test": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Def_with_space"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Def_with_space": {
+                "type": "string"
+            }
+        }
+    }
+}

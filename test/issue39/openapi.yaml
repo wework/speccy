@@ -1,0 +1,18 @@
+openapi: 3.0.0
+servers: []
+info:
+  version: 0.0.0
+  title: Simple API
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string

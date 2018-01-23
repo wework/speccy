@@ -98,7 +98,7 @@ function checkSubSchema(schema, parent, state) {
             'exclusiveMinimum','exclusiveMaximum','enum','default','description','title',
             'readOnly','writeOnly','anyOf','allOf','oneOf','not','discriminator','maxItems',
             'minItems','additionalItems','additionalProperties','example','maxLength',
-            'minLength','pattern','uniqueItems','xml','externalDocs','nullable',
+            'minLength','pattern','uniqueItems','xml','externalDocs','nullable','deprecated',
             'minProperties','maxProperties','multipleOf'].indexOf(k)).
             be.greaterThan(-1,'Schema object cannot have additionalProperty: '+k);
         }
@@ -359,7 +359,7 @@ function checkContent(content, contextServers, openapi, options) {
             }
             options.context.pop();
         }
-        if (contentType.schema) checkSchema(contentType.schema, emptySchema, 'schema', openapi, options);
+        if (typeof contentType.schema !== 'undefined') checkSchema(contentType.schema, emptySchema, 'schema', openapi, options);
         options.context.pop();
     }
     options.context.pop();
@@ -454,7 +454,7 @@ function checkHeader(header, contextServers, openapi, options) {
     for (let prop of common.parameterTypeProperties) {
         header.should.not.have.property(prop);
     }
-    if (header.schema) {
+    if (typeof header.schema !== 'undefined') {
         header.should.not.have.property('content');
         if (typeof header.style !== 'undefined') {
             header.style.should.be.type('string');
@@ -559,7 +559,10 @@ function checkParam(param, index, path, contextServers, openapi, options) {
     if (param.description) {
         param.description.should.have.type('string');
     }
-    if (param.schema) {
+    if (typeof param.deprecated !== 'undefined') {
+        param.deprecated.should.be.a.Boolean();
+    }
+    if (typeof param.schema !== 'undefined') {
         param.should.not.have.property('content');
         if (typeof param.style !== 'undefined') {
             param.style.should.be.type('string');
@@ -739,6 +742,9 @@ function checkPathItem(pathItem, path, openapi, options) {
                 });
 
                 options.context.pop();
+            }
+            if (typeof op.deprecated !== 'undefined') {
+                op.deprecated.should.be.a.Boolean();
             }
             if (op.externalDocs) {
                 contextAppend(options, 'externalDocs');

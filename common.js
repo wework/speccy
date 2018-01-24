@@ -61,7 +61,7 @@ function resolveAllInternal(obj,context,options) {
         if (isRef(obj,key)) {
             if (obj[key].startsWith('#')) {
                 if (options.verbose) console.warn('Internal resolution',obj[key]);
-                state.parent[state.pkey] = resolveInternal(context,obj[key]);
+                state.parent[state.pkey] = clone(resolveInternal(context,obj[key]));
             }
         }
     });

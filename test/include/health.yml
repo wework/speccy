@@ -1,0 +1,15 @@
+Check:
+  title: Check
+  type: object
+  properties:
+    message:
+      type: string
+      description: "bla"
+
+Result:
+  type: object
+  properties:
+    default:
+      $ref: '#/Check'
+    database:
+      $ref: '#/Check'

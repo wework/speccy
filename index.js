@@ -149,34 +149,59 @@ function fixUpSchema(schema) {
     });
 }
 
-function fixupRefs(obj, key, state, options) {
+function fixupRefs(obj, key, state) {
+    let options = state.payload.options;
     if (common.isRef(obj,key)) {
         if (obj[key].startsWith('#/definitions/')) {
             //only the first part of a schema component name must be sanitised
             let keys = obj[key].replace('#/definitions/', '').split('/');
             let newKey = componentNames.schemas[decodeURIComponent(keys[0])]; // lookup, resolves a $ref
             if (!newKey) {
-                throwOrWarn('Could not resolve reference '+obj[key],obj,state.payload.options);
+                throwOrWarn('Could not resolve reference '+obj[key],obj,options);
             }
             else {
                 keys[0] = newKey;
             }
             obj[key] = '#/components/schemas/' + keys.join('/');
         }
-        if (obj[key].startsWith('#/parameters/')) {
+        else if (obj[key].startsWith('#/parameters/')) {
             // for extensions like Apigee's x-templates
             obj[key] = '#/components/parameters/' + common.sanitise(obj[key].replace('#/parameters/', ''));
         }
-        if (obj[key].startsWith('#/responses/')) {
+        else if (obj[key].startsWith('#/responses/')) {
             // for extensions like Apigee's x-templates
             obj[key] = '#/components/responses/' + common.sanitise(obj[key].replace('#/responses/', ''));
+        }
+        else if (obj[key].startsWith('#')) {
+            // fixes up direct $refs or those created by evil bundling tools
+            let target = common.clone(jptr.jptr(options.openapi,obj[key]));
+
+            // we use a heuristic to determine what kind of thing is being referenced
+            let oldRef = obj[key];
+            oldRef = oldRef.replace('/properties/headers/','');
+            oldRef = oldRef.replace('/properties/responses/','');
+            oldRef = oldRef.replace('/properties/parameters/','');
+            oldRef = oldRef.replace('/properties/schemas/','');
+            let type = 'schemas';
+            let schemaIndex = oldRef.lastIndexOf('/schema');
+            type = (oldRef.indexOf('/headers/')>schemaIndex) ? 'headers' :
+                ((oldRef.indexOf('/responses/')>schemaIndex) ? 'responses' :
+                ((oldRef.indexOf('/parameters/')>schemaIndex) ? 'parameters' : 'schemas'));
+
+            let prefix = type.substr(0,type.length-1);
+            let suffix = 1;
+            while (jptr.jptr(options.openapi,'#/components/'+type+'/'+prefix+suffix)) suffix++;
+            let newRef = '#/components/'+type+'/'+prefix+suffix;
+            //if (options.verbose) console.log('swap',newRef,'for',obj[key]);
+            jptr.jptr(options.openapi,newRef,target);
+            obj[key] = newRef;
         }
     }
     if ((key === 'x-ms-odata') && (typeof obj[key] === 'string') && (obj[key].startsWith('#/'))) {
         let keys = obj[key].replace('#/definitions/', '').replace('#/components/schemas/','').split('/');
         let newKey = componentNames.schemas[decodeURIComponent(keys[0])]; // lookup, resolves a $ref
         if (!newKey) {
-            throwOrWarn('Could not resolve reference '+obj[key],obj,state.payload.options);
+            throwOrWarn('Could not resolve reference '+obj[key],obj,options);
         }
         else {
             keys[0] = newKey;

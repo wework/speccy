@@ -8,7 +8,7 @@ const yaml = require('js-yaml');
 const swagger2openapi = require('../');
 
 const tests = fs.readdirSync(__dirname).filter(file => {
-    return fs.statSync(path.join(__dirname, file)).isDirectory()
+    return fs.statSync(path.join(__dirname, file)).isDirectory() && file !== 'include';
 });
 
 tests.forEach((test) => {
@@ -20,7 +20,7 @@ tests.forEach((test) => {
             let options = {};
             try {
                 options = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'options.yaml'),'utf8'),{json:true});
-                options.source = path.join(__dirname, test, 'openapi.yaml');
+                options.source = path.join(__dirname, test, 'swagger.yaml');
             }
             catch (ex) {}
 

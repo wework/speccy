@@ -1,0 +1,25 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Demo API
+produces:
+  - application/json
+  - text/xml
+paths:
+  "/test":
+    get:
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              default:
+                title: Check
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: bla
+              database:
+                "$ref": "#/paths/~1test/get/responses/200/schema/properties/default"

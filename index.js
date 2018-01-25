@@ -1344,7 +1344,8 @@ function convertStr(str, options, callback) {
         if (obj) {
             options.original = obj;
             convertObj(obj, options)
-            .then(options => resolve(options));
+            .then(options => resolve(options))
+            .catch(ex => reject(ex));
         }
         else {
             reject(new Error('Could not parse string'));
@@ -1365,7 +1366,8 @@ function convertUrl(url, options, callback) {
             return res.text();
         }).then(function (body) {
             convertStr(body, options)
-            .then(options => resolve(options));
+            .then(options => resolve(options))
+            .catch(ex => reject(ex));
         }).catch(function (err) {
             reject(err);
         });
@@ -1381,7 +1383,8 @@ function convertFile(filename, options, callback) {
             else {
                 options.sourceFile = filename;
                 convertStr(s, options)
-                .then(options => resolve(options));
+                .then(options => resolve(options))
+                .catch(ex => reject(ex));
             }
         });
     }));
@@ -1395,7 +1398,8 @@ function convertStream(readable, options, callback) {
         })
         .on('end', function () {
             convertStr(data, options)
-            .then(options => resolve(options));
+            .then(options => resolve(options))
+            .catch(ex => reject(ex));
         });
     }));
 }

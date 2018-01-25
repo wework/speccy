@@ -152,7 +152,10 @@ function fixUpSchema(schema) {
 function fixupRefs(obj, key, state) {
     let options = state.payload.options;
     if (common.isRef(obj,key)) {
-        if (obj[key].startsWith('#/definitions/')) {
+        if (obj[key].startsWith('#/components/')) {
+            // nop
+        }
+        else if (obj[key].startsWith('#/definitions/')) {
             //only the first part of a schema component name must be sanitised
             let keys = obj[key].replace('#/definitions/', '').split('/');
             let newKey = componentNames.schemas[decodeURIComponent(keys[0])]; // lookup, resolves a $ref

@@ -173,28 +173,35 @@ function fixupRefs(obj, key, state) {
             obj[key] = '#/components/responses/' + common.sanitise(obj[key].replace('#/responses/', ''));
         }
         else if (obj[key].startsWith('#')) {
-            // fixes up direct $refs or those created by evil bundling tools
+            // fixes up direct $refs or those created by resolvers
             let target = common.clone(jptr.jptr(options.openapi,obj[key]));
+            if (target === false) throwOrWarn('direct $ref not found '+obj[key],obj,options)
+            else {
+                // we use a heuristic to determine what kind of thing is being referenced
+                let oldRef = obj[key];
+                oldRef = oldRef.replace('/properties/headers/','');
+                oldRef = oldRef.replace('/properties/responses/','');
+                oldRef = oldRef.replace('/properties/parameters/','');
+                oldRef = oldRef.replace('/properties/schemas/','');
+                let type = 'schemas';
+                let schemaIndex = oldRef.lastIndexOf('/schema');
+                type = (oldRef.indexOf('/headers/')>schemaIndex) ? 'headers' :
+                    ((oldRef.indexOf('/responses/')>schemaIndex) ? 'responses' :
+                    ((oldRef.indexOf('/parameters/')>schemaIndex) ? 'parameters' : 'schemas'));
 
-            // we use a heuristic to determine what kind of thing is being referenced
-            let oldRef = obj[key];
-            oldRef = oldRef.replace('/properties/headers/','');
-            oldRef = oldRef.replace('/properties/responses/','');
-            oldRef = oldRef.replace('/properties/parameters/','');
-            oldRef = oldRef.replace('/properties/schemas/','');
-            let type = 'schemas';
-            let schemaIndex = oldRef.lastIndexOf('/schema');
-            type = (oldRef.indexOf('/headers/')>schemaIndex) ? 'headers' :
-                ((oldRef.indexOf('/responses/')>schemaIndex) ? 'responses' :
-                ((oldRef.indexOf('/parameters/')>schemaIndex) ? 'parameters' : 'schemas'));
+                // non-body/form parameters have not moved in the overall structure (like responses)
+                // but extracting the requestBodies can cause the *number* of parameters to change
 
-            let prefix = type.substr(0,type.length-1);
-            let suffix = 1;
-            while (jptr.jptr(options.openapi,'#/components/'+type+'/'+prefix+suffix)) suffix++;
-            let newRef = '#/components/'+type+'/'+prefix+suffix;
-            //if (options.verbose) console.log('swap',newRef,'for',obj[key]);
-            jptr.jptr(options.openapi,newRef,target);
-            obj[key] = newRef;
+                if (type !== 'responses') {
+                    let prefix = type.substr(0,type.length-1);
+                    if ((prefix === 'parameter') && target.name) prefix = target.name;
+                    let suffix = 1;
+                    while (jptr.jptr(options.openapi,'#/components/'+type+'/'+prefix+suffix)) suffix++;
+                    let newRef = '#/components/'+type+'/'+prefix+suffix;
+                    jptr.jptr(options.openapi,newRef,target);
+                    obj[key] = newRef;
+                }
+            }
         }
     }
     if ((key === 'x-ms-odata') && (typeof obj[key] === 'string') && (obj[key].startsWith('#/'))) {

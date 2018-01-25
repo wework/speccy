@@ -100,7 +100,7 @@ To run a test-suite:
 node testRunner [-f {path-to-expected-failures}]... [{path-to-APIs|single-file...}]
 ```
 
-The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x, 6.x and 8.x LTS (it is not recommended to run the test suite under Node.js version 7.x or Node.js versions less than 8.7.0 because of [this bug](https://github.com/nodejs/node/issues/13048)) against
+The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x, 6.x and 8.x LTS (it is not recommended to run the test suite under Node.js versions >=7.0.0 and \<8.7.0 because of [this bug](https://github.com/nodejs/node/issues/13048)) against
 
 * [APIs.guru](https://github.com/APIs-guru/openapi-directory)
 * [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)

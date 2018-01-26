@@ -198,7 +198,9 @@ function fixupRefs(obj, key, state) {
 
                 if (type !== 'responses') {
                     let prefix = type.substr(0,type.length-1);
-                    if ((prefix === 'parameter') && target.name) prefix = target.name;
+                    if ((prefix === 'parameter') && target.name && (target.name === common.sanitise(target.name))) {
+                        prefix = encodeURIComponent(target.name);
+                    }
                     let suffix = 1;
                     while (jptr.jptr(options.openapi,'#/components/'+type+'/'+prefix+suffix)) suffix++;
                     let newRef = '#/components/'+type+'/'+prefix+suffix;

@@ -106,7 +106,7 @@ function finalise(err, options) {
         var colour = ((options.expectFailure ? !result : result) ? green : red);
         if (src && src.info) {
             console.log(colour + '  %s %s', src.info.title, src.info.version);
-            console.log('  %s', src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'));
+            console.log('  %s', src.swagger ? (src.host ? src.host : 'relative') : (src.servers && src.servers.length ? src.servers[0].url : 'relative'),normal);
         }
     }
     if (result) {
@@ -209,7 +209,7 @@ function* check(file, force, expectFailure) {
                 handleResult(null,options);
             })
             .catch(function(ex){
-                console.warn(red+ex);
+                console.warn(red+ex,normal);
                 if (expectFailure) {
                     warnings.push('Converter failed ' + options.source);
                 }
@@ -227,7 +227,7 @@ function* check(file, force, expectFailure) {
                 handleResult(null,options);
             })
             .catch(function(ex){
-                console.warn(red+ex);
+                console.warn(red+ex,normal);
                 if (expectFailure) {
                     warnings.push('Converter failed ' + options.source);
                 }

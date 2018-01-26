@@ -10,6 +10,7 @@ utils/
 in/
 out/
 dev/
+t/
 
 # Logs
 logs

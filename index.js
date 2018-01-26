@@ -190,7 +190,8 @@ function fixupRefs(obj, key, state) {
                 let schemaIndex = oldRef.lastIndexOf('/schema');
                 type = (oldRef.indexOf('/headers/')>schemaIndex) ? 'headers' :
                     ((oldRef.indexOf('/responses/')>schemaIndex) ? 'responses' :
-                    ((oldRef.indexOf('/parameters/')>schemaIndex) ? 'parameters' : 'schemas'));
+                    ((oldRef.indexOf('/example')>schemaIndex) ? 'examples' :
+                    ((oldRef.indexOf('/parameters/')>schemaIndex) ? 'parameters' : 'schemas')));
 
                 // non-body/form parameters have not moved in the overall structure (like responses)
                 // but extracting the requestBodies can cause the *number* of parameters to change
@@ -201,6 +202,10 @@ function fixupRefs(obj, key, state) {
                     let suffix = 1;
                     while (jptr.jptr(options.openapi,'#/components/'+type+'/'+prefix+suffix)) suffix++;
                     let newRef = '#/components/'+type+'/'+prefix+suffix;
+                    if (type === 'examples') {
+                        target = { value: target };
+                        newRef += '/value';
+                    }
                     jptr.jptr(options.openapi,newRef,target);
                     obj[key] = newRef;
                 }

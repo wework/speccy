@@ -5,6 +5,7 @@ schemadev/
 .coveralls.yml
 *.txt
 *.out
+*.yaml
 *test.sh
 utils/
 in/

@@ -5,7 +5,7 @@ const path = require('path');
 const assert = require('assert');
 const yaml = require('js-yaml');
 
-const speccy = require('../');
+const lint = require('../lint.js');
 
 const tests = fs.readdirSync(__dirname).filter(file => {
     return fs.statSync(path.join(__dirname, file)).isDirectory() && file !== 'include';
@@ -15,16 +15,9 @@ tests.forEach((test) => {
     describe(test, () => {
         it('should match expected output', (done) => {
             const openapi = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'openapi.yaml'),'utf8'),{json:true});
-            // const violations = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'violations.yaml'),'utf8'),{json:true});
+            const output = fs.readFileSync(path.join(__dirname, test, 'output.txt'),'utf8');
 
-            let options = {};
-            try {
-                options = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'options.yaml'),'utf8'),{json:true});
-                options.source = path.join(__dirname, test, 'openapi.yaml');
-            }
-            catch (ex) {}
-
-            speccy.lintObj(openapi, options, (err, result) => {
+            lintResolvedSchema((err, result) => {
                 if (err) return done(err);
 
                 assert.deepEqual(openapi, result.violations);

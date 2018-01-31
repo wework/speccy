@@ -83,6 +83,10 @@ function lint(objectName,object,options) {
     delete options.lintRule;
 }
 
+// TODO move this out to speccy.js or index.js and make it an option
 loadRules(path.join(__dirname,'rules.json'));
 
-module.exports = { lint };
+module.exports = {
+    lint : lint,
+    loadRules : loadRules
+};

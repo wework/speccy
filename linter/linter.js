@@ -85,7 +85,4 @@ function lint(objectName,object,options) {
 
 loadRules(path.join(__dirname,'rules.json'));
 
-module.exports = {
-    lint : lint,
-    loadRules : loadRules
-};
+module.exports = { lint };

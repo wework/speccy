@@ -82,12 +82,12 @@ function validateSchema(schema, openapi, options) {
 function checkSubSchema(schema, parent, state) {
     let prop = state.property;
     if (prop) contextAppend(state.options, prop);
-    if (state.options.lint) state.options.linter('schema',schema,state.options);
+    state.options.linter('schema',schema,state.options);
     schema.should.be.an.Object();
 
     if (typeof schema.$ref !== 'undefined') {
         schema.$ref.should.be.a.String();
-        if (state.options.lint) state.options.linter('reference',schema,state.options);
+        state.options.linter('reference',schema,state.options);
         if (prop) state.options.context.pop();
         return; // all other properties SHALL be ignored
     }
@@ -324,7 +324,7 @@ function checkExample(ex, contextServers, openapi, options) {
             should(['summary','description','value','externalValue'].indexOf(k)).be.greaterThan(-1,'Example object cannot have additionalProperty: '+k);
         }
     }
-    if (options.lint) options.linter('example',ex,options);
+    options.linter('example',ex,options);
 }
 
 function checkContent(content, contextServers, openapi, options) {
@@ -352,7 +352,7 @@ function checkContent(content, contextServers, openapi, options) {
             for (let e in contentType.examples) {
                 let ex = contentType.examples[e];
                 if (ex.$ref) {
-                    if (options.lint) options.linter('reference',ex,options);
+                    options.linter('reference',ex,options);
                 }
                 else {
                     checkExample(ex, contextServers, openapi, options);
@@ -392,13 +392,13 @@ function checkServer(server, options) {
                 }
                 options.context.pop();
             }
-            if (options.lint) options.linter('serverVariable',server.variables[v],options);
+            options.linter('serverVariable',server.variables[v],options);
             options.context.pop();
         }
         should(Object.keys(server.variables).length).be.exactly(srvVars);
         options.context.pop();
     }
-    if (options.lint) options.linter('server',server,options);
+    options.linter('server',server,options);
 }
 
 function checkServers(servers, options) {
@@ -438,14 +438,14 @@ function checkLink(link, options) {
     if (typeof link.server !== 'undefined') {
         checkServer(link.server, options);
     }
-    if (options.lint) options.linter('link',link,options);
+    options.linter('link',link,options);
 }
 
 function checkHeader(header, contextServers, openapi, options) {
     if (header.$ref) {
         var ref = header.$ref;
         should(header.$ref).be.type('string');
-        if (options.lint) options.linter('reference',header,options);
+        options.linter('reference',header,options);
         header = common.resolveInternal(openapi, ref);
         should(header).not.be.exactly(false, 'Cannot resolve reference: ' + ref);
     }
@@ -481,14 +481,14 @@ function checkHeader(header, contextServers, openapi, options) {
     if (!header.schema && !header.content) {
         header.should.have.property('schema', 'Header should have schema or content');
     }
-    if (options.lint) options.linter('header',header,options);
+    options.linter('header',header,options);
 }
 
 function checkResponse(response, contextServers, openapi, options) {
     if (response.$ref) {
         var ref = response.$ref;
         should(response.$ref).be.type('string');
-        if (options.lint) options.linter('reference',response,options);
+        options.linter('reference',response,options);
         response = common.resolveInternal(openapi, ref);
         should(response).not.be.exactly(false, 'Cannot resolve reference: ' + ref);
     }
@@ -524,14 +524,14 @@ function checkResponse(response, contextServers, openapi, options) {
         }
         options.context.pop();
     }
-    if (options.lint) options.linter('response',response,options);
+    options.linter('response',response,options);
 }
 
 function checkParam(param, index, path, contextServers, openapi, options) {
     contextAppend(options, index);
     if (param.$ref) {
         should(param.$ref).be.type('string');
-        if (options.lint) options.linter('reference',param,options);
+        options.linter('reference',param,options);
         var ref = param.$ref;
         param = common.resolveInternal(openapi, ref);
         should(param).not.be.exactly(false, 'Cannot resolve reference: ' + ref);
@@ -622,7 +622,7 @@ function checkParam(param, index, path, contextServers, openapi, options) {
     if (!param.schema && !param.content) {
         param.should.have.property('schema', 'Parameter should have schema or content');
     }
-    if (options.lint) options.linter('parameter',param,options);
+    options.linter('parameter',param,options);
     options.context.pop();
     return param;
 }
@@ -654,7 +654,7 @@ function checkPathItem(pathItem, path, openapi, options) {
             should(op).be.ok();
             op.should.have.type('string');
             should(op.startsWith('#/')).equal(false,'PathItem $refs must be external ('+op+')');
-            if (options.lint) options.linter('reference',op,options);
+            options.linter('reference',op,options);
         }
         else if (o === 'parameters') {
             // checked above
@@ -760,7 +760,7 @@ function checkPathItem(pathItem, path, openapi, options) {
                 for (let c in op.callbacks) {
                     let callback = op.callbacks[c];
                     if (callback.$ref) {
-                        if (options.lint) options.linter('reference',callback,options);
+                        options.linter('reference',callback,options);
                     }
                     else {
                         contextAppend(options, c);
@@ -778,11 +778,11 @@ function checkPathItem(pathItem, path, openapi, options) {
             if (op.security) {
                 checkSecurity(op.security,openapi,options);
             }
-            if (options.lint) options.linter('operation',op,options);
+            options.linter('operation',op,options);
         }
         options.context.pop();
     }
-    if (options.lint) options.linter('pathItem',pathItem,options);
+    options.linter('pathItem',pathItem,options);
     return true;
 }
 
@@ -800,7 +800,7 @@ function checkSecurity(security,openapi,options) {
             }
         }
     }
-    if (options.lint) options.linter('security',security,options);
+    options.linter('security',security,options);
     options.context.pop();
 }
 
@@ -848,7 +848,7 @@ function validateSync(openapi, options, callback) {
         if (typeof openapi.info.license.url !== 'undefined') {
             should.doesNotThrow(function () { validateUrl(openapi.info.license.url, contextServers, 'license.url', options) },'Invalid license.url');
         }
-        if (options.lint) options.linter('license',openapi.info.license,options);
+        options.linter('license',openapi.info.license,options);
         options.context.pop();
     }
     if (typeof openapi.info.termsOfService !== 'undefined') {
@@ -865,7 +865,7 @@ function validateSync(openapi, options, callback) {
             openapi.info.contact.email.should.have.type('string');
             should(openapi.info.contact.email.indexOf('@')).be.greaterThan(-1,'Contact email must be a valid email address');
         }
-        if (options.lint) options.linter('contact',openapi.info.contact,options);
+        options.linter('contact',openapi.info.contact,options);
         for (let k in openapi.info.contact) {
             if (!k.startsWith('x-')) {
                 should(['name','url','email'].indexOf(k)).be.greaterThan(-1,'info object cannot have additionalProperty: '+k);
@@ -873,7 +873,7 @@ function validateSync(openapi, options, callback) {
         }
         options.context.pop();
     }
-    if (options.lint) options.linter('info',openapi.info,options);
+    options.linter('info',openapi.info,options);
     options.context.pop();
 
     var contextServers = [];
@@ -905,7 +905,7 @@ function validateSync(openapi, options, callback) {
                 should.doesNotThrow(function () { validateUrl(tag.externalDocs.url, contextServers, 'tag.externalDocs', options) },'Invalid externalDocs.url');
                 options.context.pop();
             }
-            if (options.lint) options.linter('tag',tag,options);
+            options.linter('tag',tag,options);
             options.context.pop();
         }
         options.context.pop();
@@ -1112,7 +1112,7 @@ function validateSync(openapi, options, callback) {
             validateComponentName(e).should.be.equal(true, 'component name invalid');
             let ex = openapi.components.examples[e];
             if (ex.$ref) {
-                if (options.lint) options.linter('reference',ex,options);
+                options.linter('reference',ex,options);
             }
             else {
                 checkExample(ex, openapi.servers, openapi, options);
@@ -1130,7 +1130,7 @@ function validateSync(openapi, options, callback) {
             validateComponentName(c).should.be.equal(true, 'component name invalid');
             let cb = openapi.components.callbacks[c];
             if (cb.$ref) {
-                if (options.lint) options.linter('reference',cb,options);
+                options.linter('reference',cb,options);
             }
             else {
                 for (let exp in cb) {
@@ -1154,7 +1154,7 @@ function validateSync(openapi, options, callback) {
             validateComponentName(l).should.be.equal(true, 'component name invalid');
             let link = openapi.components.links[l];
             if (link.$ref) {
-                if (options.lint) options.linter('reference',link,options);
+                options.linter('reference',link,options);
             }
             else {
                 checkLink(link, options);
@@ -1171,7 +1171,7 @@ function validateSync(openapi, options, callback) {
     }
 
     options.valid = !options.expectFailure;
-    if (options.lint) options.linter('openapi',openapi,options);
+    options.linter('openapi',openapi,options);
     if (callback) callback(null, options);
     return options.valid;
 }
@@ -1197,7 +1197,7 @@ function setupOptions(options,openapi) {
     options.warnings = [];
     options.operationIds = [];
     options.openapi = openapi;
-    if (options.lint && !options.linter) options.linter = linter.lint;
+    if (!options.linter) options.linter = linter.lint;
     if (!options.cache) options.cache = {};
 }
 

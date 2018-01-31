@@ -1,10 +1,9 @@
 {
-  "name": "swagger2openapi",
+  "name": "speccy",
   "version": "2.11.14",
-  "description": "Convert Swagger 2.0 definitions to OpenApi 3.0 and validate",
-  "main": "index.js",
+  "description": "Your friendly OpenAPI v3.0 #WellActually CLI assistant.",
   "bin": {
-    "swagger2openapi": "./swagger2openapi.js"
+    "speccy": "./speccy.js"
   },
   "scripts": {
     "test": "mocha"
@@ -22,7 +21,7 @@
     ]
   },
   "repository": {
-    "url": "https://github.com/Mermade/swagger2openapi.git",
+    "url": "https://github.com/wework/speccy.git",
     "type": "git"
   },
   "author": "Mike Ralphson <mike.ralphson@gmail.com>",

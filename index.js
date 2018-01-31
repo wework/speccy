@@ -1171,149 +1171,24 @@ function fixPaths(openapi, options, reject) {
     }
 }
 
-function convertObj(swagger, options, callback) {
+function lintObj(openapi, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         options.externals = [];
         options.promise = {};
         options.promise.resolve = resolve;
         options.promise.reject = reject;
         if (!options.cache) options.cache = {};
-        if (swagger.openapi && (typeof swagger.openapi === 'string') && swagger.openapi.startsWith('3.')) {
-            options.openapi = common.clone(swagger);
-            fixInfo(options.openapi, options, reject);
-            fixPaths(options.openapi, options, reject);
-            let actions = [];
-            if (options.resolve) {
-                findExternalRefs(options.openapi, options, actions);
-            }
 
-            co(function* () {
-                // resolve multiple promises in parallel
-                for (let action of actions) {
-                    yield action; // because we can mutate the array
-                }
-                if (options.direct) {
-                    resolve(options.openapi);
-                }
-                else {
-                    resolve(options);
-                }
-            })
-            .catch(function (err) {
-                reject(err);
-            });
-            return; // we should have resolved or rejected by now
+        if (!(openapi.openapi && (typeof openapi.openapi === 'string') && openapi.openapi.startsWith('3.'))) {
+            return reject(new Error('Unsupported OpenAPI version: ' + (openapi.openapi ? openapi.openapi : openapi.swagger)));
         }
 
-        if ((!swagger.swagger) || (swagger.swagger != "2.0")) {
-            return reject(new Error('Unsupported swagger/OpenAPI version: ' + (swagger.openapi ? swagger.openapi : swagger.swagger)));
-        }
-
-        var openapi = options.openapi = {};
-        openapi.openapi = targetVersion; // semver
-
-        if (options.origin) {
-            if (!openapi["x-origin"]) {
-                openapi["x-origin"] = [];
-            }
-            let origin = {};
-            origin.url = options.origin;
-            origin.format = 'swagger';
-            origin.version = swagger.swagger;
-            origin.converter = {};
-            origin.converter.url = 'https://github.com/mermade/swagger2openapi';
-            origin.converter.version = common.getVersion();
-            openapi["x-origin"].push(origin);
-        }
-
-        // we want the new and existing properties to appear in a sensible order. Not guaranteed
-        openapi = Object.assign(openapi, common.clone(swagger));
-        delete openapi.swagger;
-
-        if (swagger.host) {
-            for (let s of swagger.schemes || ['']) {
-                let server = {};
-                server.url = (s ? s+':' : '') + '//' + swagger.host + (swagger.basePath ? swagger.basePath : '/');
-                extractServerParameters(server);
-                if (!openapi.servers) openapi.servers = [];
-                openapi.servers.push(server);
-            }
-        }
-        else if (swagger.basePath) {
-            let server = {};
-            server.url = swagger.basePath;
-            extractServerParameters(server);
-            if (!openapi.servers) openapi.servers = [];
-            openapi.servers.push(server);
-        }
-        delete openapi.host;
-        delete openapi.basePath;
-
-        if (openapi['x-servers'] && Array.isArray(openapi['x-servers'])) {
-            openapi.servers = openapi['x-servers'];
-            delete openapi['x-servers'];
-        }
-
-        // TODO APIMatic extensions (x-server-configuration) ?
-
-        if (swagger['x-ms-parameterized-host']) {
-            let xMsPHost = swagger['x-ms-parameterized-host'];
-            let server = {};
-            server.url = xMsPHost.hostTemplate;
-            server.variables = {};
-            for (let msp in xMsPHost.parameters) {
-                let param = xMsPHost.parameters[msp];
-                if (param.$ref) {
-                    param = common.resolveInternal(openapi, param.$ref);
-                }
-                if (!msp.startsWith('x-')) {
-                    delete param.required; // all true
-                    delete param.type; // all strings
-                    delete param.in; // all 'host'
-                    if (typeof param.default === 'undefined') {
-                        if (param.enum) {
-                            param.default = param.enum[0];
-                        }
-                        else {
-                            param.default = '';
-                        }
-                    }
-                    server.variables[param.name] = param;
-                    delete param.name;
-                }
-            }
-            if (!openapi.servers) openapi.servers = [];
-            openapi.servers.push(server);
-            delete openapi['x-ms-parameterized-host'];
-        }
-
-        fixInfo(openapi, options, reject);
-        fixPaths(openapi, options, reject);
-
-        openapi.components = {};
-        if (openapi['x-callbacks']) {
-            openapi.components.callbacks = openapi['x-callbacks'];
-            delete openapi['x-callbacks'];
-        }
-        openapi.components.examples = {};
-        openapi.components.headers = {};
-        if (openapi['x-links']) {
-            openapi.components.links = openapi['x-links'];
-            delete openapi['x-links'];
-        }
-        openapi.components.parameters = openapi.parameters || {};
-        openapi.components.responses = openapi.responses || {};
-        openapi.components.requestBodies = {};
-        openapi.components.securitySchemes = openapi.securityDefinitions || {};
-        openapi.components.schemas = openapi.definitions || {};
-        delete openapi.definitions;
-        delete openapi.responses;
-        delete openapi.parameters;
-        delete openapi.securityDefinitions;
-
+        options.openapi = common.clone(openapi);
+        // fixInfo(options.openapi, options, reject);
+        // fixPaths(options.openapi, options, reject);
         let actions = [];
         if (options.resolve) {
-            findExternalRefs(openapi, options, actions);
+            findExternalRefs(options.openapi, options, actions);
         }
 
         co(function* () {
@@ -1321,21 +1196,17 @@ function convertObj(swagger, options, callback) {
             for (let action of actions) {
                 yield action; // because we can mutate the array
             }
-            main(openapi, options);
-            if (options.direct) {
-                return resolve(options.openapi);
-            }
-            else {
-                return resolve(options);
-            }
+            resolve(options);
         })
         .catch(function (err) {
             reject(err);
         });
+        return; // we should have resolved or rejected by now
     }));
 }
 
-function convertStr(str, options, callback) {
+
+function lintStr(str, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         let obj = null;
         try {
@@ -1350,7 +1221,7 @@ function convertStr(str, options, callback) {
         }
         if (obj) {
             options.original = obj;
-            convertObj(obj, options)
+            lintObj(obj, options)
             .then(options => resolve(options))
             .catch(ex => reject(ex));
         }
@@ -1360,7 +1231,7 @@ function convertStr(str, options, callback) {
     }));
 }
 
-function convertUrl(url, options, callback) {
+function lintUrl(url, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         if (!options.origin) {
             options.origin = url;
@@ -1372,7 +1243,7 @@ function convertUrl(url, options, callback) {
             if (res.status !== 200) throw new Error(`Received status code ${res.status}`);
             return res.text();
         }).then(function (body) {
-            convertStr(body, options)
+            lintStr(body, options)
             .then(options => resolve(options))
             .catch(ex => reject(ex));
         }).catch(function (err) {
@@ -1381,7 +1252,7 @@ function convertUrl(url, options, callback) {
     }));
 }
 
-function convertFile(filename, options, callback) {
+function lintFile(filename, options, callback) {
     return maybe(callback, new Promise(function (resolve, reject) {
         fs.readFile(filename, options.encoding || 'utf8', function (err, s) {
             if (err) {
@@ -1389,7 +1260,7 @@ function convertFile(filename, options, callback) {
             }
             else {
                 options.sourceFile = filename;
-                convertStr(s, options)
+                lintStr(s, options)
                 .then(options => resolve(options))
                 .catch(ex => reject(ex));
             }
@@ -1397,26 +1268,11 @@ function convertFile(filename, options, callback) {
     }));
 }
 
-function convertStream(readable, options, callback) {
-    return maybe(callback, new Promise(function (resolve, reject) {
-        let data = '';
-        readable.on('data', function (chunk) {
-            data += chunk;
-        })
-        .on('end', function () {
-            convertStr(data, options)
-            .then(options => resolve(options))
-            .catch(ex => reject(ex));
-        });
-    }));
-}
-
 module.exports = {
-    targetVersion: targetVersion,
-    convert: convertObj,
-    convertObj: convertObj,
-    convertUrl: convertUrl,
-    convertStr: convertStr,
-    convertFile: convertFile,
-    convertStream: convertStream
+    targetVersion,
+    lint: lintObj,
+    lintObj,
+    lintUrl,
+    lintStr,
+    lintFile,
 };

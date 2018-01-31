@@ -9,7 +9,7 @@ module.exports = {
         fs: "empty"
     },
     entry: {
-        Converter: './index.js',
+        Linter: './index.js',
         Validator: './validate.js'
     },
     output: {

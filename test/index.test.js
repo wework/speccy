@@ -5,7 +5,7 @@ const path = require('path');
 const assert = require('assert');
 const yaml = require('js-yaml');
 
-const swagger2openapi = require('../');
+const speccy = require('../');
 
 const tests = fs.readdirSync(__dirname).filter(file => {
     return fs.statSync(path.join(__dirname, file)).isDirectory() && file !== 'include';
@@ -14,20 +14,20 @@ const tests = fs.readdirSync(__dirname).filter(file => {
 tests.forEach((test) => {
     describe(test, () => {
         it('should match expected output', (done) => {
-            const swagger = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'swagger.yaml'),'utf8'),{json:true});
             const openapi = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'openapi.yaml'),'utf8'),{json:true});
+            // const violations = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'violations.yaml'),'utf8'),{json:true});
 
             let options = {};
             try {
                 options = yaml.safeLoad(fs.readFileSync(path.join(__dirname, test, 'options.yaml'),'utf8'),{json:true});
-                options.source = path.join(__dirname, test, 'swagger.yaml');
+                options.source = path.join(__dirname, test, 'openapi.yaml');
             }
             catch (ex) {}
 
-            swagger2openapi.convertObj(swagger, options, (err, result) => {
+            speccy.lintObj(openapi, options, (err, result) => {
                 if (err) return done(err);
 
-                assert.deepEqual(result.openapi, openapi);
+                assert.deepEqual(openapi, result.violations);
 
                 return done();
             });

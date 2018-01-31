@@ -10,7 +10,7 @@ const readfiles = require('node-readfiles');
 const yaml = require('js-yaml');
 
 const common = require('./common.js');
-const swagger2openapi = require('./index.js');
+const speccy = require('./index.js');
 const validator = require('./validate.js');
 
 var globalExpectFailure = false;
@@ -21,23 +21,9 @@ var argv = require('yargs')
     .alias('e', 'encoding')
     .default('encoding', 'utf8')
     .describe('encoding', 'encoding for input/output files')
-    .string('fail')
-    .describe('fail', 'path to specs expected to fail')
     .alias('f', 'fail')
-    .string('jsonschema')
-    .alias('j', 'jsonschema')
-    .describe('jsonschema', 'path to alternative JSON schema')
-    .boolean('laxurls')
-    .alias('l', 'laxurls')
-    .describe('laxurls', 'lax checking of empty urls')
     .boolean('lint')
     .describe('lint','lint the definition')
-    .boolean('nopatch')
-    .alias('n', 'nopatch')
-    .describe('nopatch', 'do not patch minor errors in the source definition')
-    .boolean('output')
-    .alias('o', 'output')
-    .describe('output', 'output conversion as openapi.yaml')
     .boolean('quiet')
     .alias('q', 'quiet')
     .describe('quiet', 'do not show test passes on console, for CI')
@@ -50,14 +36,6 @@ var argv = require('yargs')
     .count('verbose')
     .alias('v', 'verbose')
     .describe('verbose', 'increase verbosity')
-    .boolean('warnOnly')
-    .describe('warnOnly','Do not throw on non-patchable errors')
-    .boolean('whatwg')
-    .alias('w', 'whatwg')
-    .describe('whatwg', 'enable WHATWG URL parsing')
-    .boolean('yaml')
-    .alias('y', 'yaml')
-    .describe('yaml', 'skip YAML-safe test')
     .help('h')
     .alias('h', 'help')
     .strict()
@@ -77,7 +55,6 @@ var warnings = [];
 var genStack = [];
 
 var options = argv;
-options.patch = !argv.nopatch;
 
 function finalise(err, options) {
     if (!argv.quiet || err) {
@@ -208,41 +185,27 @@ function* check(file, force, expectFailure) {
         }
 
         if (file.startsWith('http')) {
-            swagger2openapi.convertUrl(file, common.clone(options))
-            .then(function(options){
-                handleResult(null,options);
-            })
-            .catch(function(ex){
-                console.warn(red+ex,normal);
-                if (expectFailure) {
-                    warnings.push('Converter failed ' + options.source);
-                }
-                else {
-                    failures.push('Converter failed ' + options.source);
-                    fail++;
-                }
-                genStackNext();
-                result = false;
-            });
+            var linterSetup = speccy.lintUrl(file, common.clone(options))
         }
         else {
-            swagger2openapi.convertObj(src, common.clone(options))
-            .then(function(options){
-                handleResult(null,options);
-            })
-            .catch(function(ex){
-                console.warn(red+ex,normal);
-                if (expectFailure) {
-                    warnings.push('Converter failed ' + options.source);
-                }
-                else {
-                    failures.push('Converter failed ' + options.source);
-                    fail++;
-                }
-                genStackNext();
-                result = false;
-            });
+            var linterSetup = speccy.lintFile(file, common.clone(options))
         }
+
+        linterSetup.then(function(options){
+            handleResult(null, options);
+        })
+        // .catch(function(ex){
+        //     console.warn(red+ex,normal);
+        //     if (expectFailure) {
+        //         warnings.push('Linter failed ' + options.source);
+        //     }
+        //     else {
+        //         failures.push('Linter failed ' + options.source);
+        //         fail++;
+        //     }
+        //     genStackNext();
+        //     result = false;
+        // });
     }
     else {
         genStackNext();
@@ -287,10 +250,12 @@ function processPathSpec(pathspec, expectFailure) {
 }
 
 process.exitCode = 1;
-console.log('Gathering...');
 if ((!argv._.length) && (!argv.fail)) {
-    argv._.push('../openapi-directory/APIs/');
+    console.warn('Please pass an openapi file');
+    process.exitCode = 0;
+    return;
 }
+console.log('Gathering...');
 for (let pathspec of argv._) {
     processPathSpec(pathspec, false);
 }

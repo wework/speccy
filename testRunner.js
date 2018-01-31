@@ -203,6 +203,10 @@ function* check(file, force, expectFailure) {
         options.original = src;
         options.source = file;
 
+        if ((options.source.indexOf('!')>=0) && (options.source.indexOf('swagger.')>=0)) {
+            expectFailure = true;
+        }
+
         if (file.startsWith('http')) {
             swagger2openapi.convertUrl(file, common.clone(options))
             .then(function(options){

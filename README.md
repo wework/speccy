@@ -109,6 +109,9 @@ The test harness currently expects files with a `.json` or `.yaml` extension, or
 
 Additionally swagger2openapi has been tested on a corpus of 34,679 real-world valid Swagger 2.0 definitions from GitHub and [SwaggerHub](https://swaggerhub.com/). However, if you have a definition which causes errors in the converter or does not pass validation, please do not hesitate to [raise an issue](https://github.com/Mermade/swagger2openapi/issues).
 
+### Regression tests
+
+Regression tests (thanks @domharrington) live in the `/test` directory and can be run with `npx mocha`. Each sub-directory should contain an input `swagger.yaml` file, an expected output `openapi.yaml` file and an optional `options.yaml` file. You can put private test cases in sub-directories starting with an underscore character.
 
 ## License
 

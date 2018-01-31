@@ -183,7 +183,8 @@ function checkSubSchema(schema, parent, state) {
     if (schema.properties) {
         schema.properties.should.be.an.Object();
     }
-    if (schema.patternProperties) {
+    schema.should.not.have.property('patternProperties');
+    /*if (schema.patternProperties) {
         schema.patternProperties.should.be.an.Object();
         for (let prop in schema.patternProperties) {
             try {
@@ -193,7 +194,7 @@ function checkSubSchema(schema, parent, state) {
                 should.fail(false,true,'patternProperty '+prop+' does not conform to ECMA-262');
             }
         }
-    }
+    }*/
     if (typeof schema.enum !== 'undefined') {
         schema.enum.should.be.an.Array();
         schema.enum.should.not.be.empty();
@@ -633,6 +634,7 @@ function checkPathItem(pathItem, path, openapi, options) {
     if (pathItem.servers) contextServers.push(pathItem.servers);
 
     let pathParameters = {};
+    if (typeof pathItem.parameters !== 'undefined') should(pathItem.parameters).be.an.Array();
     for (let p in pathItem.parameters) {
         contextAppend(options, 'parameters');
         let param = checkParam(pathItem.parameters[p], p, path, contextServers, openapi, options);
@@ -719,7 +721,8 @@ function checkPathItem(pathItem, path, openapi, options) {
             }
             options.context.pop();
 
-            if (op.parameters) {
+            if (typeof op.parameters !== 'undefined') {
+                should(op.parameters).be.an.Array();
                 let localPathParameters = common.clone(pathParameters);
                 let opParameters = {};
                 contextAppend(options, 'parameters');

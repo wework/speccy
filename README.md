@@ -1,7 +1,5 @@
 # speccy
 
-![logo](https://github.com/wework/speccy/blob/master/docs/logo.png?raw=true)
-
 ![Build](https://img.shields.io/travis/wework/speccy/master.svg)
 [![Coverage Status](https://coveralls.io/repos/github/wework/speccy/badge.svg?branch=master)](https://coveralls.io/github/wework/speccy?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/npm/speccy/badge.svg)](https://snyk.io/test/npm/speccy)
@@ -10,59 +8,44 @@ Enforce quality rules on your OpenApi 3.0.x specifications.
 
 Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
 
-**If you are using Node.js 4 - please use the --harmony flag**
-
-Usage:
-
 ```
-speccy [options] [filename|url]
+Usage: speccy <command> [options] <file-or-url>
+
+
 Options:
-  --version         Show version number                                [boolean]
-  -e, --encoding    encoding for input/output files   [string] [default: "utf8"]
-  -h, --help        Show help                                          [boolean]
-  -v, --verbose     increase verbosity                                   [count]
-  -y, --yaml        read and write YAML, default JSON                  [boolean]
+
+  -V, --version  output the version number
+  -h, --help     output usage information
+
+
+Commands:
+
+  lint [options] <file-or-url>  Ensure your OpenAPI files are valid and up to scratch
 ```
-
-or use the APIs:
-
-```javascript
-var { lint } = require('speccy/lib/linter.js');
-var options = {};
-//options.patch = true; // fix up small errors in the source definition
-//options.warnOnly = true; // Do not throw on non-patchable errors
-lint(openapi, options, function(err, options){
-  // not planned this yet
-});
-```
-
-See here for complete [documentation](/docs/options.md) of the `options` object.
-
-### Browser Support
-
-See [initial documentation](/docs/browser.md).
 
 ## Features
 
-### OpenAPI 3.0.x validation
+### Rules
 
-The `testRunner` harness can also be used as a simple validator if given one or more existing OpenAPI 3.x definitions. The validator (however it is called) uses [WHATWG](https://whatwg.org/) URL parsing if available (node 7.x and above). The testRunner can have a linting mode enabled with the `--lint` option. Rules are defined [here](/linter/rules.json). Contributions of rules and rule actions for the linter are very much appreciated.
+By default the [base](/rules/base.json) rules are used, but you can create your own rules files to use.
+
+Contributions of rules and rule actions for the linter are very much appreciated.
 
 ## Tests
 
-To run a test-suite:
+To run the test-suite:
 
 ```shell
-node testRunner [-f {path-to-expected-failures}]... [{path-to-APIs|single-file...}]
+yarn test
 ```
 
-The test harness currently expects files with a `.json` or `.yaml` extension, or a single named file, and has been tested on Node.js versions 4.x, 6.x and 8.x LTS (it is not recommended to run the test suite under Node.js versions >=7.0.0 and \<8.7.0 because of [this bug](https://github.com/nodejs/node/issues/13048)) against
+## Contributions
 
-* [APIs.guru](https://github.com/APIs-guru/openapi-directory)
-* [Mermade OpenApi specifications collection](https://github.com/mermade/openapi_specifications)
-* [OpenAPI3-Examples (pass/fail)](https://github.com/mermade/openapi3-examples)
-* [SOM-Research collection](https://github.com/SOM-Research/hapi)
+This package is forked from [swagger2openapi], written by [Mike Ralphson]. He'd written some linter functionality into that package's validator, and we outright lifted that straight from his code. This codebase will diverge and focus on building more, and more powerful rules, whilst that project is going to focus on OpenAPI v2 -> v3 conversion.
 
 ## License
 
 [BSD-3-Clause](LICENSE) except the `openapi-3.0.json` schema, which is taken from the [OpenAPI-Specification](https://github.com/OAI/OpenAPI-Specification/blob/49e784d7b7800da8732103aa3ac56bc7ccde5cfb/schemas/v3.0/schema.yaml) and the alternative `gnostic-3.0.json` schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json). Both of these are licensed under the [Apache-2](http://www.apache.org/licenses/LICENSE-2.0) license.
+
+[swagger2openapi]: https://github.com/Mermade/swagger2openapi/
+[Mike Ralphson]: https://twitter.com/PermittedSoc/

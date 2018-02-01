@@ -6,9 +6,8 @@ const util = require('util');
 const yaml = require('js-yaml');
 const fetch = require('node-fetch');
 
-const common = require('./common.js');
-const resolver = require('./resolver.js');
-const validator = require('./validate.js');
+const resolver = require('./lib/resolver.js');
+const validator = require('./lib/validate.js');
 
 const red = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[31m';
 const green = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[32m';
@@ -17,8 +16,6 @@ const normal = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[0m';
 
 var pass = 0;
 var fail = 0;
-var failures = [];
-var warnings = [];
 
 const options = {
   status: 'undefined'

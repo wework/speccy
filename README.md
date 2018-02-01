@@ -1,4 +1,4 @@
-# swagger2openapi
+# speccy
 
 ![logo](https://github.com/wework/speccy/blob/master/docs/logo.png?raw=true)
 
@@ -18,11 +18,8 @@ Usage:
 speccy [options] [filename|url]
 Options:
   --version         Show version number                                [boolean]
-  -d, --debug       enable debug mode, adds specification-extensions   [boolean]
   -e, --encoding    encoding for input/output files   [string] [default: "utf8"]
   -h, --help        Show help                                          [boolean]
-  -r, --resolve     resolve external references                        [boolean]
-  -u, --url         url of original spec, creates x-origin entry        [string]
   -v, --verbose     increase verbosity                                   [count]
   -y, --yaml        read and write YAML, default JSON                  [boolean]
 ```
@@ -30,25 +27,13 @@ Options:
 or use the APIs:
 
 ```javascript
-var converter = require('speccy');
+var { lint } = require('speccy/lib/linter.js');
 var options = {};
 //options.patch = true; // fix up small errors in the source definition
 //options.warnOnly = true; // Do not throw on non-patchable errors
-converter.lintObj(openapi, options, function(err, options){
+lint(openapi, options, function(err, options){
   // not planned this yet
 });
-// also available are asynchronous lintFile, lintUrl, lintStr functions
-// if you omit the callback parameter, you will instead receive a Promise
-```
-
-```javascript
-var validator = require('swagger2openapi/validate.js');
-var options = {};
-validator.validate(openapi, options, function(err, options){
-  // options.valid contains the result of the validation
-  // options.context now contains a stack (array) of JSON-Pointer strings
-});
-// also available is a synchronous validateSync method which returns a boolean
 ```
 
 See here for complete [documentation](/docs/options.md) of the `options` object.

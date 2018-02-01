@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const path = require('path');
 const util = require('util');
 
 const yaml = require('js-yaml');
 const fetch = require('node-fetch');
 
 const resolver = require('./lib/resolver.js');
+const linter = require('./lib/linter.js');
 const validator = require('./lib/validate.js');
 
 const red = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[31m';
@@ -19,7 +21,7 @@ var fail = 0;
 
 const options = {
   status: 'undefined'
-}
+};
 
 const lintResolvedSchema = (options) => {
     validator.validate(options.openapi, options, function(err, options) {
@@ -40,7 +42,7 @@ const lintResolvedSchema = (options) => {
         console.log('File is valid')
         process.exitCode = 0;
     });
-}
+};
 
 const resolveSchema = (str, callback) => {
     options.openapi = yaml.safeLoad(str,{json:true});
@@ -53,10 +55,29 @@ const resolveSchema = (str, callback) => {
         options.status = 'rejected';
         console.warn(err);
     });
-}
+};
 
-function lintCommand(file) {
-  options['source'] = options['origin'] = file;
+// TODO Sort out multiple formats. Rubocop has some cool ones
+// -f, --format FORMATTER           Choose an output formatter. This option
+//                                  can be specified multiple times to enable
+//                                  multiple formatters at the same time.
+//                                    [p]rogress (default)
+//                                    [s]imple
+//                                    [c]lang
+//                                    [d]isabled cops via inline comments
+//                                    [fu]ubar
+//                                    [e]macs
+//                                    [j]son
+//                                    [h]tml
+//                                    [fi]les
+//                                    [o]ffenses
+//                                    [w]orst
+//                                    [t]ap
+//                                    [q]uiet
+
+const command = (file, cmd) => {
+
+  linter.loadRules(cmd.rules);
 
   if (file && file.startsWith('http')) {
       console.log('GET ' + file);
@@ -81,6 +102,4 @@ function lintCommand(file) {
 
 };
 
-module.exports = {
-  command: lintCommand
-}
+module.exports = { command }

@@ -1,33 +1,33 @@
-{
-    "1": {
+[
+    {
         "name": "parameter-description",
         "object": "parameter",
         "enabled": true,
         "description": "parameter objects should have a description",
         "truthy": "description"
     },
-    "2": {
+    {
         "name": "parameter-name-regex",
         "object": "parameter",
         "enabled": false,
         "description": "parameter names should match RFC6570",
         "pattern": { "property": "name", "value": "" }
     },
-    "3": {
+    {
         "name": "operation-operationId",
         "object": "operation",
         "enabled": true,
         "description": "operation should have an operationId",
         "truthy": "operationId"
     },
-    "4": {
+    {
         "name": "operation-summary-or-description",
         "object": "operation",
         "enabled": true,
         "description": "operation should have summary or description",
         "or": ["summary", "description"]
     },
-    "5": {
+    {
         "name": "operation-tags",
         "object": "operation",
         "enabled": true,
@@ -35,21 +35,21 @@
         "truthy": "tags",
         "skip": "isCallback"
     },
-    "6": {
+    {
         "name": "path-keys-no-trailing-slash",
         "object": "openapi",
         "enabled": false,
         "description": "path item keys should not end with a slash",
         "notEndWith": { "property": "$key", "value": "/" }
     },
-    "7": {
+    {
         "name": "openapi-tags",
         "object": "openapi",
         "enabled": true,
         "description": "openapi object should have non-empty tags array",
         "truthy": "tags"
     },
-    "8": {
+    {
         "name": "reference-no-other-properties",
         "object": "reference",
         "enabled": true,
@@ -57,81 +57,81 @@
         "truthy": "$ref",
         "properties": 1
     },
-    "9": {
+    {
         "name": "pathItem-summary-or-description",
         "object": "pathItem",
         "enabled": false,
         "description": "pathItem should have summary or description",
         "or": ["summary", "description"]
     },
-    "10": {
+    {
         "name": "example-value-or-externalValue",
         "object": "example",
         "enabled": true,
         "description": "example should have either value or externalValue",
         "xor": ["value", "externalValue"]
     },
-    "11": {
+    {
         "name": "reference-components-regex",
         "object": "reference",
         "enabled": true,
         "description": "reference components should all match spec. regex",
         "pattern": { "property": "$ref", "omit": "#", "split": "/", "value": "^[a-zA-Z0-9\\.\\-_]+$" }
     },
-    "12": {
+    {
         "name":"no-script-tags-in-markdown",
         "object": "*",
         "enabled": true,
         "description": "markdown descriptions should not contain <script> tags",
         "notContain": { "properties": [ "description" ], "value": "<script" }
     },
-    "13": {
+    {
         "name":"info-contact",
         "object": "info",
         "enabled": true,
         "description": "info object should contain contact object",
         "truthy": "contact"
     },
-    "14": {
+    {
         "name":"contact-properties",
         "object": "contact",
         "enabled": true,
         "description": "contact object should have name, url and email",
         "truthy": [ "name", "url", "email" ]
     },
-    "15": {
+    {
         "name":"license-url",
         "object": "license",
         "enabled": true,
         "description": "license object should include url",
         "truthy": "url"
     },
-    "16": {
+    {
         "name":"server-not-example.com",
         "object": "server",
         "enabled": true,
         "description": "server url should not point at example.com",
         "notContain": { "properties": [ "url" ], "value": "example.com" }
     },
-    "17": {
+    {
         "name":"license-apimatic-bug",
         "object": "license",
         "enabled": true,
         "description": "license url should not point at gruntjs",
         "notContain": { "properties": [ "url" ], "value": "gruntjs" }
     },
-    "18": {
+    {
         "name":"no-eval-in-descriptions",
         "object": "*",
         "enabled": true,
         "description": "markdown descriptions should not contain 'eval('",
         "notContain": { "properties": [ "description","title" ], "value": "eval(" }
     },
-    "19": {
+    {
         "name":"tag-description",
         "object":"tag",
         "enabled":true,
         "description": "tag object should have a description",
         "truthy": "description"
     }
-}
+]

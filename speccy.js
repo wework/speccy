@@ -23,3 +23,6 @@ program
   .action(lint.command);
 
 program.parse(process.argv)
+
+// Show help if nothing else is going on
+if (!program.args.length) program.help();

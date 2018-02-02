@@ -32,11 +32,18 @@ expected Object { name: 'Foo' } to have property description
 
 This Foo tag needs a description, so people will know what the heck it is!
 
+```
+#/paths/~1rooms~1{room_id}~1reserve~1/post
+expected 'Book Room Really fudfgfdhdsafhsad fsad flong fjkdhfsds' to have property length of 10 (got 56)
+```
+
+One of the [--rules wework] rules, this suggests you keep summary short, and make the description longer!
+
 ## Features
 
 ### Rules
 
-By default the [base](/rules/base.json) rules are used, but you can create your own rules files to use.
+By default the [default rules] are used, but you can create your own rules files to use.
 
 Contributions of rules and rule actions for the linter are very much appreciated.
 
@@ -54,3 +61,5 @@ npm test
 
 [swagger2openapi]: https://github.com/Mermade/swagger2openapi/
 [Mike Ralphson]: https://twitter.com/PermittedSoc/
+[default rules]: https://github.com/wework/speccy/blob/master/rules/default.json
+[--rules wework]: https://github.com/wework/speccy/blob/master/rules/wework.json

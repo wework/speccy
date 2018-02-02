@@ -38,10 +38,17 @@
         },
         {
             "name": "path-keys-no-trailing-slash",
-            "object": "openapi",
+            "object": "pathInfo<--This doesnt exist so this whole rule is broke",
             "enabled": false,
             "description": "path item keys should not end with a slash",
             "notEndWith": { "property": "$key", "value": "/" }
+        },
+        {
+            "name":"server-trailing-slash",
+            "object": "server",
+            "enabled": true,
+            "description": "server url should not have a trailing slash",
+            "notEndWith": { "property": "url", "value": "/" }
         },
         {
             "name": "openapi-tags",

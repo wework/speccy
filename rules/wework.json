@@ -1,0 +1,12 @@
+{
+    "require" : "strict",
+    "rules" : [
+      {
+          "name": "x-tagGroups",
+          "object": "openapi",
+          "enabled": true,
+          "description": "Expected x-tagGroups to exist to help group up the tags for navigation",
+          "truthy": "x-tagGroups"
+      }
+    ]
+}

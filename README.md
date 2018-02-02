@@ -23,6 +23,15 @@ Commands:
   lint [options] <file-or-url>  Ensure your OpenAPI files are valid and up to scratch
 ```
 
+You'll see output such as:
+
+```
+#/tags/Foo
+expected Object { name: 'Foo' } to have property description
+```
+
+This Foo tag needs a description, so people will know what the heck it is!
+
 ## Features
 
 ### Rules
@@ -36,12 +45,8 @@ Contributions of rules and rule actions for the linter are very much appreciated
 To run the test-suite:
 
 ```shell
-yarn test
+npm test
 ```
-
-## Contributions
-
-This package is forked from [swagger2openapi], written by [Mike Ralphson]. He'd written some linter functionality into that package's validator, and we outright lifted that straight from his code. This codebase will diverge and focus on building more, and more powerful rules, whilst that project is going to focus on OpenAPI v2 -> v3 conversion.
 
 ## License
 

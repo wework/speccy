@@ -12,15 +12,15 @@
     },
     "servers": [
         {
-            "url": "http://localhost:5000/",
+            "url": "http://localhost:5000",
             "description": "Development server"
         },
         {
-            "url": "https://rooms-staging.wework.com/",
+            "url": "https://rooms-staging.wework.com",
             "description": "Staging server"
         },
         {
-            "url": "https://rooms.wework.com/",
+            "url": "https://rooms.wework.com",
             "description": "Production server"
         }
     ],

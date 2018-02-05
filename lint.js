@@ -11,10 +11,16 @@ const resolver = require('./lib/resolver.js');
 const linter = require('./lib/linter.js');
 const validator = require('./lib/validate.js');
 
-const red = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[31m';
-const green = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[32m';
-const yellow = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[33;1m';
-const normal = process.env.NODE_DISABLE_COLORS ? '' : '\x1b[0m';
+const colors = process.env.NODE_DISABLE_COLORS ? {} : {
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+  white: '\x1b[37m',
+  reset: '\x1b[0m',
+};
 
 var pass = 0;
 var fail = 0;
@@ -25,24 +31,33 @@ const options = {
 
 const lintResolvedSchema = (options) => {
     validator.validate(options.openapi, options, function(err, options) {
-        if (err) {
-            console.log(red + options.context.pop() + '\n' + err.message);
-            if (err.stack && err.name !== 'AssertionError') {
-                console.log(err.stack);
-            }
-            if (options.lintRule && options.lintRule.description !== err.message) {
-                console.warn(options.lintRule.description);
-            }
-            options.valid = !!options.expectFailure;
-
-            process.exitCode = 1;
-            return;
+        if (!err) {
+          console.log('File is valid')
+          process.exitCode = 0;
+          return;
         }
 
-        console.log('File is valid')
-        process.exitCode = 0;
+        formatLinterError(err, options.context, options.lintRule);
+        options.valid = !!options.expectFailure;
+        process.exitCode = 1;
     });
 };
+
+const formatLinterError = (err, context, rule) => {
+  const pointer = context.pop();
+  const message = err.message;
+  const output = `
+  ${colors['yellow'] + pointer} ${colors['cyan']} R: ${rule.name} ${colors['white']} D: ${rule.description}
+
+  ${colors['reset'] + message}
+  `
+
+  console.log(output);
+
+  if (err.stack && err.name !== 'AssertionError') {
+      console.log(colors['red'] + err.stack);
+  }
+}
 
 const resolveSchema = (str, callback) => {
     options.openapi = yaml.safeLoad(str,{json:true});

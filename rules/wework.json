@@ -12,7 +12,7 @@
             "name":"short-summary",
             "object": "operation",
             "enabled": true,
-            "description": "summary should be short, make the description longer if you need to write more",
+            "description": "summary should be short (description can be long)",
             "maxLength": { "property": "summary", "value": 20 }
         }
     ]

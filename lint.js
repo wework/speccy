@@ -47,9 +47,9 @@ const formatLinterError = (err, context, rule) => {
   const pointer = context.pop();
   const message = err.message;
   const output = `
-  ${colors['yellow'] + pointer} ${colors['cyan']} R: ${rule.name} ${colors['white']} D: ${rule.description}
+${colors['yellow'] + pointer} ${colors['cyan']} R: ${rule.name} ${colors['white']} D: ${rule.description}
 
-  ${colors['reset'] + message}
+${colors['reset'] + message}
   `
 
   console.log(output);

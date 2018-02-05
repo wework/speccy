@@ -3,12 +3,7 @@
     "info": {
         "version": "5.0",
         "title": "Rooms API",
-        "description": "Booking Rooms and Workspaces at WeWork. Not to be confused with WeOS Rooms - which is a separate service.",
-        "contact": {
-            "url": "ghkgflhj",
-            "name": "ghkgflhj",
-            "email": "ghkgflhj@foo.com"
-        }
+        "description": "Booking Rooms and Workspaces at WeWork. Not to be confused with WeOS Rooms - which is a separate service."
     },
     "servers": [
         {

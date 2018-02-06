@@ -4,12 +4,20 @@
 [![Coverage Status](https://coveralls.io/repos/github/wework/speccy/badge.svg?branch=master)](https://coveralls.io/github/wework/speccy?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/npm/speccy/badge.svg)](https://snyk.io/test/npm/speccy)
 
-Enforce quality rules on your OpenApi 3.0.x specifications.
+Make sure your OpenAPI 3.0 specifications are more than just valid, make sure they're useful!
+
+Taking off from where [Mike Ralphson] started with linting in [swagger2openapi], Speccy aims to become the [rubocop] or [eslint] of OpenAPI.
+
+## OpenAPI Specification
 
 Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
 
+If you want to run speccy on OpenAPI (f.k.a Swagger) v2.0 specs, run it through [swagger2openapi] first and speccy can give advice on the output.
+
+## Usage
+
 ```
-Usage: speccy <command> [options] <file-or-url>
+Usage: speccy <command>
 
 
 Options:
@@ -23,27 +31,41 @@ Commands:
   lint [options] <file-or-url>  Ensure your OpenAPI files are valid and up to scratch
 ```
 
+Right now the only command is lint, which looks like this:
+
+```
+Usage: lint [options] <file-or-url>
+
+Ensure your OpenAPI files are valid and up to scratch
+
+Options:
+
+    -r, --rules [ruleFile]  use this multiple times to select multiple rules files
+    -h, --help              output usage information
+```
+
 You'll see output such as:
 
 ```
-#/tags/Foo
-expected Object { name: 'Foo' } to have property description
+#/info  R: info-contact  D: info object should contain contact object
+
+expected Object {
+  version: '5.0',
+  title: 'Foo API'
+} to have property contact
 ```
 
-This Foo tag needs a description, so people will know what the heck it is!
+There are going to be different things people are interested in, so the [default rules][rules-default] suggest things we think everyone should do; adding descriptions to parameters and operations, and having some sort of contact info.
 
-```
-#/paths/~1rooms~1{room_id}~1reserve~1/post
-expected 'Book Room Really fudfgfdhdsafhsad fsad flong fjkdhfsds' to have property length of 10 (got 56)
-```
+There are [strict rules][rules-strict] which demand more contact details, "real" domains, a license, and requires tags have a description!
 
-One of the [--rules wework] rules, this suggests you keep summary short, and make the description longer!
+There are also [wework rules][rules-wework], building things we consider important on top of the strict rules; keeping summaries short (so they fit into ReDoc navigation for example).
 
 ## Features
 
 ### Rules
 
-By default the [default rules] are used, but you can create your own rules files to use.
+Rule actions from the [default rules][rules-default] will be used if no rules file is specified. Right now there are only the three bundled options, but supporting custom rules files via local path and URL is on the roadmap.
 
 Contributions of rules and rule actions for the linter are very much appreciated.
 
@@ -61,5 +83,8 @@ npm test
 
 [swagger2openapi]: https://github.com/Mermade/swagger2openapi/
 [Mike Ralphson]: https://twitter.com/PermittedSoc/
-[default rules]: https://github.com/wework/speccy/blob/master/rules/default.json
-[--rules wework]: https://github.com/wework/speccy/blob/master/rules/wework.json
+[rules-default]: https://github.com/wework/speccy/blob/master/rules/default.json
+[rules-strict]: https://github.com/wework/speccy/blob/master/rules/strict.json
+[rules-wework]: https://github.com/wework/speccy/blob/master/rules/wework.json
+[rubocop]: https://github.com/bbatsov/rubocop
+[eslint]: https://eslint.org/

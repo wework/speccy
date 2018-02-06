@@ -72,24 +72,6 @@ const resolveSchema = (str, callback) => {
     });
 };
 
-// TODO Sort out multiple formats. Rubocop has some cool ones
-// -f, --format FORMATTER           Choose an output formatter. This option
-//                                  can be specified multiple times to enable
-//                                  multiple formatters at the same time.
-//                                    [p]rogress (default)
-//                                    [s]imple
-//                                    [c]lang
-//                                    [d]isabled cops via inline comments
-//                                    [fu]ubar
-//                                    [e]macs
-//                                    [j]son
-//                                    [h]tml
-//                                    [fi]les
-//                                    [o]ffenses
-//                                    [w]orst
-//                                    [t]ap
-//                                    [q]uiet
-
 const command = (file, cmd) => {
 
   linter.loadRules(cmd.rules);

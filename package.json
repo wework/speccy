@@ -34,7 +34,7 @@
     "node-fetch": "^1.6.3",
     "node-readfiles": "^0.2.0",
     "reftools": "0.0.20",
-    "should": "^13.0.1",
+    "should": "^13.2.0",
     "yargs": "^10.0.3"
   },
   "keywords": [

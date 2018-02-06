@@ -14,7 +14,7 @@ function collect(val, item) {
 
 program
   .version(version)
-  .usage('<command> [options] <file-or-url>')
+  .usage('<command>')
 
 program
   .command('lint <file-or-url>')

@@ -26,7 +26,8 @@ var pass = 0;
 var fail = 0;
 
 const options = {
-  status: 'undefined'
+    cache: [],
+    status: 'undefined'
 };
 
 const lintResolvedSchema = (options) => {
@@ -59,14 +60,14 @@ ${colors['reset'] + message}
   }
 }
 
-const resolveSchema = (str, callback) => {
+const main = (str, callback) => {
     options.openapi = yaml.safeLoad(str,{json:true});
     resolver.resolve(options)
-    .then(function(){
+    .then(function() {
         options.status = 'resolved';
-        callback(options)
+        callback(options);
     })
-    .catch(function(err){
+    .catch(function(err) {
         options.status = 'rejected';
         console.warn(err);
     });
@@ -82,7 +83,7 @@ const command = (file, cmd) => {
           if (res.status !== 200) throw new Error(`Received status code ${res.status}`);
           return res.text();
       }).then(function (body) {
-          resolveSchema(body, lintResolvedSchema);
+          main(body, lintResolvedSchema);
       }).catch(function (err) {
           console.warn(err);
       });
@@ -93,7 +94,7 @@ const command = (file, cmd) => {
               console.warn(err);
               return
           }
-          resolveSchema(data, lintResolvedSchema);
+          main(data, lintResolvedSchema);
       });
   }
 

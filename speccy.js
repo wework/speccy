@@ -5,7 +5,8 @@
 
 const program = require('commander');
 const { version } = require('./package.json');
-const lint = require('./lint.js')
+const lint = require('./lint.js');
+const resolve = require('./resolve.js');
 
 function collect(val, item) {
   item.push(val);
@@ -19,8 +20,14 @@ program
 program
   .command('lint <file-or-url>')
   .option('-r, --rules [ruleFile]', 'Provide multiple rules files', collect, [])
-  .description('Ensure your OpenAPI files are valid and up to scratch')
   .action(lint.command);
+
+program
+  .command('resolve <file-or-url>')
+  .option('-o, --output <file>', 'file to output to', 'resolved.yaml')
+  .option('-q, --quiet', 'reduce verbosity')
+  .option('-v, --verbose', 'increase verbosity', 2)
+  .action(resolve.command);
 
 program.parse(process.argv)
 

@@ -3,6 +3,7 @@ schemas/*gnostic*
 schemas/*diff*
 schemadev/
 .coveralls.yml
+.node-version
 yarn.lock
 *.txt
 *.out

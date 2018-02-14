@@ -47,11 +47,17 @@ const lintResolvedSchema = (options) => {
 const formatLinterError = (err, context, rule) => {
   const pointer = context.pop();
   const message = err.message;
-  const output = `
+  let output;
+  if (rule) output = `
 ${colors['yellow'] + pointer} ${colors['cyan']} R: ${rule.name} ${colors['white']} D: ${rule.description}
 
 ${colors['reset'] + message}
   `
+  else {
+    output = `
+${colors['red'] + pointer} ${colors['reset'] + message }
+`;
+  }
 
   console.log(output);
 

@@ -1,13 +1,12 @@
 'use strict';
+
 var webpack = require('webpack');
 
 var commonsPlugin =
     new webpack.optimize.CommonsChunkPlugin('common');
 
 module.exports = {
-    node: {
-        fs: "empty"
-    },
+    node: { fs: "empty" },
     entry: {
         Linter: './index.js',
         Validator: './validate.js'

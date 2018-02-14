@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
+'use strict'
 
+const fs = require('fs');
 const yaml = require('js-yaml');
 const fetch = require('node-fetch');
 
@@ -19,18 +18,15 @@ const colors = process.env.NODE_DISABLE_COLORS ? {} : {
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
   white: '\x1b[37m',
-  reset: '\x1b[0m',
+  reset: '\x1b[0m'
 };
-
-var pass = 0;
-var fail = 0;
 
 const options = {
     cache: [],
     status: 'undefined'
 };
 
-const lintResolvedSchema = (options) => {
+const lintResolvedSchema = options => {
     validator.validate(options.openapi, options, function(err, options) {
         if (!err) {
           console.log('File is valid')
@@ -49,20 +45,19 @@ const formatLinterError = (err, context, rule) => {
   const message = err.message;
   let output;
   if (rule) output = `
-${colors['yellow'] + pointer} ${colors['cyan']} R: ${rule.name} ${colors['white']} D: ${rule.description}
-
-${colors['reset'] + message}
+${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${rule.description}
+${colors.reset + message}
   `
   else {
     output = `
-${colors['red'] + pointer} ${colors['reset'] + message }
+${colors.red + pointer} ${colors.reset + message}
 `;
   }
 
   console.log(output);
 
   if (err.stack && err.name !== 'AssertionError') {
-      console.log(colors['red'] + err.stack);
+      console.log(colors.red + err.stack);
   }
 }
 

@@ -19,19 +19,21 @@ If you want to run speccy on OpenAPI (f.k.a Swagger) v2.0 specs, run it through 
 ```
 Usage: speccy <command>
 
-
 Options:
 
   -V, --version  output the version number
   -h, --help     output usage information
 
-
 Commands:
 
-  lint [options] <file-or-url>  Ensure your OpenAPI files are valid and up to scratch
+  lint [options] <file-or-url>
+  resolve [options] <file-or-url>
+  serve [options] <file>
 ```
 
-Right now the only command is lint, which looks like this:
+### Lint Command
+
+The goal here is to sniff your files for potentially bad things. "Bad" is objective, but you'll see validation errors, along with special rules for making your APIs better..
 
 ```
 Usage: lint [options] <file-or-url>
@@ -61,13 +63,31 @@ There are [strict rules][rules-strict] which demand more contact details, "real"
 
 There are also [wework rules][rules-wework], building things we consider important on top of the strict rules; keeping summaries short (so they fit into ReDoc navigation for example).
 
-## Features
-
-### Rules
+#### Rules
 
 Rule actions from the [default rules][rules-default] will be used if no rules file is specified. Right now there are only the three bundled options, but supporting custom rules files via local path and URL is on the roadmap.
 
 Contributions of rules and rule actions for the linter are very much appreciated.
+
+### Serve Command
+
+Using [ReDoc] and the handy utility [redocup], speccy can offer a preview of your
+specifications, in human-readable format. In the future we'll have speccy outlining improvements right in here, but one thing at a time ey?
+
+```
+Usage: serve [options] spec-json-or-yaml-path
+
+View specifications in beautiful human readable documentation
+
+Options:
+
+  -p, --port [value]  port on which the server will listen (default: 5000)
+  -w, --watch         reloding browser on spec file changes
+  -h, --help          output usage information
+```
+
+Like everything in speccy, this only works for OpenAPI v3.
+
 
 ## Tests
 
@@ -77,14 +97,23 @@ To run the test-suite:
 npm test
 ```
 
+## Credits
+
+- [Mike Ralphson] for providing the initial linter/validator from [swagger2openapi]
+- [Kenta Mori] for providing the serve logic from [redocup]
+- [All Contributors][link-contributors]
+
 ## License
 
 [BSD-3-Clause](LICENSE) except the `openapi-3.0.json` schema, which is taken from the [OpenAPI-Specification](https://github.com/OAI/OpenAPI-Specification/blob/49e784d7b7800da8732103aa3ac56bc7ccde5cfb/schemas/v3.0/schema.yaml) and the alternative `gnostic-3.0.json` schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json). Both of these are licensed under the [Apache-2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
-[swagger2openapi]: https://github.com/Mermade/swagger2openapi/
+[Kenta Mori]: https://github.com/zoncoen/
 [Mike Ralphson]: https://twitter.com/PermittedSoc/
+[ReDoc]: https://github.com/Rebilly/ReDoc
+[eslint]: https://eslint.org/
+[redocup]: https://github.com/zoncoen/redocup/
+[rubocop]: https://github.com/bbatsov/rubocop
 [rules-default]: https://github.com/wework/speccy/blob/master/rules/default.json
 [rules-strict]: https://github.com/wework/speccy/blob/master/rules/strict.json
 [rules-wework]: https://github.com/wework/speccy/blob/master/rules/wework.json
-[rubocop]: https://github.com/bbatsov/rubocop
-[eslint]: https://eslint.org/
+[swagger2openapi]: https://github.com/Mermade/swagger2openapi/

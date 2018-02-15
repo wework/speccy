@@ -58,6 +58,13 @@
             "truthy": "tags"
         },
         {
+            "name": "openapi-tags-alphabetical",
+            "object": "openapi",
+            "enabled": true,
+            "description": "openapi object should have alphabetical tags",
+            "alphabetical": "tags"
+        },
+        {
             "name": "reference-no-other-properties",
             "object": "reference",
             "enabled": true,

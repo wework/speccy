@@ -47,6 +47,10 @@ describe('lint()', () => {
                         error: 'expected Array [] not to be empty (false negative fail)'
                     },
                     {
+                        input: { openapi: 3, tags: ['foo', 'bar'] },
+                        error: 'expected Array [ \'foo\', \'bar\' ] to be Array [ \'bar\', \'foo\' )'
+                    },
+                    {
                         input: { openapi: 3, tags: ['foo'] },
                         expectValid: true
                     }
@@ -87,6 +91,10 @@ describe('lint()', () => {
                     {
                         input: { openapi: 3, tags: [] },
                         error: 'expected Array [] not to be empty (false negative fail)'
+                    },
+                    {
+                        input: { openapi: 3, tags: ['foo', 'bar'] },
+                        error: 'expected Array [ \'foo\', \'bar\' ] to be Array [ \'bar\', \'foo\' )'
                     },
                     {
                         input: { openapi: 3, tags: ['foo'] },

@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.0] - 2018-02-15
+### Added
+- New `serve` command, to serve up ReDoc documentation without needing a local html file and your own server
+- Added `openapi-tags-alphabetical` rule to snark if your tags definitions are out of order
+
 ## [0.2.2] - 2018-02-08
 ### Fixed
 - Object spread was causing errors on node 6 and 7.

@@ -5,6 +5,7 @@
 const browserSync = require('browser-sync');
 const ejs = require('ejs');
 const express = require('express');
+const path = require('path');
 const fs = require('fs');
 const yaml = require('js-yaml');
 
@@ -18,7 +19,8 @@ const command = (file, cmd) => {
     const html = loadHTML(file);
     const port = cmd.port;
 
-    app.use('/assets/redoc', express.static(__dirname + '/node_modules/redoc/bundles'))
+    const bundleDir = path.dirname(require.resolve('redoc'));
+    app.use('/assets/redoc', express.static(bundleDir));
 
     app.get('/spec.json', function (req, res) {
         const spec = loadSpec(file);
@@ -86,16 +88,15 @@ function loadSpec(path) {
 }
 
 function loadHTML(file) {
-    let html;
     try {
-        const template = fs.readFileSync(__dirname + '/templates/index.html', 'utf8');
-        html = ejs.render(template, {spec: file});
+        const templateFile = path.resolve(__dirname, 'templates/index.html');
+        const template = fs.readFileSync(templateFile, 'utf8');
+        return ejs.render(template, { spec: file });
     }
     catch (e) {
         console.error('failed to load html file: ' + e.message);
         process.exit(1);
     }
-    return html;
 }
 
 module.exports = { command }

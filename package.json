@@ -1,6 +1,6 @@
 {
   "name": "speccy",
-  "version": "0.3.0",
+  "version": "0.3.1-6",
   "description": "Your friendly OpenAPI v3.0 #WellActually CLI assistant.",
   "bin": {
     "speccy": "./speccy.js"
@@ -8,6 +8,7 @@
   "scripts": {
     "test": "mocha"
   },
+  "preferGlobal": true,
   "browserify": {
     "transform": [
       [
@@ -24,12 +25,11 @@
     "url": "https://github.com/wework/speccy.git",
     "type": "git"
   },
-  "author": "Mike Ralphson <mike.ralphson@gmail.com>",
+  "author": "Phil Sturgeon <phil.sturgeon@wework.com>",
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/wework/speccy/issues"
   },
-  "bundleDependencies": false,
   "dependencies": {
     "ajv": "^5.0.1",
     "browser-sync": "^2.17.0",
@@ -49,8 +49,7 @@
     "openapi",
     "openapi2",
     "openapi3",
-    "converter",
-    "conversion",
+    "documentation",
     "validator",
     "validation",
     "resolver",

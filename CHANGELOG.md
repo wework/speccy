@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.1] - 2018-02-15
+### Added
+- Fixed `serve` command when package is installed via yarn global
+
 ## [0.3.0] - 2018-02-15
 ### Added
 - New `serve` command, to serve up ReDoc documentation without needing a local html file and your own server

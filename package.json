@@ -26,16 +26,23 @@
   },
   "author": "Mike Ralphson <mike.ralphson@gmail.com>",
   "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/wework/speccy/issues"
+  },
+  "bundleDependencies": false,
   "dependencies": {
     "ajv": "^5.0.1",
+    "browser-sync": "^2.17.0",
     "call-me-maybe": "^1.0.1",
     "commander": "^2.14.1",
+    "ejs": "^2.5.2",
+    "express": "^4.14.0",
     "js-yaml": "^3.6.1",
     "node-fetch": "^1.6.3",
     "node-readfiles": "^0.2.0",
+    "redoc": "next",
     "reftools": "0.0.20",
-    "should": "^13.2.0",
-    "yargs": "^10.0.3"
+    "should": "^13.2.0"
   },
   "keywords": [
     "swagger",

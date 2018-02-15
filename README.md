@@ -100,6 +100,7 @@ npm test
 ## Credits
 
 - [Mike Ralphson] for providing the initial linter/validator from [swagger2openapi]
+- [Roman Gotsiy] for the excellent [ReDoc]
 - [Kenta Mori] for providing the serve logic from [redocup]
 - [All Contributors][link-contributors]
 
@@ -110,7 +111,9 @@ npm test
 [Kenta Mori]: https://github.com/zoncoen/
 [Mike Ralphson]: https://twitter.com/PermittedSoc/
 [ReDoc]: https://github.com/Rebilly/ReDoc
+[Roman Gotsiy]: https://github.com/RomanGotsiy
 [eslint]: https://eslint.org/
+[link-contributors]: https://github.com/wework/speccy/graphs/contributors
 [redocup]: https://github.com/zoncoen/redocup/
 [rubocop]: https://github.com/bbatsov/rubocop
 [rules-default]: https://github.com/wework/speccy/blob/master/rules/default.json

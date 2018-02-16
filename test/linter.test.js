@@ -3,8 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 const should = require('should');
-const yaml = require('js-yaml');
-
 const linter = require('../lib/linter.js');
 
 function testFixtures(fixtures) {
@@ -30,109 +28,15 @@ function testFixtures(fixtures) {
 }
 
 describe('lint()', () => {
+    const profilesDir = path.join(__dirname, './profiles/');
 
-    context('when default profile is loaded', () => {
-        linter.loadRules(['default']);
+    fs.readdirSync(profilesDir).forEach(function (file) {
+        const profile = JSON.parse(fs.readFileSync(profilesDir + file, 'utf8'))
+        const profileName = file.replace(path.extname(file), '')
 
-        const fixtures = [
-            {
-                object: 'openapi',
-                tests: [
-                    {
-                        input: { openapi: 3 },
-                        error: 'expected Object { openapi: 3 } to have property tags'
-                    },
-                    {
-                        input: { openapi: 3, tags: [] },
-                        error: 'expected Array [] not to be empty (false negative fail)'
-                    },
-                    {
-                        input: {
-                            openapi: 3,
-                            tags: [
-                                {name: 'foo'},
-                                {name: 'bar'}
-                            ]
-                        },
-                        error: 'expected Array [ Object { name: \'foo\' }, Object { name: \'bar\' } ] to be Array [ Object { name: \'bar\' }, Object { name: \'foo\' } ]'
-                    },
-                    {
-                        input: { openapi: 3, tags: [ {name: 'foo'} ] },
-                        expectValid: true
-                    }
-                ]
-            },
-            {
-                object: 'info',
-                tests: [
-                    {
-                        input: {},
-                        error: 'expected Object {} to have property contact'
-                    },
-                    {
-                        input: { contact: {} },
-                        error: 'expected Object {} not to be empty (false negative fail)'
-                    },
-                    {
-                        input: { contact: { foo: 'bar' } },
-                        expectValid: true
-                    }
-                ]
-            }
-        ];
-
-        testFixtures(fixtures);
-    });
-    context('when default profile is loaded', () => {
-        linter.loadRules(['default']);
-
-        const fixtures = [
-            {
-                object: 'openapi',
-                tests: [
-                    {
-                        input: { openapi: 3 },
-                        error: 'expected Object { openapi: 3 } to have property tags'
-                    },
-                    {
-                        input: { openapi: 3, tags: [] },
-                        error: 'expected Array [] not to be empty (false negative fail)'
-                    },
-                    {
-                        input: {
-                            openapi: 3,
-                            tags: [
-                                {name: 'foo'},
-                                {name: 'bar'}
-                            ]
-                        },
-                        error: 'expected Array [ Object { name: \'foo\' }, Object { name: \'bar\' } ] to be Array [ Object { name: \'bar\' }, Object { name: \'foo\' } ]'
-                    },
-                    {
-                        input: { openapi: 3, tags: ['foo'] },
-                        expectValid: true
-                    }
-                ]
-            },
-            {
-                object: 'info',
-                tests: [
-                    {
-                        input: {},
-                        error: 'expected Object {} to have property contact'
-                    },
-                    {
-                        input: { contact: {} },
-                        error: 'expected Object {} not to be empty (false negative fail)'
-                    },
-                    {
-                        input: { contact: { foo: 'bar' } },
-                        expectValid: true
-                    }
-                ]
-            }
-        ];
-
-        testFixtures(fixtures);
-    });
+        context('when `' + profileName + '` profile is loaded', () => {
+            linter.loadRules(profile.rules);
+            testFixtures(profile.fixtures);
+        })
+    })
 });

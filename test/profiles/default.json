@@ -22,7 +22,7 @@
               {"name": "bar"}
             ]
           },
-          "error": "expected Array [ Object { name: 'foo' }, Object { name: 'bar' } ] to be Array [ Object { name: 'bar' }, Object { name: 'foo' } ]"
+          "error": "expected Array [ Object { name: 'foo' }, Object { name: 'bar' } ] to equal Array [ Object { name: 'bar' }, Object { name: 'foo' } ] (at '0' -> name, A has 'foo' and B has 'bar')"
         },
         {
           "input": { "openapi": 3, "tags": [ {"name": "foo"} ] },

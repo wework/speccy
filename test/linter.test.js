@@ -20,7 +20,7 @@ function testFixtures(fixtures) {
                 }
                 else {
                     it('throws error', (done) => {
-                        (() => linter.lint(object, test['input'])).should.throw(test['message']);
+                        (() => linter.lint(object, test['input'])).should.throw(test['error']);
                         done();
                     });
                 }
@@ -47,11 +47,17 @@ describe('lint()', () => {
                         error: 'expected Array [] not to be empty (false negative fail)'
                     },
                     {
-                        input: { openapi: 3, tags: ['foo', 'bar'] },
-                        error: 'expected Array [ \'foo\', \'bar\' ] to be Array [ \'bar\', \'foo\' )'
+                        input: {
+                            openapi: 3,
+                            tags: [
+                                {name: 'foo'},
+                                {name: 'bar'}
+                            ]
+                        },
+                        error: 'expected Array [ Object { name: \'foo\' }, Object { name: \'bar\' } ] to be Array [ Object { name: \'bar\' }, Object { name: \'foo\' } ]'
                     },
                     {
-                        input: { openapi: 3, tags: ['foo'] },
+                        input: { openapi: 3, tags: [ {name: 'foo'} ] },
                         expectValid: true
                     }
                 ]
@@ -61,7 +67,7 @@ describe('lint()', () => {
                 tests: [
                     {
                         input: {},
-                        error: 'expected Object {} not to be empty (false negative fail)'
+                        error: 'expected Object {} to have property contact'
                     },
                     {
                         input: { contact: {} },
@@ -93,8 +99,14 @@ describe('lint()', () => {
                         error: 'expected Array [] not to be empty (false negative fail)'
                     },
                     {
-                        input: { openapi: 3, tags: ['foo', 'bar'] },
-                        error: 'expected Array [ \'foo\', \'bar\' ] to be Array [ \'bar\', \'foo\' )'
+                        input: {
+                            openapi: 3,
+                            tags: [
+                                {name: 'foo'},
+                                {name: 'bar'}
+                            ]
+                        },
+                        error: 'expected Array [ Object { name: \'foo\' }, Object { name: \'bar\' } ] to be Array [ Object { name: \'bar\' }, Object { name: \'foo\' } ]'
                     },
                     {
                         input: { openapi: 3, tags: ['foo'] },
@@ -107,7 +119,7 @@ describe('lint()', () => {
                 tests: [
                     {
                         input: {},
-                        error: 'expected Object {} not to be empty (false negative fail)'
+                        error: 'expected Object {} to have property contact'
                     },
                     {
                         input: { contact: {} },

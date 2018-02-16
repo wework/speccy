@@ -62,7 +62,10 @@
             "object": "openapi",
             "enabled": true,
             "description": "openapi object should have alphabetical tags",
-            "alphabetical": "tags"
+            "alphabetical": {
+                "properties": "tags",
+                "keyedBy": "name"
+            }
         },
         {
             "name": "reference-no-other-properties",

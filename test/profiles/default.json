@@ -2,6 +2,7 @@
   "rules": [
     "default"
   ],
+  "skip": [],
   "fixtures": [
     {
       "object": "openapi",

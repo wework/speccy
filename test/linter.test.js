@@ -35,7 +35,7 @@ describe('lint()', () => {
         const profileName = file.replace(path.extname(file), '')
 
         context('when `' + profileName + '` profile is loaded', () => {
-            linter.loadRules(profile.rules);
+            linter.loadRules(profile.rules, profile.skip);
             testFixtures(profile.fixtures);
         })
     })

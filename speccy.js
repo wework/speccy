@@ -22,6 +22,7 @@ program
 program
     .command('lint <file-or-url>')
     .option('-r, --rules [ruleFile]', 'Provide multiple rules files', collect, [])
+    .option('-s, --skip [ruleName]', 'Provide multiple rules to skip', collect, [])
     .action(lint.command);
 
 program

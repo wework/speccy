@@ -43,6 +43,7 @@ Ensure your OpenAPI files are valid and up to scratch
 Options:
 
     -r, --rules [ruleFile]  use this multiple times to select multiple rules files
+    -s, --skip [ruleName]   use this multiple times to skip specific rules
     -h, --help              output usage information
 ```
 

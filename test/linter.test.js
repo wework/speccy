@@ -5,19 +5,22 @@ const path = require('path');
 const should = require('should');
 const linter = require('../lib/linter.js');
 
-function testFixtures(fixtures) {
-    fixtures.forEach((fixture) => {
+function testProfile(profile) {
+
+    profile.fixtures.forEach((fixture) => {
         const { object, tests } = fixture;
         describe('linting the ' + object + " object", () => {
             tests.forEach((test) => {
                 if (test.expectValid) {
                     it('is valid', (done) => {
+                        linter.loadRules(profile.rules, test.skip);
                         linter.lint(object, test['input']); // will not raise
                         done();
                     });
                 }
                 else {
                     it('throws error', (done) => {
+                        linter.loadRules(profile.rules, test.skip);
                         (() => linter.lint(object, test['input'])).should.throw(test['error']);
                         done();
                     });
@@ -35,8 +38,7 @@ describe('lint()', () => {
         const profileName = file.replace(path.extname(file), '')
 
         context('when `' + profileName + '` profile is loaded', () => {
-            linter.loadRules(profile.rules);
-            testFixtures(profile.fixtures);
+            testProfile(profile);
         })
     })
 });

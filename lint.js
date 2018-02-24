@@ -76,7 +76,7 @@ const main = (str, callback) => {
 
 const command = (file, cmd) => {
 
-  linter.loadRules(cmd.rules);
+  linter.loadRules(cmd.rules, cmd.skip);
 
   if (file && file.startsWith('http')) {
       console.log('GET ' + file);

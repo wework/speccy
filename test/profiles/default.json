@@ -2,6 +2,7 @@
   "rules": [
     "default"
   ],
+  "skip": [],
   "fixtures": [
     {
       "object": "openapi",
@@ -25,6 +26,11 @@
           "error": "expected Array [ Object { name: 'foo' }, Object { name: 'bar' } ] to equal Array [ Object { name: 'bar' }, Object { name: 'foo' } ] (at '0' -> name, A has 'foo' and B has 'bar')"
         },
         {
+          "input": { "openapi": 3, "tags": [ {"name": "foo"}, {"name": "bar"} ]},
+          "skip": [ "openapi-tags-alphabetical" ],
+          "expectValid": true
+        },
+        {
           "input": { "openapi": 3, "tags": [ {"name": "foo"} ] },
           "expectValid": true
         }
@@ -40,6 +46,11 @@
         {
           "input": { "contact": {} },
           "error": "expected Object {} not to be empty (false negative fail)"
+        },
+        {
+          "input": {},
+          "skip": [ "info-contact" ],
+          "expectValid": true
         },
         {
           "input": { "contact": { "foo": "bar" } },

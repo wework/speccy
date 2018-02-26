@@ -1,7 +1,7 @@
 # speccy
 
 [![Build Status](https://travis-ci.org/wework/speccy.svg?branch=master)](https://travis-ci.org/wework/speccy)
-[![Coverage Status](https://coveralls.io/repos/github/wework/speccy/badge.svg?branch=master)](https://coveralls.io/github/wework/speccy?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/wework/speccy/badge.svg)](https://coveralls.io/github/wework/speccy)
 [![Known Vulnerabilities](https://snyk.io/test/npm/speccy/badge.svg)](https://snyk.io/test/npm/speccy)
 
 Make sure your OpenAPI 3.0 specifications are more than just valid, make sure they're useful!

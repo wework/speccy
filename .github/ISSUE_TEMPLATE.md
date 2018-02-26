@@ -1,23 +1,27 @@
-<!--- Provide a general summary of the issue in the Title above -->
+<!-- Provide a general summary of the issue in the Title above -->
 
-### Checklist
+## Detailed description
 
-<!-- delete as appropriate -->
+Provide a detailed description of the change or addition you are proposing.
 
-- [ ] Conversion: I have checked my source definition is valid OpenAPI 2.0
-- [ ] Validation: I believe my source definition is valid OpenAPI 3.0.x but the validator complains
-- [ ] Validation: I believe my source definition is invalid OpenAPI 3.0.x but the validator does not complain
+Make it clear if the issue is a bug, an enhancement or just a question.
 
-<!--
-For validating OpenAPI 2.0 definitions, we recommend the [bigstickcarpet swagger validator](http://bigstickcarpet.com/swagger-parser/www/index.html)
--->
+## Context
 
-### Detailed Description
-<!--- Provide a detailed description of the bug, change or feature you are reporting -->
+Why is this change important to you? How would you use it?
 
+How can it benefit other users?
 
-#### Other stuff
+## Possible implementation
 
-<!-- Please also let us know how you found out about swagger2openapi -->
+Not obligatory, but suggest an idea for implementing addition or change.
 
+## Your environment
 
+Include as many relevant details about the environment you experienced the bug in and how to reproduce it.
+
+* Node Version:
+* Operating system and version (e.g. Ubuntu 16.04, Windows 7):
+* Link to your project:
+* ...
+* ...

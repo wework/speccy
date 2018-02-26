@@ -28,37 +28,54 @@ const options = {
 
 const lintResolvedSchema = options => {
     validator.validate(options.openapi, options, function(err, options) {
-        if (!err) {
-          console.log('File is valid')
-          process.exitCode = 0;
-          return;
+
+        if (err) {
+            console.log(colors.red + 'Specification schema is invalid.' + colors.reset);
+            formatSchemaError(err, options.context);
+            process.exitCode = 1;
+            return;
         }
 
-        formatLinterError(err, options.context, options.lintRule);
-        options.valid = !!options.expectFailure;
-        process.exitCode = 1;
+        const lintResults = options.lintResults;
+        if (lintResults.length) {
+            console.log(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
+            formatLintResults(lintResults);
+            process.exitCode = lintResults.length;
+            return;
+        }
+
+        console.log(colors.green + 'Specification is valid' + colors.reset)
+        process.exitCode = 0;
     });
 };
 
-const formatLinterError = (err, context, rule) => {
+const formatSchemaError = (err, context) => {
   const pointer = context.pop();
   const message = err.message;
   let output;
-  if (rule) output = `
-${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${rule.description}
-${colors.reset + message}
-  `
-  else {
+
     output = `
 ${colors.red + pointer} ${colors.reset + message}
 `;
-  }
 
   console.log(output);
 
   if (err.stack && err.name !== 'AssertionError') {
-      console.log(colors.red + err.stack);
+      console.log(colors.red + err.stack + colors.reset);
   }
+}
+
+const formatLintResults = (lintResults) => {
+    let output='';
+    lintResults.forEach(result => {
+        const { rule, error, pointer } = result;
+
+        output += `
+${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${rule.description}
+${colors.reset + error.message}
+`;
+    });
+    console.log(output);
 }
 
 const main = (str, callback) => {

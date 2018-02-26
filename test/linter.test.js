@@ -11,17 +11,19 @@ function testProfile(profile) {
         const { object, tests } = fixture;
         describe('linting the ' + object + " object", () => {
             tests.forEach((test) => {
+                var options = { lintResults : []};
+                linter.loadRules(profile.rules, test.skip);
+                linter.lint(object, test['input'], options);
+
                 if (test.expectValid) {
                     it('is valid', (done) => {
-                        linter.loadRules(profile.rules, test.skip);
-                        linter.lint(object, test['input']); // will not raise
+                        options.lintResults.should.be.empty();
                         done();
                     });
-                }
-                else {
-                    it('throws error', (done) => {
-                        linter.loadRules(profile.rules, test.skip);
-                        (() => linter.lint(object, test['input'])).should.throw(test['error']);
+                } else {
+                    it('is not valid', (done) => {
+                        const actualRuleErrors = options.lintResults.map(result => result.rule.name);
+                        test.expectedRuleErrors.should.deepEqual(actualRuleErrors);
                         done();
                     });
                 }

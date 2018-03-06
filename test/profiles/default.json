@@ -50,6 +50,24 @@
           "expectValid": true
         }
       ]
+    },
+    {
+      "object": "reference",
+      "tests": [
+        {
+          "input": {
+              "$ref": "./foo.yml"
+          },
+          "expectValid": true
+      },
+        {
+          "input": {
+              "$ref": "./foo.yml",
+              "something": "else"
+          },
+          "expectedRuleErrors": ["reference-no-other-properties"]
+        }
+      ]
     }
   ]
 }

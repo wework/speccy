@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const util = require('util');
+'use strict';
 
+const fs = require('fs');
 const yaml = require('js-yaml');
 const fetch = require('node-fetch');
 

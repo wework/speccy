@@ -44,7 +44,7 @@ const lintResolvedSchema = options => {
             return;
         }
 
-        console.log(colors.green + 'Specification is valid' + colors.reset)
+        console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
         process.exitCode = 0;
     });
 };

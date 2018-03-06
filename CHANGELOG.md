@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Serve command early exists and errors if file is not found, even added some tests ([#17])
+
+[#17]: https://github.com/wework/speccy/pull/17
 
 ## [0.4.0] - 2018-02-26
 ### Added

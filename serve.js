@@ -3,31 +3,41 @@
 'use strict';
 
 const browserSync = require('browser-sync');
-const ejs = require('ejs');
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
-const yaml = require('js-yaml');
+const server = require('./lib/server');
+
+const readSpec = file => {
+    try {
+        return server.loadSpec(file);
+    }
+    catch (error) {
+        if (error.name == 'OpenError') {
+            console.error('Could not open file: ' + error.message);
+        }
+        else if (error.name == 'ReadError') {
+            console.error('Could not read YAML/JSON from file: ' + error.message);
+        }
+        else {
+            console.error(error);
+        }
+        process.exit(1);
+    }
+}
 
 const command = (file, cmd) => {
-    if (!file) {
-      console.error('no spec file path');
-      cmd.help();
-    }
-
     const app = express();
-    const html = loadHTML(file);
     const port = cmd.port;
-
     const bundleDir = path.dirname(require.resolve('redoc'));
-    app.use('/assets/redoc', express.static(bundleDir));
+    const html = server.loadHTML(file);
+    const spec = readSpec(file);
 
-    app.get('/spec.json', function (req, res) {
-        const spec = loadSpec(file);
-        res.send(spec);
-    });
-    app.get('*', function (req, res) {
+    app.use('/assets/redoc', express.static(bundleDir));
+    app.get('/spec.json', (req, res) => {
         res.send(html);
+    });
+    app.get('/', function (req, res) {
+        res.send(spec);
     });
 
     if (cmd.watch) {
@@ -59,44 +69,4 @@ const command = (file, cmd) => {
     }
 }
 
-function loadSpec(path) {
-    let yml;
-    let json;
-    if (path.match(/\.(yaml|yml)$/)) {
-        try {
-            yml = yaml.safeLoad(fs.readFileSync(path, 'utf8'));
-        }
-        catch (e) {
-            console.error('failed to load spec yaml: ' + e.message);
-        }
-        try {
-            json = JSON.stringify(yml);
-        }
-        catch (e) {
-            console.error('failed to convert yaml to json: ' + e.message);
-        }
-    }
-    else {
-        try {
-            json = fs.readFileSync(path, 'utf8');
-        }
-        catch (e) {
-            console.error('failed to load spec json: ' + e.message);
-        }
-    }
-    return json;
-}
-
-function loadHTML(file) {
-    try {
-        const templateFile = path.resolve(__dirname, 'templates/index.html');
-        const template = fs.readFileSync(templateFile, 'utf8');
-        return ejs.render(template, { spec: file });
-    }
-    catch (e) {
-        console.error('failed to load html file: ' + e.message);
-        process.exit(1);
-    }
-}
-
-module.exports = { command }
+module.exports = { command };

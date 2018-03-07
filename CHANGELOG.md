@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Path Item `$ref` support fixed ([#16])
+
+[#16]: https://github.com/wework/speccy/pull/16
+
 ## [0.4.0] - 2018-02-26
 ### Added
 - Added `--skip` to lint command to allow certain rules to be skipped ([#9] via @jblazek)

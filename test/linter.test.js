@@ -7,21 +7,22 @@ const linter = require('../lib/linter.js');
 
 function testProfile(profile) {
 
-    profile.fixtures.forEach((fixture) => {
+    profile.fixtures.forEach(fixture => {
         const { object, tests } = fixture;
         describe('linting the ' + object + " object", () => {
-            tests.forEach((test) => {
+            tests.forEach(test => {
                 var options = { lintResults : []};
                 linter.loadRules(profile.rules, test.skip);
-                linter.lint(object, test['input'], options);
+                linter.lint(object, test.input, options);
 
                 if (test.expectValid) {
-                    it('is valid', (done) => {
+                    it(JSON.stringify(test.input) + ' is valid', done => {
                         options.lintResults.should.be.empty();
                         done();
                     });
-                } else {
-                    it('is not valid', (done) => {
+                }
+                else {
+                    it(JSON.stringify(test.input) + ' is not valid', done => {
                         const actualRuleErrors = options.lintResults.map(result => result.rule.name);
                         test.expectedRuleErrors.should.deepEqual(actualRuleErrors);
                         done();

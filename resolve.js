@@ -8,21 +8,6 @@ const fetch = require('node-fetch');
 
 const resolver = require('./lib/resolver.js');
 
-const main = (str, output) => {
-    options.openapi = yaml.safeLoad(str,{json:true});
-    resolver.resolve(options)
-    .then(function(){
-        options.status = 'resolved';
-        fs.writeFileSync(output, yaml.safeDump(options.openapi,{lineWidth:-1}),'utf8');
-        console.log('Resolved to ' + output);
-        process.exitCode = 0;
-    })
-    .catch(function(err){
-        options.status = 'rejected';
-        console.warn(err);
-    });
-};
-
 const options = {
     resolve: true,
     cache: [],
@@ -30,6 +15,21 @@ const options = {
     externalRefs: {},
     rewriteRefs: true,
     status: 'undefined',
+};
+
+const main = (str, output) => {
+    options.openapi = yaml.safeLoad(str,{json:true});
+    resolver.resolve(options)
+    .then(function(){
+        options.status = 'resolved';
+        fs.writeFileSync(output, yaml.safeDump(options.openapi,{lineWidth:-1}),'utf8');
+        console.log('Resolved to ' + output);
+        process.exit(0);
+    })
+    .catch(function(err){
+        options.status = 'rejected';
+        console.warn(err);
+    });
 };
 
 const command = (filespec, cmd) => {

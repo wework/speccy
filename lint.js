@@ -88,6 +88,7 @@ const main = (str, callback) => {
     .catch(function(err) {
         options.status = 'rejected';
         console.warn(err);
+        process.exit(0);
     });
 };
 
@@ -110,7 +111,7 @@ const command = (file, cmd) => {
       fs.readFile(file,'utf8',function(err,data){
           if (err) {
               console.warn(err);
-              return
+              return;
           }
           main(data, lintResolvedSchema);
       });

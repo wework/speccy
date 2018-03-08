@@ -46,33 +46,48 @@ ${colors.reset + error.message}
     console.log(output);
 }
 
-const command = (file, cmd) => {
+
+const readOrError = file => {
+    try {
+        return loader.loadSpec(file, { resolve: true });
+    }
+    catch (error) {
+        if (error.name == 'OpenError') {
+            console.error('Could not open file: ' + error.message);
+        }
+        else if (error.name == 'ReadError') {
+            console.error('Could not read YAML/JSON from file: ' + error.message);
+        }
+        else {
+            console.error(error);
+        }
+        process.exit(1);
+    }
+}
+
+const command = async (file, cmd) => {
+  const spec = await readOrError(file);
+  const options = { openapi: spec };
 
   linter.loadRules(cmd.rules, cmd.skip);
-
-  const openapi = loader.loadSpec(file, { resolve: true });
-  const options = { openapi };
 
   validator.validate(options.openapi, options, function(err, options) {
       if (err) {
           console.log(colors.red + 'Specification schema is invalid.' + colors.reset);
           formatSchemaError(err, options.context);
-          process.exitCode = 1;
-          return;
+          process.exit(1);
       }
 
       const lintResults = options.lintResults;
       if (lintResults.length) {
           console.log(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
           formatLintResults(lintResults);
-          process.exitCode = lintResults.length;
-          return;
+          process.exit(lintResults.length);
       }
 
       console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
-      process.exitCode = 0;
+      process.exit(0);
   });
-
 };
 
 module.exports = { command }

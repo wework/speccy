@@ -33,7 +33,7 @@ program
     .action(resolve.command);
 
 program
-    .command('serve <file>')
+    .command('serve <file-or-url>')
     .description('View specifications in beautiful human readable documentation')
     .option('-p, --port [value]', 'port on which the server will listen', 5000)
     .option('-w, --watch', 'reloding browser on spec file changes')

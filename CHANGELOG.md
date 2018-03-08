@@ -6,9 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.0] - 2018-03-09
+### Breaking Changes
+- Dropped support for NodeJS 6, now requires 7.5 (with `--harmony`) or higher.
+### Fixed
+- Linter was not resolving $ref properly, meaning more errors will now appear in $ref schemas ([#19])
+### Added
+- Serve command now supports URLs ([#19])
+
+[#19]: https://github.com/wework/speccy/pull/19
+
 ## [0.4.1] - 2018-03-07
 ### Fixed
-- Path Item `$ref` support fixed ([#16])
+- Path Item `$ref` support fixed in validator ([#16])
 - Serve command early exists and errors if file is not found, even added some tests ([#17])
 
 [#16]: https://github.com/wework/speccy/pull/16

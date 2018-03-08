@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const should = require('should');
 const linter = require('../lib/linter.js');
 
 function testProfile(profile) {

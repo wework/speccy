@@ -5,11 +5,12 @@
 const browserSync = require('browser-sync');
 const express = require('express');
 const path = require('path');
-const server = require('./lib/server');
+const server = require('./lib/server.js');
+const loader = require('./lib/loader.js');
 
-const readSpec = file => {
+const readOrError = file => {
     try {
-        return server.loadSpec(file);
+        return loader.loadSpec(file, { resolve: true });
     }
     catch (error) {
         if (error.name == 'OpenError') {
@@ -25,19 +26,19 @@ const readSpec = file => {
     }
 }
 
-const command = (file, cmd) => {
+const command = async (file, cmd) => {
     const app = express();
     const port = cmd.port;
     const bundleDir = path.dirname(require.resolve('redoc'));
     const html = server.loadHTML(file);
-    const spec = readSpec(file);
+    const spec = await readOrError(file);
 
     app.use('/assets/redoc', express.static(bundleDir));
     app.get('/spec.json', (req, res) => {
-        res.send(html);
+        res.send(JSON.stringify(spec));
     });
-    app.get('/', function (req, res) {
-        res.send(spec);
+    app.get('/', (req, res) => {
+        res.send(html);
     });
 
     if (cmd.watch) {

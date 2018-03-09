@@ -2,11 +2,7 @@
 
 'use strict'
 
-const fs = require('fs');
-const yaml = require('js-yaml');
-const fetch = require('node-fetch');
-
-const resolver = require('./lib/resolver.js');
+const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
 const validator = require('./lib/validate.js');
 
@@ -21,52 +17,24 @@ const colors = process.env.NODE_DISABLE_COLORS ? {} : {
   reset: '\x1b[0m'
 };
 
-const options = {
-    cache: [],
-    status: 'undefined'
-};
-
-const lintResolvedSchema = options => {
-    validator.validate(options.openapi, options, function(err, options) {
-
-        if (err) {
-            console.log(colors.red + 'Specification schema is invalid.' + colors.reset);
-            formatSchemaError(err, options.context);
-            process.exitCode = 1;
-            return;
-        }
-
-        const lintResults = options.lintResults;
-        if (lintResults.length) {
-            console.log(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
-            formatLintResults(lintResults);
-            process.exitCode = lintResults.length;
-            return;
-        }
-
-        console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
-        process.exitCode = 0;
-    });
-};
-
 const formatSchemaError = (err, context) => {
   const pointer = context.pop();
   const message = err.message;
   let output;
 
-    output = `
-${colors.red + pointer} ${colors.reset + message}
+  output = `
+${colors.yellow + pointer}
+${colors.reset + message}
 `;
 
-  console.log(output);
-
   if (err.stack && err.name !== 'AssertionError') {
-      console.log(colors.red + err.stack + colors.reset);
+      output += colors.red + err.stack + colors.reset;
   }
+  return output;
 }
 
-const formatLintResults = (lintResults) => {
-    let output='';
+const formatLintResults = lintResults => {
+    let output = '';
     lintResults.forEach(result => {
         const { rule, error, pointer } = result;
 
@@ -75,48 +43,53 @@ ${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${r
 ${colors.reset + error.message}
 `;
     });
-    console.log(output);
+
+    return output;
 }
 
-const main = (str, callback) => {
-    options.openapi = yaml.safeLoad(str,{json:true});
-    resolver.resolve(options)
-    .then(function() {
-        options.status = 'resolved';
-        callback(options);
-    })
-    .catch(function(err) {
-        options.status = 'rejected';
-        console.warn(err);
-        process.exit(0);
-    });
-};
+const readOrError = file => {
+    try {
+        return loader.loadSpec(file, { resolve: true });
+    }
+    catch (error) {
+        if (error.name == 'OpenError') {
+            console.error('Could not open file: ' + error.message);
+        }
+        else if (error.name == 'ReadError') {
+            console.error('Could not read YAML/JSON from file: ' + error.message);
+        }
+        else {
+            console.error(error);
+        }
+        process.exit(1);
+    }
+}
 
-const command = (file, cmd) => {
+const command = async (file, cmd) => {
+  const spec = await readOrError(file);
+  const options = { openapi: spec };
 
   linter.loadRules(cmd.rules, cmd.skip);
 
-  if (file && file.startsWith('http')) {
-      console.log('GET ' + file);
-      fetch(file, {agent:options.agent}).then(function (res) {
-          if (res.status !== 200) throw new Error(`Received status code ${res.status}`);
-          return res.text();
-      }).then(function (body) {
-          main(body, lintResolvedSchema);
-      }).catch(function (err) {
-          console.warn(err);
-      });
-  }
-  else {
-      fs.readFile(file,'utf8',function(err,data){
-          if (err) {
-              console.warn(err);
-              return;
-          }
-          main(data, lintResolvedSchema);
-      });
-  }
+  validator.validate(options.openapi, options, (err, options) => {
+      if (err) {
+          console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
+          const output = formatSchemaError(err, options.context);
+          console.error(output);
+          process.exit(1);
+      }
 
+      const lintResults = options.lintResults;
+      if (lintResults.length) {
+          console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
+          const output = formatLintResults(lintResults);
+          console.warn(output)
+          process.exit(1);
+      }
+
+      console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
+      process.exit(0);
+  });
 };
 
 module.exports = { command }

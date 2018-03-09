@@ -22,15 +22,15 @@ const formatSchemaError = (err, context) => {
   const message = err.message;
   let output;
 
-    output = `
-${colors.red + pointer} ${colors.reset + message}
+  output = `
+${colors.yellow + pointer}
+${colors.reset + message}
 `;
 
-  console.log(output);
-
   if (err.stack && err.name !== 'AssertionError') {
-      console.log(colors.red + err.stack + colors.reset);
+      output += colors.red + err.stack + colors.reset;
   }
+  return output;
 }
 
 const formatLintResults = lintResults => {
@@ -43,9 +43,9 @@ ${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${r
 ${colors.reset + error.message}
 `;
     });
-    console.log(output);
-}
 
+    return output;
+}
 
 const readOrError = file => {
     try {
@@ -71,18 +71,20 @@ const command = async (file, cmd) => {
 
   linter.loadRules(cmd.rules, cmd.skip);
 
-  validator.validate(options.openapi, options, function(err, options) {
+  validator.validate(options.openapi, options, (err, options) => {
       if (err) {
-          console.log(colors.red + 'Specification schema is invalid.' + colors.reset);
-          formatSchemaError(err, options.context);
+          console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
+          const output = formatSchemaError(err, options.context);
+          console.error(output);
           process.exit(1);
       }
 
       const lintResults = options.lintResults;
       if (lintResults.length) {
-          console.log(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
-          formatLintResults(lintResults);
-          process.exit(lintResults.length);
+          console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
+          const output = formatLintResults(lintResults);
+          console.warn(output)
+          process.exit(1);
       }
 
       console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)

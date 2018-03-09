@@ -1,73 +1,106 @@
 {
-  "rules": [
-    "default"
-  ],
-  "fixtures": [
-    {
-      "object": "openapi",
-      "tests": [
+    "rules": [
+        "default"
+    ],
+    "fixtures": [
         {
-          "input": { "openapi": 3 },
-          "expectedRuleErrors" : ["openapi-tags"]
+            "object": "openapi",
+            "tests": [
+                {
+                    "input": { "openapi": 3 },
+                    "expectedRuleErrors" : ["openapi-tags"]
+                },
+                {
+                    "input": { "openapi": 3, "tags": [] },
+                    "expectedRuleErrors" : ["openapi-tags"]
+                },
+                {
+                    "input": { "openapi": 3, "tags": [ {"name": "foo"}, {"name": "bar"} ]},
+                    "expectedRuleErrors" : ["openapi-tags-alphabetical"]
+                },
+                {
+                    "input": { "openapi": 3, "tags": [ {"name": "foo"}, {"name": "bar"} ]},
+                    "skip": [ "openapi-tags-alphabetical" ],
+                    "expectValid": true
+                },
+                {
+                    "input": { "openapi": 3, "tags": [ {"name": "foo"} ] },
+                    "expectValid": true
+                }
+            ]
         },
         {
-          "input": { "openapi": 3, "tags": [] },
-          "expectedRuleErrors" : ["openapi-tags"]
+            "object": "info",
+            "tests": [
+                {
+                    "input": {},
+                    "expectedRuleErrors" : ["info-contact"]
+                },
+                {
+                    "input": { "contact": {} },
+                    "expectedRuleErrors" : ["info-contact"]
+                },
+                {
+                    "input": {},
+                    "skip": [ "info-contact" ],
+                    "expectValid": true
+                },
+                {
+                    "input": { "contact": { "foo": "bar" } },
+                    "expectValid": true
+                }
+            ]
         },
         {
-          "input": { "openapi": 3, "tags": [ {"name": "foo"}, {"name": "bar"} ]},
-          "expectedRuleErrors" : ["openapi-tags-alphabetical"]
+            "object": "server",
+            "tests": [
+                {
+                    "input": { "url": "http://foo.com/" },
+                    "expectedRuleErrors" : ["server-trailing-slash"]
+                },
+                {
+                    "input": { "url": "http://foo.com" },
+                    "expectValid": true
+                }
+            ]
         },
         {
-          "input": { "openapi": 3, "tags": [ {"name": "foo"}, {"name": "bar"} ]},
-          "skip": [ "openapi-tags-alphabetical" ],
-          "expectValid": true
+            "object": "reference",
+            "tests": [
+                {
+                    "input": { "$ref": "./foo.yml" },
+                    "expectValid": true
+                },
+                {
+                    "input": { "$ref": "./foo.yml", "something": "else" },
+                    "expectedRuleErrors": ["reference-no-other-properties"]
+                }
+            ]
         },
         {
-          "input": { "openapi": 3, "tags": [ {"name": "foo"} ] },
-          "expectValid": true
+            "object": "operation",
+            "tests": [
+                {
+                    "input": {},
+                    "expectedRuleErrors": [
+                        "operation-operationId",
+                        "operation-summary-or-description",
+                        "operation-tags"
+                    ]
+                },
+                {
+                    "input": { "summary": "thing", "operationId": "thing" },
+                    "expectedRuleErrors": ["operation-tags"]
+                },
+                {
+                    "input": {
+                        "summary": "thing",
+                        "operationId": "thing",
+                        "tags": [{ "name": "thing" }]
+                    },
+                    "expectValid": true
+                }
+            ]
         }
-      ]
-    },
-    {
-      "object": "info",
-      "tests": [
-        {
-          "input": {},
-          "expectedRuleErrors" : ["info-contact"]
-        },
-        {
-          "input": { "contact": {} },
-          "expectedRuleErrors" : ["info-contact"]
-        },
-        {
-          "input": {},
-          "skip": [ "info-contact" ],
-          "expectValid": true
-        },
-        {
-          "input": { "contact": { "foo": "bar" } },
-          "expectValid": true
-        }
-      ]
-    },
-    {
-      "object": "reference",
-      "tests": [
-        {
-          "input": {
-              "$ref": "./foo.yml"
-          },
-          "expectValid": true
-      },
-        {
-          "input": {
-              "$ref": "./foo.yml",
-              "something": "else"
-          },
-          "expectedRuleErrors": ["reference-no-other-properties"]
-        }
-      ]
-    }
-  ]
+    ]
 }

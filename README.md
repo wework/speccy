@@ -1,6 +1,6 @@
 # speccy
 
-[![Build Status](https://travis-ci.org/wework/speccy.svg?branch=master)](https://travis-ci.org/wework/speccy)
+[![CircleCI](https://circleci.com/gh/wework/speccy.svg?style=svg)](https://circleci.com/gh/wework/speccy)
 [![Coverage Status](https://coveralls.io/repos/github/wework/speccy/badge.svg)](https://coveralls.io/github/wework/speccy)
 [![Known Vulnerabilities](https://snyk.io/test/npm/speccy/badge.svg)](https://snyk.io/test/npm/speccy)
 

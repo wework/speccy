@@ -47,26 +47,8 @@ ${colors.reset + error.message}
     return output;
 }
 
-const readOrError = file => {
-    try {
-        return loader.loadSpec(file, { resolve: true });
-    }
-    catch (error) {
-        if (error.name == 'OpenError') {
-            console.error('Could not open file: ' + error.message);
-        }
-        else if (error.name == 'ReadError') {
-            console.error('Could not read YAML/JSON from file: ' + error.message);
-        }
-        else {
-            console.error(error);
-        }
-        process.exit(1);
-    }
-}
-
 const command = async (file, cmd) => {
-  const spec = await readOrError(file);
+  const spec = await loader.readOrError(file);
   const options = { openapi: spec };
 
   linter.loadRules(cmd.rules, cmd.skip);

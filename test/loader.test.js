@@ -17,7 +17,7 @@ describe('loader.js', () => {
                 "openapi-tags-alphabetical",
                 "reference-no-other-properties",
                 "example-value-or-externalValue",
-                "reference-components-regex",
+                // "reference-components-regex",
                 "no-script-tags-in-markdown",
                 "info-contact",
                 "license-apimatic-bug",
@@ -75,12 +75,12 @@ describe('loader.js', () => {
 
         it('does not resolve references by default', async () => {
             const spec = await loader.loadSpec(samplesDir + 'refs/openapi.yaml');
-            should(spec.paths.a).have.key('$ref');
+            should(spec.paths['/a']).have.key('$ref');
         });
 
         it('resolves refs when passed { resolve: true }', async () => {
             const spec = await loader.loadSpec(samplesDir + 'refs/openapi.yaml', { resolve: true });
-            should(spec.paths.a.post.description).equal('Some operation object');
+            should(spec.paths['/a'].post.description).equal('Some operation object');
         });
 
         it('throws OpenError for non-existant file', async () => {

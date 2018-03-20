@@ -1,2 +1,5 @@
 post:
   description: Some operation object
+  responses:
+    200:
+      description: Great

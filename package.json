@@ -40,7 +40,7 @@
     "ejs": "^2.5.2",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
-    "node-fetch": "^1.6.3",
+    "node-fetch": "^1.7.3",
     "node-readfiles": "^0.2.0",
     "redoc": "next",
     "reftools": "0.0.20",

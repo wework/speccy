@@ -48,30 +48,31 @@ ${colors.reset + error.message}
 }
 
 const command = async (file, cmd) => {
-  const spec = await loader.readOrError(file);
-  const options = { openapi: spec };
+    const verbose = cmd.quiet ? 1 : cmd.verbose;
+    const spec = await loader.readOrError(file, { verbose, resolve: true });
 
-  linter.loadRules(cmd.rules, cmd.skip);
+    linter.loadRules(cmd.rules, cmd.skip);
 
-  validator.validate(options.openapi, options, (err, options) => {
-      if (err) {
-          console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
-          const output = formatSchemaError(err, options.context);
-          console.error(output);
-          process.exit(1);
-      }
+    validator.validate(spec, { verbose }, (err, _options) => {
+        const { context, lintResults } = _options;
 
-      const lintResults = options.lintResults;
-      if (lintResults.length) {
-          console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
-          const output = formatLintResults(lintResults);
-          console.warn(output)
-          process.exit(1);
-      }
+        if (err) {
+            console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
+            const output = formatSchemaError(err, context);
+            console.error(output);
+            process.exit(1);
+        }
 
-      console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
-      process.exit(0);
-  });
+        if (lintResults.length) {
+            console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
+            const output = formatLintResults(lintResults);
+            console.warn(output)
+            process.exit(1);
+        }
+
+        console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
+        process.exit(0);
+    });
 };
 
 module.exports = { command }

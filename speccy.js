@@ -21,8 +21,10 @@ program
 
 program
     .command('lint <file-or-url>')
+    .option('-q, --quiet', 'reduce verbosity')
     .option('-r, --rules [ruleFile]', 'Provide multiple rules files', collect, [])
     .option('-s, --skip [ruleName]', 'Provide multiple rules to skip', collect, [])
+    .option('-v, --verbose', 'increase verbosity', 2)
     .action(lint.command);
 
 program
@@ -36,6 +38,8 @@ program
     .command('serve <file-or-url>')
     .description('View specifications in beautiful human readable documentation')
     .option('-p, --port [value]', 'port on which the server will listen', 5000)
+    .option('-q, --quiet', 'reduce verbosity')
+    .option('-v, --verbose', 'increase verbosity', 2)
     .option('-w, --watch', 'reloding browser on spec file changes')
     .action(serve.command);
 

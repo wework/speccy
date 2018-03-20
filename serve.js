@@ -11,9 +11,14 @@ const loader = require('./lib/loader.js');
 const command = async (file, cmd) => {
     const app = express();
     const port = cmd.port;
+    const verbose = cmd.quiet ? 1 : cmd.verbose
+
     const bundleDir = path.dirname(require.resolve('redoc'));
     const html = server.loadHTML(file);
-    const spec = await loader.readOrError(file);
+    const spec = await loader.readOrError(file, {
+        resolve: true,
+        verbose
+    });
 
     app.use('/assets/redoc', express.static(bundleDir));
     app.get('/spec.json', (req, res) => {

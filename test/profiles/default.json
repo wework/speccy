@@ -175,6 +175,35 @@
                     "expectValid": true
                 }
             ]
+        },
+        {
+            "object": "example",
+            "tests": [
+                {
+                    "input": {
+                        "summary": "User Example"
+                    },
+                    "expectedRuleErrors": [
+                        "example-value-or-externalValue"
+                    ]
+                },
+                {
+                    "input": {
+                        "summary": "User Example",
+                        "value": {
+                            "foo": "bar"
+                        }
+                    },
+                    "expectValid": true
+                },
+                {
+                    "input": {
+                        "summary": "User Example",
+                        "externalValue": "http://foo.bar/examples/user-example.json"
+                    },
+                    "expectValid": true
+                }
+            ]
         }
     ]
 }

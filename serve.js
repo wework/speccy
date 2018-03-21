@@ -8,14 +8,53 @@ const path = require('path');
 const server = require('./lib/server.js');
 const loader = require('./lib/loader.js');
 
-const command = async (file, cmd) => {
+const htmlOrError = specFile => {
+    try {
+        return server.loadHTML(specFile);
+    }
+    catch (e) {
+        console.error('Failed to load HTML file: ' + e.message);
+        process.exit(1);
+    }
+}
+
+const launchServer = (app, port, specFile) => {
+    app.listen(port, () => {
+        console.log(`API Reference Doc server running on http://localhost:${port}!`);
+    })
+    .on('error', e => {
+        console.error('Failed to start server: ' + e.message);
+        process.exit(1);
+    });
+}
+
+const launchWatchServerOrError = (app, port, specFile) => {
+    app.listen(port + 1, function () {
+        const bs = browserSync.create();
+        bs.init({
+            files: [specFile],
+            proxy: `http://localhost:${port+1}`,
+            port,
+            logLevel: 'silent',
+            open: false
+        }, () => {
+            console.log(`API Reference Doc server running on http://localhost:${port}!`);
+        });
+    })
+    .on('error', function(e) {
+        console.error('Failed to start server: ' + e.message);
+        process.exit(1);
+    });
+}
+
+const command = async (specFile, cmd) => {
     const app = express();
     const port = cmd.port;
-    const verbose = cmd.quiet ? 1 : cmd.verbose
-
+    const verbose = cmd.quiet ? 1 : cmd.verbose;
     const bundleDir = path.dirname(require.resolve('redoc'));
-    const html = server.loadHTML(file);
-    const spec = await loader.readOrError(file, {
+
+    const html = htmlOrError(specFile);
+    const spec = await loader.readOrError(specFile, {
         resolve: true,
         verbose
     });
@@ -28,33 +67,7 @@ const command = async (file, cmd) => {
         res.send(html);
     });
 
-    if (cmd.watch) {
-        app.listen(port + 1, function () {
-            const bs = browserSync.create();
-            bs.init({
-                files: [file],
-                proxy: `http://localhost:${port+1}`,
-                port,
-                logLevel: 'silent',
-                open: false
-            }, function() {
-                console.log(`API Reference Doc server running on http://localhost:${port}!`);
-            });
-        })
-        .on('error', function(e) {
-            console.error('failed to start server: ' + e.message);
-            process.exit(1);
-        });
-    }
-    else {
-        app.listen(port, function () {
-            console.log(`API Reference Doc server running on http://localhost:${port}!`);
-        })
-        .on('error', function(e) {
-            console.error('failed to start server: ' + e.message);
-            process.exit(1);
-        });
-    }
+    cmd.watch ? launchWatchServer(app, port, specFile) : launchServer(app, port, specFile);
 }
 
 module.exports = { command };

@@ -20,7 +20,7 @@ const htmlOrError = specFile => {
 
 const launchServer = (app, port, specFile) => {
     app.listen(port, () => {
-        console.log(`API Reference Doc server running on http://localhost:${port}!`);
+        console.log(`API docs server running on http://localhost:${port}!`);
     })
     .on('error', e => {
         console.error('Failed to start server: ' + e.message);
@@ -28,17 +28,16 @@ const launchServer = (app, port, specFile) => {
     });
 }
 
-const launchWatchServerOrError = (app, port, specFile) => {
+const launchWatchServer = (app, port, specFile) => {
     app.listen(port + 1, function () {
         const bs = browserSync.create();
         bs.init({
             files: [specFile],
             proxy: `http://localhost:${port+1}`,
             port,
-            logLevel: 'silent',
             open: false
         }, () => {
-            console.log(`API Reference Doc server running on http://localhost:${port}!`);
+            console.log(`API docs live server running on http://localhost:${port}!`);
         });
     })
     .on('error', function(e) {

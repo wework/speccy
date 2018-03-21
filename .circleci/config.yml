@@ -1,7 +1,5 @@
 version: 2
 shared: &shared
-    docker:
-        - image: circleci/node:latest
     steps:
         - checkout
         - restore_cache:
@@ -25,6 +23,8 @@ shared: &shared
 
 jobs:
     node-latest:
+        docker:
+            - image: circleci/node:latest
         <<: *shared
 
     node-9:

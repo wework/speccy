@@ -42,7 +42,7 @@ describe('linter.js', () => {
             const profile = JSON.parse(fs.readFileSync(profilesDir + file, 'utf8'))
             const profileName = file.replace(path.extname(file), '')
 
-            context('when `' + profileName + '` profile is loaded', () => {
+            context(`when \`${profileName}\` profile is loaded`, () => {
                 testProfile(profile);
             });
         })

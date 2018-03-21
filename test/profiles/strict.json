@@ -1,0 +1,37 @@
+{
+    "rules": [
+        "strict"
+    ],
+    "fixtures": [
+        {
+            "object": "contact",
+            "tests": [
+                {
+                    "input": {},
+                    "expectedRuleErrors": [
+                        "contact-properties",
+                        "contact-properties",
+                        "contact-properties"
+                    ]
+                },
+                {
+                    "input": {
+                        "name": "Support",
+                        "url": "http://example.org/contact"
+                    },
+                    "expectedRuleErrors": [
+                        "contact-properties"
+                    ]
+                },
+                {
+                    "input": {
+                        "name": "Support",
+                        "url": "http://example.org/contact",
+                        "email": "support@example.org"
+                    },
+                    "expectValid": true
+                }
+            ]
+        }
+    ]
+}

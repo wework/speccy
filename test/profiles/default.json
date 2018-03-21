@@ -7,24 +7,64 @@
             "object": "openapi",
             "tests": [
                 {
-                    "input": { "openapi": 3 },
-                    "expectedRuleErrors" : ["openapi-tags"]
+                    "input": {
+                        "openapi": 3
+                    },
+                    "expectedRuleErrors": [
+                        "openapi-tags"
+                    ]
                 },
                 {
-                    "input": { "openapi": 3, "tags": [] },
-                    "expectedRuleErrors" : ["openapi-tags"]
+                    "input": {
+                        "openapi": 3,
+                        "tags": []
+                    },
+                    "expectedRuleErrors": [
+                        "openapi-tags"
+                    ]
                 },
                 {
-                    "input": { "openapi": 3, "tags": [ {"name": "foo"}, {"name": "bar"} ]},
-                    "expectedRuleErrors" : ["openapi-tags-alphabetical"]
+                    "input": {
+                        "openapi": 3,
+                        "tags": [
+                            {
+                                "name": "foo"
+                            },
+                            {
+                                "name": "bar"
+                            }
+                        ]
+                    },
+                    "expectedRuleErrors": [
+                        "openapi-tags-alphabetical"
+                    ]
                 },
                 {
-                    "input": { "openapi": 3, "tags": [ {"name": "foo"}, {"name": "bar"} ]},
-                    "skip": [ "openapi-tags-alphabetical" ],
+                    "input": {
+                        "openapi": 3,
+                        "tags": [
+                            {
+                                "name": "foo"
+                            },
+                            {
+                                "name": "bar"
+                            }
+                        ]
+                    },
+                    "skip": [
+                        "openapi-tags-alphabetical"
+                    ],
                     "expectValid": true
                 },
                 {
-                    "input": { "openapi": 3, "tags": [ {"name": "foo"} ] },
+                    "input": {
+                        "openapi": 3,
+                        "tags": [
+                            {
+                                "name": "foo"
+                            }
+                        ]
+                    },
                     "expectValid": true
                 }
             ]
@@ -34,19 +74,31 @@
             "tests": [
                 {
                     "input": {},
-                    "expectedRuleErrors" : ["info-contact"]
+                    "expectedRuleErrors": [
+                        "info-contact"
+                    ]
                 },
                 {
-                    "input": { "contact": {} },
-                    "expectedRuleErrors" : ["info-contact"]
+                    "input": {
+                        "contact": {}
+                    },
+                    "expectedRuleErrors": [
+                        "info-contact"
+                    ]
                 },
                 {
                     "input": {},
-                    "skip": [ "info-contact" ],
+                    "skip": [
+                        "info-contact"
+                    ],
                     "expectValid": true
                 },
                 {
-                    "input": { "contact": { "foo": "bar" } },
+                    "input": {
+                        "contact": {
+                            "foo": "bar"
+                        }
+                    },
                     "expectValid": true
                 }
             ]
@@ -55,11 +107,17 @@
             "object": "server",
             "tests": [
                 {
-                    "input": { "url": "http://foo.com/" },
-                    "expectedRuleErrors" : ["server-trailing-slash"]
+                    "input": {
+                        "url": "http://foo.com/"
+                    },
+                    "expectedRuleErrors": [
+                        "server-trailing-slash"
+                    ]
                 },
                 {
-                    "input": { "url": "http://foo.com" },
+                    "input": {
+                        "url": "http://foo.com"
+                    },
                     "expectValid": true
                 }
             ]
@@ -68,12 +126,19 @@
             "object": "reference",
             "tests": [
                 {
-                    "input": { "$ref": "./foo.yml" },
+                    "input": {
+                        "$ref": "./foo.yml"
+                    },
                     "expectValid": true
                 },
                 {
-                    "input": { "$ref": "./foo.yml", "something": "else" },
-                    "expectedRuleErrors": ["reference-no-other-properties"]
+                    "input": {
+                        "$ref": "./foo.yml",
+                        "something": "else"
+                    },
+                    "expectedRuleErrors": [
+                        "reference-no-other-properties"
+                    ]
                 }
             ]
         },
@@ -89,14 +154,54 @@
                     ]
                 },
                 {
-                    "input": { "summary": "thing", "operationId": "thing" },
-                    "expectedRuleErrors": ["operation-tags"]
+                    "input": {
+                        "summary": "thing",
+                        "operationId": "thing",
+                        "description": "foo <script> bla"
+                    },
+                    "expectedRuleErrors": [
+                        "operation-tags",
+                        "no-script-tags-in-markdown"
+                    ]
                 },
                 {
                     "input": {
                         "summary": "thing",
                         "operationId": "thing",
-                        "tags": [{ "name": "thing" }]
+                        "tags": [
+                            {
+                                "name": "thing"
+                            }
+                        ]
+                    },
+                    "expectValid": true
+                }
+            ]
+        },
+        {
+            "object": "example",
+            "tests": [
+                {
+                    "input": {
+                        "summary": "User Example"
+                    },
+                    "expectedRuleErrors": [
+                        "example-value-or-externalValue"
+                    ]
+                },
+                {
+                    "input": {
+                        "summary": "User Example",
+                        "value": {
+                            "foo": "bar"
+                        }
+                    },
+                    "expectValid": true
+                },
+                {
+                    "input": {
+                        "summary": "User Example",
+                        "externalValue": "http://foo.bar/examples/user-example.json"
                     },
                     "expectValid": true
                 }

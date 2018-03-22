@@ -1,70 +1,69 @@
 {
-  "name": "speccy",
-  "version": "0.5.0",
-  "description": "Your friendly OpenAPI v3.0 #WellActually CLI assistant.",
-  "bin": {
-    "speccy": "./speccy.js"
-  },
-  "scripts": {
-    "test": "mocha",
-    "cover": "istanbul cover _mocha",
-    "coveralls": "npm run cover -- --report lcovonly -- -R spec && cat ./coverage/lcov.info | coveralls"
-  },
-  "preferGlobal": true,
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "es2015"
-          ]
-        }
-      ]
-    ]
-  },
-  "repository": {
-    "url": "https://github.com/wework/speccy.git",
-    "type": "git"
-  },
-  "author": "Phil Sturgeon <phil.sturgeon@wework.com>",
-  "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/wework/speccy/issues"
-  },
-  "dependencies": {
-    "ajv": "^5.0.1",
-    "browser-sync": "^2.23.6",
-    "call-me-maybe": "^1.0.1",
-    "commander": "^2.14.1",
-    "ejs": "^2.5.2",
-    "express": "^4.14.0",
-    "js-yaml": "^3.6.1",
-    "node-fetch": "^1.7.3",
-    "node-readfiles": "^0.2.0",
-    "redoc": "next",
-    "reftools": "0.0.20",
-    "should": "^13.2.0"
-  },
-  "keywords": [
-    "swagger",
-    "openapi",
-    "openapi2",
-    "openapi3",
-    "documentation",
-    "validator",
-    "validation",
-    "resolver",
-    "lint",
-    "linter"
-  ],
-  "devDependencies": {
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.1.0",
-    "babel-preset-es2015": "^6.24.1",
-    "coveralls": "^3.0.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^5.0.0",
-    "webpack": "^3.5.6"
-  }
+    "name": "speccy",
+    "version": "0.5.0",
+    "description": "Your friendly OpenAPI v3.0 #WellActually CLI assistant.",
+    "bin": {
+        "speccy": "./speccy.js"
+    },
+    "scripts": {
+        "test": "nyc --reporter=html --reporter=text mocha",
+        "coverage": "nyc report --reporter=text-lcov | coveralls"
+    },
+    "preferGlobal": true,
+    "browserify": {
+        "transform": [
+            [
+                "babelify",
+                {
+                    "presets": [
+                        "es2015"
+                    ]
+                }
+            ]
+        ]
+    },
+    "repository": {
+        "url": "https://github.com/wework/speccy.git",
+        "type": "git"
+    },
+    "author": "Phil Sturgeon <phil.sturgeon@wework.com>",
+    "license": "BSD-3-Clause",
+    "bugs": {
+        "url": "https://github.com/wework/speccy/issues"
+    },
+    "dependencies": {
+        "ajv": "^5.0.1",
+        "browser-sync": "^2.23.6",
+        "call-me-maybe": "^1.0.1",
+        "commander": "^2.14.1",
+        "ejs": "^2.5.2",
+        "express": "^4.14.0",
+        "js-yaml": "^3.6.1",
+        "node-fetch": "^1.7.3",
+        "node-readfiles": "^0.2.0",
+        "redoc": "next",
+        "reftools": "0.0.20",
+        "should": "^13.2.0"
+    },
+    "keywords": [
+        "swagger",
+        "openapi",
+        "openapi2",
+        "openapi3",
+        "documentation",
+        "validator",
+        "validation",
+        "resolver",
+        "lint",
+        "linter"
+    ],
+    "devDependencies": {
+        "babel-core": "^6.24.1",
+        "babel-loader": "^7.1.0",
+        "babel-preset-es2015": "^6.24.1",
+        "coveralls": "^3.0.0",
+        "mocha": "^5.0.0",
+        "nyc": "^11.6.0",
+        "webpack": "^3.5.6"
+    }
 }

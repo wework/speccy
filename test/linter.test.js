@@ -44,7 +44,142 @@ describe('linter.js', () => {
 
             context('when `' + profileName + '` profile is loaded', () => {
                 testProfile(profile);
-            })
+            });
         })
+
+        context('when rules are manually passed', () => {
+
+            const lintAndExpectErrors = (rule, input, expectedErrors) => {
+                const options = { lintResults : []};
+                linter.setRules([rule]);
+                linter.lint('something', input, options);
+                const ruleErrors = options.lintResults.map(result => result.rule.name);
+                ruleErrors.should.deepEqual(expectedErrors);
+            }
+
+            const lintAndExpectValid = (rule, input) => {
+                const options = { lintResults : []};
+                linter.setRules([rule]);
+                linter.lint('something', input, options);
+                options.lintResults.should.be.empty();
+            }
+
+            context('alphabetical', () => {
+                const rule = {
+                    "name": "alphabetical-name",
+                    "object": "*",
+                    "enabled": true,
+                    "alphabetical": {
+                        "properties": ["tags"],
+                        "keyedBy": "name"
+                    }
+                };
+
+                it('accepts key values in order', done => {
+                    const input = {
+                        "tags": [
+                            {"name": "bar"},
+                            {"name": "foo"}
+                        ]
+                    };
+                    lintAndExpectValid(rule, input);
+                    done();
+                });
+
+                it('fails key values out of order', done => {
+                    const input = {
+                        "tags": [
+                            {"name": "foo"},
+                            {"name": "bar"}
+                        ]
+                    };
+                    lintAndExpectErrors(rule, input, ['alphabetical-name']);
+                    done();
+                });
+            });
+
+            context('maxLength', () => {
+                const rule = {
+                    "name": "gotta-be-five",
+                    "object": "*",
+                    "enabled": true,
+                    "maxLength": { "property": "summary", "value": 5 }
+                };
+
+                it('accepts values up to the max length', done => {
+                    const input = { summary: '12345' };
+                    lintAndExpectValid(rule, input);
+                    done();
+                });
+
+                it('errors when string is too long', done => {
+                    const input = { summary: '123456' };
+                    lintAndExpectErrors(rule, input, ['gotta-be-five']);
+                    done();
+                });
+            });
+
+            context('pattern', () => {
+                context('when split and omit arguments are used', () => {
+                    const rule = {
+                        "name": "alphadash",
+                        "object": "*",
+                        "enabled": true,
+                        "pattern": {
+                            "property": "foo",
+                            "omit": "#",
+                            "split": "/",
+                            "value": "^[a-z0-9-]+$"
+                        }
+                    };
+
+                    it('will ignore the #, split the / and regex the rest', done => {
+                        lintAndExpectValid(rule, { "foo": "#foo/bar-baz" });
+                        done();
+                    });
+                    it('fails when it finds invalid character in the split segments', done => {
+                        lintAndExpectErrors(rule, { "foo" : "#foo/bar@#$/baz" }, ['alphadash']);
+                        done();
+                    });
+                });
+
+                context('when no split or omit argument are used', () => {
+                    const rule = {
+                        "name": "alphadash",
+                        "object": "*",
+                        "enabled": true,
+                        "pattern": {
+                            "property": "foo",
+                            "value": "^[a-z0-9-]+$"
+                        }
+                    };
+
+                    it('will allow the regex when its only alphadash', done => {
+                        lintAndExpectValid(rule, { "foo": "foo-bar" });
+                        done();
+                    });
+
+                    it('errors when non alphadash characters show up', done => {
+                        lintAndExpectErrors(rule, { "foo" : "foo/bar" }, ['alphadash']);
+                        done();
+                    });
+                });
+            });
+
+            context('xor', () => {
+                const rule = {
+                    "name": "one-or-tother",
+                    "object": "*",
+                    "enabled": true,
+                    "xor": ["a", "b"]
+                };
+
+                it('only allows a or b not both', done => {
+                    lintAndExpectValid(rule, { "a": 1, "c": 2 });
+                    lintAndExpectErrors(rule, { "a": 1, "b": 2 }, ['one-or-tother']);
+                    done();
+                });
+            });
+        });
     });
 });

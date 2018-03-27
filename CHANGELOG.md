@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.5.1] - 2018-03-27
+## [0.5.2] - 2018-03-27
 ### Added
 - Loads of tests
 ### Fixed
@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [#22]: https://github.com/wework/speccy/pull/22
 [#27]: https://github.com/wework/speccy/pull/27
 [#29]: https://github.com/wework/speccy/pull/29
+
+## [0.5.1] - 2018-03-27
+- Learning how to npm publish
 
 ## [0.5.0] - 2018-03-09
 ### Breaking Changes

@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.1] - 2018-03-27
+### Added
+- Loads of tests
+### Fixed
+- Allow `$refs` to link Objects ([#22])
+- Fixes "Unhandled promise rejection" messages for not found files ([#27])
+- Can now use `--verbose` for lint and serve ([#29])
+
+[#22]: https://github.com/wework/speccy/pull/22
+[#27]: https://github.com/wework/speccy/pull/27
+[#29]: https://github.com/wework/speccy/pull/29
+
 ## [0.5.0] - 2018-03-09
 ### Breaking Changes
 - Dropped support for NodeJS 6, now requires 7.5 (with `--harmony`) or higher.

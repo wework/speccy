@@ -125,6 +125,21 @@ describe('linter.js', () => {
                 });
             });
 
+            context('exists', () => {
+                const rule = {
+                  "name": "exists",
+                  "object": "*",
+                  "enabled": true,
+                  "exists": { "property": "summary", "value": null }
+                };
+
+                it('accepts when value is nonexistent', done => {
+                  const input = { summary: null };
+                  lintAndExpectValid(rule, input);
+                  done();
+                })
+            });
+
             context('pattern', () => {
                 context('when split and omit arguments are used', () => {
                     const rule = {

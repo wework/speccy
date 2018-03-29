@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.3] - 2018-03-29
+### Fixed
+- Warn about YAML/JSON parsing errors in referenced files ([#36])
+- Fixed max length (it was previously enforcing exact length) ([#38])
+
+[#36]: https://github.com/wework/speccy/pull/36
+[#38]: https://github.com/wework/speccy/pull/38
+
 ## [0.5.2] - 2018-03-27
 ### Added
 - Loads of tests

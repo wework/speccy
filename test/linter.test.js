@@ -118,26 +118,17 @@ describe('linter.js', () => {
                     done();
                 });
 
+                it('is fine if there is no summary', done => {
+                    const input = { foo: '123'};
+                    lintAndExpectValid(rule, input);
+                    done();
+                });
+
                 it('errors when string is too long', done => {
                     const input = { summary: '123456' };
                     lintAndExpectErrors(rule, input, ['gotta-be-five']);
                     done();
                 });
-            });
-
-            context('exists', () => {
-                const rule = {
-                  "name": "exists",
-                  "object": "*",
-                  "enabled": true,
-                  "exists": { "property": "summary", "value": null }
-                };
-
-                it('accepts when value is nonexistent', done => {
-                  const input = { summary: null };
-                  lintAndExpectValid(rule, input);
-                  done();
-                })
             });
 
             context('pattern', () => {

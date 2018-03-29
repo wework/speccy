@@ -112,6 +112,18 @@ describe('linter.js', () => {
                     done();
                 });
 
+                it('accepts values below the max length', done => {
+                    const input = { summary: '1234' };
+                    lintAndExpectValid(rule, input);
+                    done();
+                });
+
+                it('is fine if there is no summary', done => {
+                    const input = { foo: '123'};
+                    lintAndExpectValid(rule, input);
+                    done();
+                });
+
                 it('errors when string is too long', done => {
                     const input = { summary: '123456' };
                     lintAndExpectErrors(rule, input, ['gotta-be-five']);

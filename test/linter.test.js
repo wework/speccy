@@ -25,7 +25,7 @@ function testProfile(profile) {
                 else {
                     it(JSON.stringify(test.input) + ' is not valid', done => {
                         const actualRuleErrors = options.lintResults.map(result => result.rule.name);
-                        test.expectedRuleErrors.should.deepEqual(actualRuleErrors);
+                        actualRuleErrors.should.deepEqual(test.expectedRuleErrors);
                         done();
                     });
                 }

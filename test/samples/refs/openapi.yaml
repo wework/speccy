@@ -4,5 +4,14 @@ info:
   version: 1.0.0
   title: OpenAPI Ref Example
 paths:
-    a:
-        $ref: './a.yaml'
+  /a:
+    $ref: './a.yaml'
+
+  /b:
+    post:
+      summary: b
+      parameters:
+        - $ref: './parameters.yaml#/foo'
+      responses:
+        '405':
+          description: Invalid input

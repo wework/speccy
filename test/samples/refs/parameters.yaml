@@ -1,0 +1,5 @@
+foo:
+    name: foo
+    in: query
+    schema:
+        type: string

@@ -139,6 +139,18 @@
                     "expectedRuleErrors": [
                         "reference-no-other-properties"
                     ]
+                },
+                {
+                    "input": {
+                        "$ref": "parameters.yml#/roomId"
+                    },
+                    "expectedRuleErrors": []
+                },
+                {
+                    "input": {
+                        "$ref": "./parameters.yml#/roomId"
+                    },
+                    "expectValid": true
                 }
             ]
         },

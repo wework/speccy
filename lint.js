@@ -19,18 +19,34 @@ const colors = process.env.NODE_DISABLE_COLORS ? {} : {
 
 const formatSchemaError = (err, context) => {
   const pointer = context.pop();
-  const message = err.message;
-  let output;
 
-  output = `
+  let output = `
 ${colors.yellow + pointer}
-${colors.reset + message}
 `;
 
-  if (err.stack && err.name !== 'AssertionError') {
-      output += colors.red + err.stack + colors.reset;
+  if (err.name === 'AssertionError') {
+      output += colors.reset + err.message;
+  }
+  else if (err instanceof validator.JSONSchemaError) {
+      output += colors.reset + readableErrorMessages(err).join('\n');
+  }
+  else {
+      output += colors.red + err.stack;
   }
   return output;
+}
+
+function readableErrorMessages(err) {
+    return err.errors.map(function(error) {
+        const { dataPath, params } = error;
+        if (params.missingProperty) {
+            return `${dataPath} is missing property: ${params.missingProperty}`;
+        }
+        if (params.additionalProperty) {
+            return `${dataPath} has an unexpected additional property: ${params.additionalProperty}`;
+        }
+        return `unhandled invalid error: ${error}`;
+    });
 }
 
 const formatLintResults = lintResults => {

@@ -60,6 +60,13 @@ describe('loader.js', () => {
         });
     });
 
+    describe('fetchRulesUrl()', () => {
+      it('is an array', () => {
+          const url = loader.fetchRulesUrl();
+          should(url).be.Array();
+      });
+    });
+
     describe('loadSpec()', () => {
         const samplesDir = path.join(__dirname, './samples/');
 

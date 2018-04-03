@@ -41,7 +41,8 @@
         "node-readfiles": "^0.2.0",
         "redoc": "next",
         "reftools": "0.0.20",
-        "should": "^13.2.0"
+        "should": "^13.2.0",
+        "wget": "0.0.1"
     },
     "keywords": [
         "swagger",

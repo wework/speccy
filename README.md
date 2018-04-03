@@ -44,6 +44,7 @@ Options:
 
     -r, --rules [ruleFile]  use this multiple times to select multiple rules files
     -s, --skip [ruleName]   use this multiple times to skip specific rules
+    -u, --url [ruleURL]     use this multiple times to select multiple rules from URLs
     -h, --help              output usage information
 ```
 

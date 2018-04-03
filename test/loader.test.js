@@ -3,6 +3,7 @@
 const path = require('path');
 const yaml = require('js-yaml');
 const loader = require('../lib/loader.js');
+const nock = require('nock');
 
 describe('loader.js', () => {
     describe('loadRules()', () => {
@@ -34,6 +35,16 @@ describe('loader.js', () => {
                 "short-summary",
             ]
         };
+
+        it('retrieves rules from valid url', () => {
+            const url = nock('https://example.com')
+                        .get('/')
+                        .replyWithFile(200, __dirname + '/rules/default.json', { 'Content-Type': 'application/json' });
+            const loadedNames = loader.loadRules(url).map(x => x.name)
+            should(loadedNames).be.eql(
+                expectedRules.default
+            );
+        });
 
         it('load default rules', () => {
             const loadedNames = loader.loadRules(['default']).map(x => x.name)

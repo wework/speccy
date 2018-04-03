@@ -142,13 +142,13 @@
                 },
                 {
                     "input": {
-                        "$ref": "parameters.yml#/roomId"
+                        "$ref": "parameters.yml#/foo"
                     },
-                    "expectedRuleErrors": []
+                    "expectedRuleErrors": ["reference-components-regex"]
                 },
                 {
                     "input": {
-                        "$ref": "./parameters.yml#/roomId"
+                        "$ref": "./parameters.yml#/foo"
                     },
                     "expectValid": true
                 }

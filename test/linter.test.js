@@ -188,6 +188,36 @@ describe('linter.js', () => {
                     });
                 });
 
+                xcontext('when resolver is throwing x-miro around ', () => {
+                    const rule = {
+                        name: "reference-components-regex",
+                        object: "reference",
+                        enabled: true,
+                        description: "reference components should all match regex ^[a-zA-Z0-9\\.\\-_]+",
+                        pattern: {
+                            property: "$ref",
+                            omit: "#",
+                            split: "/",
+                            value: "^[a-zA-Z0-9\\.\\-_]+$"
+                        }
+                    };
+
+                    it('fails on bad characters', done => {
+                        lintAndExpectErrors(rule, { "$ref": "parameters.yml#/roomId!" }, ['reference-components-regex']);
+                        done();
+                    });
+
+                    it('allows split on / and everything else being alpha numeric or dot', done => {
+                        lintAndExpectValid(rule, { "$ref": "./parameters.yml#/roomId" });
+                        done();
+                    });
+
+                    it('is valid with a dodgy $ref and a nice x-miro', done => {
+                        lintAndExpectValid(rule, { "$ref": "~garbage@#$", "x-miro": "./parameters.yml#/roomId" });
+                        done();
+                    });
+                });
+
                 context('when no split or omit argument are used', () => {
                     const rule = {
                         "name": "alphadash",

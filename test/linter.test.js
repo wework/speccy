@@ -131,6 +131,39 @@ describe('linter.js', () => {
                 });
             });
 
+            context('properties', () => {
+                const rule = {
+                    "name": "exactly-two-things",
+                    "object": "*",
+                    "enabled": true,
+                    "properties": 2
+                };
+
+                it('one is too few', done => {
+                    const input = { foo: 'a' };
+                    lintAndExpectErrors(rule, input, ['exactly-two-things']);
+                    done();
+                });
+
+                it('three is too many', done => {
+                    const input = { foo: 'a', bar: 'b', 'baz': 'c' };
+                    lintAndExpectErrors(rule, input, ['exactly-two-things']);
+                    done();
+                });
+
+                it('two is just right', done => {
+                    const input = { foo: 'a', bar: 'b' };
+                    lintAndExpectValid(rule, input);
+                    done();
+                });
+
+                it('two things and an extension is two things', done => {
+                    const input = { foo: 'a', bar: 'b', 'x-baz': 'c' };
+                    lintAndExpectValid(rule, input);
+                    done();
+                });
+            });
+
             context('pattern', () => {
                 context('when split and omit arguments are used', () => {
                     const rule = {

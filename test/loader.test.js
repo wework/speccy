@@ -35,6 +35,11 @@ describe('loader.js', () => {
             ]
         };
 
+        it('accepts url rules', () => {
+            const url = loader.loadRules(['https://raw.githubusercontent.com/wework/speccy/master/rules/default.json']);
+            should(url).be.match(/http$/);
+        });
+
         it('load default rules', () => {
             const loadedNames = loader.loadRules(['default']).map(x => x.name)
             should(loadedNames).be.eql(

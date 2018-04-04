@@ -23,7 +23,6 @@ program
     .command('lint <file-or-url>')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-r, --rules [ruleFile]', 'Provide multiple rules files', collect, [])
-    // .option('-u, --url [ruleURL]', 'Provide multiple rules urls', collect, [])
     .option('-s, --skip [ruleName]', 'Provide multiple rules to skip', collect, [])
     .option('-v, --verbose', 'increase verbosity', 2)
     .action(lint.command);

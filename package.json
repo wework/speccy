@@ -1,6 +1,6 @@
 {
     "name": "speccy",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "description": "Your friendly OpenAPI v3.0 #WellActually CLI assistant.",
     "bin": {
         "speccy": "./speccy.js"

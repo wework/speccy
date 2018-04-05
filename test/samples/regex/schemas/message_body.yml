@@ -1,0 +1,9 @@
+Body:
+  type: object
+  properties:
+    message:
+      type: object
+      properties:
+        body:
+          type: string
+          example: "Hi this is new message"

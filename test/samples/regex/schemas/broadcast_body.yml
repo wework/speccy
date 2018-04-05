@@ -1,0 +1,17 @@
+Body:
+  type: object
+  properties:
+    sender_uuid:
+      type: string
+      example: "dfb12c50-a619-0131-94f5-0e5a83dc54a4"
+    body:
+      type: string
+      example: "Hi this is new message"
+    floors:
+      type: array
+      items:
+        type: integer
+        example: 123
+    location_uuid:
+      type: string
+      example: "dfb12c50-a619-0131-94f5-0e5a83dc54a4"

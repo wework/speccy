@@ -1,0 +1,29 @@
+User:
+  type: object
+  properties:
+    avatar_slug:
+      type: string
+      description: avatar slug for images
+      example: "v1454689404/staging/profile/avatar/dfb12c50-a619-0131-94f5-0e5a83dc54a4.jpg"
+    image_medium:
+      type: string
+      example: "https://res.cloudinary.com/wework/image/upload/staging/profile/avatar/dfb12c50-a619-0131-94f5-0e5a83dc54a4.jpg"
+    location_abbreviated:
+      type: string
+      example: "Chelsea, NYC"
+    name:
+      type: string
+      example: "Igor Brishkoski"
+    proximity:
+      type: string
+      example: 'Chelsea'
+    slug:
+      type: string
+      description: user's slug
+      example: 'igor-brishkoski-13809'
+    title:
+      type: string
+      example: 'Software Engineer'
+    uuid:
+      type: string
+      example: 'dfb12c50-a619-0131-94f5-0e5a83dc54a4'

@@ -1,0 +1,349 @@
+openapi: 3.0.0
+info:
+  description: Messenger Backend API
+  version: 1.0.0
+  title: Messenger API
+  contact:
+    name: COCO
+    url: https://wework.slack.com/messages/C0B8K0L8K
+    email: ibrishkoski@wework.com
+  x-logo:
+    url: >-
+      https://images.contentful.com/e4m0suk6oqie/16UOVXJ7fwcEGIguEg6yqs/b1984b100e0b5540f2819c80986d0505/wework-logo_BLACK.jpg
+tags:
+  - name: V1 - conversations
+    description: v1
+  - name: V2 - conversations
+    description: v2
+servers:
+  - url: 'https://messenger.wework.com/api'
+paths:
+  /v1/auth:
+    post:
+      summary: Pusher authentication
+      description: >-
+        See https://pusher.com/docs/authenticating_users for documentation. Our
+        clients, like socialweb, the iOS app, and the Android app, make a
+        request to this endpoint to get a token which they send to Pusher to
+        prove they are allowed to join a channel.
+      operationId: authenticate-pusher
+      tags:
+        - V1 - conversations
+      parameters:
+        $ref: './schemas/parameters.yml#/Pusher'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auth:
+                    type: string
+                    description: auth token
+                    example: >-
+                      49e26cb8e9dde3dfc009:a8cf1d3deefbb1bdc6a9d1547640d49d94b4b512320e2597c257a740edd1788f
+                  channel_date:
+                    type: string
+                    description: json for the channel
+                    example: >-
+                      {"user_id":"Phil Leggetter","user_info":{"name":"Phil
+                      Leggetter","imageUrl":"http:\/\/www.gravatar.com\/avatar\/ecc56977271e781991b6172c16248459?s=80&d=mm&r=g"}}
+        '403':
+          description: User doesn't have permissions to subscibe
+  /v1/unread_conversations_count:
+    get:
+      summary: Returns the number of unread messages for user as string
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unread_count:
+                    type: string
+                    description: number of unread messages
+                    example: '2'
+  /v1/unread_conversations_count_int:
+    get:
+      summary: Returns the number of unread messages for user as integer
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unread_count:
+                    type: integer
+                    description: number of unread messages
+                    example: 2
+  /v1/conversations/my_chatee_uuids:
+    get:
+      summary: Returns all members that the user has conversation with
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chatee_uuids:
+                    items:
+                      type: string
+                      example: dfb12c50-a619-0131-94f5-0e5a83dc54a4
+  /v1/conversations:
+    get:
+      summary: Returns conversations for a user
+      description: |
+        Returns a list of conversations for current user
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+        - $ref: './schemas/parameters.yml#/Page'
+      responses:
+        '200':
+          description: Return the conversations for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas/conversation.yml#/Conversation'
+    post:
+      summary: Create new conversations
+      description: |
+        Create new conversations with 1..n participants
+      tags: 
+        - V1 - conversations
+      responses:
+        '200':
+          description: Return the conversations for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas/conversation.yml#/Conversation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/conversation_body.yml#/Body'
+        required: true
+  '/v1/conversations/{conversationId}':
+    get:
+      summary: Return conversation for a user
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+        - $ref: './schemas/parameters.yml#/Page'
+        - $ref: './schemas/parameters.yml#/ConversationId'
+      responses:
+        '200':
+          description: Return the conversations for the user
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/conversation.yml#/Conversation'
+        '404':
+          description: Conversation not found or user not part of conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: '404'
+                  msg:
+                    type: string
+                    example: Not found
+  '/v1/conversations/{conversationId}/participants':
+    get:
+      summary: Return participants
+      description: Returns the participants of the conversations
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+        - $ref: './schemas/parameters.yml#/Page'
+        - $ref: './schemas/parameters.yml#/ConversationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas/user.yml#/User'
+          description: OK
+        '401':
+          description: User is not in conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: '401'
+                  msg:
+                    type: string
+                    example: Not found
+  '/v1/conversations/{conversationId}/messages':
+    post:
+      summary: Create message for conversation
+      description: Create message for the conversations
+      tags:
+        - V1 - conversations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/message.yml#/Message'
+        '401':
+          description: User is not in conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: '401'
+                  msg:
+                    type: string
+                    example: Not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/message_body.yml#/Body'
+        required: true
+  '/v1/conversations/{conversationId}/mute':
+    post:
+      summary: Mutes the conversations
+      description: |
+        The user will no longer receive notifications push/email
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+        - $ref: './schemas/parameters.yml#/ConversationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/success.yml#/Success'
+  '/v1/conversations/{conversationId}/unmute':
+    post:
+      summary: Unmutes the conversations
+      description: |
+        The user start receiving notifications push/email
+      tags:
+        - V1 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+        - $ref: './schemas/parameters.yml#/ConversationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/success.yml#/Success'
+  /v1/conversations/broadcast:
+    post:
+      summary: Create a broadcast message
+      description: |
+        Create and send a message to entire floor/location
+      tags:
+        - V1 - conversations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/success.yml#/Success'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/broadcast_body.yml#/Body'
+        required: true
+  '/v2/conversations/{conversationId}/messages':
+    get:
+      summary: Create messages for conversation
+      description: Create a messages for the conversations
+      tags:
+        - V2 - conversations
+      parameters:
+        - $ref: './schemas/parameters.yml#/EncyptedUserUuid'
+        - $ref: './schemas/parameters.yml#/ConversationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/message.yml#/Message'
+        '401':
+          description: User is not in conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: '401'
+                  msg:
+                    type: string
+                    example: Not found
+  /v2/conversations:
+    post:
+      summary: Create new conversations
+      description: |
+        Create new conversations with 1..n participants
+      tags:
+        - V2 - conversations
+      responses:
+        '200':
+          description: Return the conversations for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas/conversation.yml#/Conversation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/conversation_body.yml#/Body'
+        required: true

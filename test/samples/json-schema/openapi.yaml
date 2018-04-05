@@ -1,0 +1,8 @@
+---
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: OpenAPI /w JSON Schema Example
+paths:
+  /a:
+    $ref: './a.json'

@@ -1,0 +1,36 @@
+Message:
+  type: object
+  properties:
+    id:
+      type: integer
+      description: '???'
+      example: 13434454
+    chat_id:
+      type: integer
+      description: '???'
+      example: 1343
+    created_at:
+      type: string
+      format: date-time
+      example: "2017-10-16T13:25:01.297Z"
+    updated_at:
+      type: string
+      format: date-time
+      example: "2017-10-16T13:25:01.297Z"
+    delivered_at:
+      type: string
+      format: date-time
+      example: "2017-10-16T13:25:01.297Z"
+    body:
+      type: string
+      example: "Hey, how's it going?"
+    subject:
+      type: string
+      description: '???'
+      example: "CHAT:9564:219611"
+    user_id:
+      type: integer
+      example: 1344454
+    user_uuid:
+      type: string
+      example: 'dfb12c50-a619-0131-94f5-0e5a83dc54a4'

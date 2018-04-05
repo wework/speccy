@@ -1,0 +1,28 @@
+Conversation:
+  type: object
+  properties:
+    id:
+      type: integer
+      description: conversation ID
+      example: 343531
+    is_concierge:
+      type: boolean
+      example: false
+    is_muted:
+      type: boolean
+      example: false
+    is_read:
+      type: boolean
+      example: true
+    last_not_my_broadcast_message_id:
+      type: integer
+      description: '???'
+      example: 35153303
+    participants:
+      type: array
+      items:
+        $ref: 'user.yml#/User'
+    messages:
+      type: array
+      items:
+        $ref: 'message.yml#/Message'

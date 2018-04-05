@@ -1,0 +1,10 @@
+Reservation:
+  title: Reservation
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 3576387
+    start:
+      type: string
+      example: '2017-12-04T13:00:00.000Z'

@@ -1,0 +1,40 @@
+EncyptedUserUuid:
+  in: query
+  name: encrypted_user_uuid
+  description: DEPRECATED User's encrypted uuid
+  schema:
+    type: string
+Page:
+  in: query
+  name: page
+  description: paging for conversations
+  schema:
+    type: string
+ConversationId:
+  in: path
+  name: conversationId
+  description: id of the conversation
+  required: true
+  schema:
+    type: integer
+Pusher:
+  - name: channel_name
+    in: query
+    required: true
+    schema:
+      type: string
+  - name: socket_id
+    in: query
+    required: true
+    schema:
+      type: string
+  - name: version
+    in: query
+    required: true
+    schema:
+      type: string
+  - name: device_uuid
+    in: query
+    required: false
+    schema:
+      type: string

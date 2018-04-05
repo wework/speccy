@@ -1,0 +1,14 @@
+Body:
+  type: object
+  properties:
+    recipient_uuids:
+      type: array
+      items:
+        type: string
+        example: "dfb12c50-a619-0131-94f5-0e5a83dc54a4"
+    message:
+      type: object
+      properties:
+        body:
+          type: string
+          example: "Hi this is new message"

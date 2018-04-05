@@ -1,0 +1,6 @@
+Success:
+  type: object
+  properties:
+    msg:
+      type: string
+      example: "success"

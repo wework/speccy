@@ -19,18 +19,44 @@ const colors = process.env.NODE_DISABLE_COLORS ? {} : {
 
 const formatSchemaError = (err, context) => {
   const pointer = context.pop();
-  const message = err.message;
-  let output;
-
-  output = `
+  let output = `
 ${colors.yellow + pointer}
-${colors.reset + message}
 `;
 
-  if (err.stack && err.name !== 'AssertionError') {
-      output += colors.red + err.stack + colors.reset;
+  if (err.name === 'AssertionError') {
+      output += colors.reset + err.message;
+  }
+  else if (err instanceof validator.JSONSchemaError) {
+      output += colors.reset + readableJsonSchemaMessages(err).join('\n');
+  }
+  else {
+      output += colors.red + err.stack;
   }
   return output;
+}
+
+function readableJsonSchemaMessages(err) {
+    return err.errors.map(error => {
+        const { dataPath, params } = error;
+        if (params.missingProperty) {
+            return `${dataPath} is missing property: ${params.missingProperty}`;
+        }
+        if (params.additionalProperty) {
+            return `${dataPath} has an unexpected additional property: ${params.additionalProperty}`;
+        }
+        return `unhandled invalid error: ${error}`;
+    });
+}
+
+const truncateLongMessages = message => {
+    let lines = message.split('\n');
+    if (lines.length > 6) {
+        lines = lines.slice(0, 5).concat(
+            ['  ... snip ...'],
+            lines.slice(-1)
+        );
+    }
+    return lines.join('\n');
 }
 
 const formatLintResults = lintResults => {
@@ -40,7 +66,7 @@ const formatLintResults = lintResults => {
 
         output += `
 ${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${rule.description}
-${colors.reset + error.message}
+${colors.reset + truncateLongMessages(error.message)}
 `;
     });
 

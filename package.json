@@ -33,6 +33,7 @@
     },
     "dependencies": {
         "ajv": "^5.0.1",
+        "better-ajv-errors": "^0.4.4",
         "browser-sync": "^2.23.6",
         "call-me-maybe": "^1.0.1",
         "commander": "^2.14.1",

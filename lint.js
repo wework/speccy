@@ -26,26 +26,10 @@ ${colors.yellow + pointer}
   if (err.name === 'AssertionError') {
       output += colors.reset + err.message;
   }
-  else if (err instanceof validator.JSONSchemaError) {
-      output += colors.reset + readableJsonSchemaMessages(err).join('\n');
-  }
   else {
       output += colors.red + err.stack;
   }
   return output;
-}
-
-function readableJsonSchemaMessages(err) {
-    return err.errors.map(error => {
-        const { dataPath, params } = error;
-        if (params.missingProperty) {
-            return `${dataPath} is missing property: ${params.missingProperty}`;
-        }
-        if (params.additionalProperty) {
-            return `${dataPath} has an unexpected additional property: ${params.additionalProperty}`;
-        }
-        return `unhandled invalid error: ${error}`;
-    });
 }
 
 const truncateLongMessages = message => {
@@ -89,14 +73,18 @@ const command = async (file, cmd) => {
         const { context, lintResults } = _options;
 
         if (err) {
-            console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
-            const output = formatSchemaError(err, context);
-            console.error(output);
+            if (err instanceof validator.JSONSchemaError) {
+                console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
+                console.error(colors.reset + err.message);
+            } else {
+                const output = formatSchemaError(err, context);
+                console.error(output);
+            }
             process.exit(1);
         }
 
         if (lintResults.length) {
-            console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
+            console.warn(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
             const output = formatLintResults(lintResults);
             console.warn(output)
             process.exit(1);

@@ -33,8 +33,6 @@
     },
     "dependencies": {
         "ajv": "^5.0.1",
-        "browser-sync": "^2.23.6",
-        "call-me-maybe": "^1.0.1",
         "commander": "^2.14.1",
         "ejs": "^2.5.2",
         "express": "^4.14.0",

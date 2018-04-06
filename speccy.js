@@ -40,7 +40,7 @@ program
     .option('-p, --port [value]', 'port on which the server will listen', 5000)
     .option('-q, --quiet', 'reduce verbosity')
     .option('-v, --verbose', 'increase verbosity', 2)
-    .option('-w, --watch', 'reloading browser on spec file changes')
+    // TODO .option('-w, --watch', 'reloading browser on spec file changes')
     .action(serve.command);
 
 program.parse(process.argv,function(){

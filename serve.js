@@ -28,24 +28,6 @@ const launchServer = (app, port, specFile) => {
     });
 }
 
-const launchWatchServer = (app, port, specFile) => {
-    app.listen(port + 1, function () {
-        const bs = browserSync.create();
-        bs.init({
-            files: [specFile],
-            proxy: `http://localhost:${port+1}`,
-            port,
-            open: false
-        }, () => {
-            console.log(`API docs live server running on http://localhost:${port}!`);
-        });
-    })
-    .on('error', function(e) {
-        console.error('Failed to start server: ' + e.message);
-        process.exit(1);
-    });
-}
-
 const command = async (specFile, cmd) => {
     const app = express();
     const port = cmd.port;
@@ -66,7 +48,7 @@ const command = async (specFile, cmd) => {
         res.send(html);
     });
 
-    cmd.watch ? launchWatchServer(app, port, specFile) : launchServer(app, port, specFile);
+    launchServer(app, port, specFile);
 }
 
 module.exports = { command };

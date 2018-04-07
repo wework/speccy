@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## Removed
+- Removed switch --watch as it didn't actually work, and was flagging "security issues" on npm
+
 
 ## [0.5.4] - 2018-04-04
 ### Changed

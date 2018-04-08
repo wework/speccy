@@ -17,7 +17,7 @@ describe('loader.js', () => {
                 "openapi-tags-alphabetical",
                 "reference-no-other-properties",
                 "example-value-or-externalValue",
-                // "reference-components-regex",
+                "reference-components-regex",
                 "no-script-tags-in-markdown",
                 "info-contact",
                 "license-apimatic-bug",

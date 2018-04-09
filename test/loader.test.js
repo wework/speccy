@@ -3,6 +3,7 @@
 const path = require('path');
 const yaml = require('js-yaml');
 const loader = require('../lib/loader.js');
+const nock = require('nock');
 
 describe('loader.js', () => {
     describe('loadRules()', () => {
@@ -35,9 +36,11 @@ describe('loader.js', () => {
             ]
         };
 
-        it('accepts url rules', () => {
-            const url = loader.loadRules(['https://raw.githubusercontent.com/wework/speccy/master/rules/default.json']);
-            should(url).be.match(/http$/);
+        it('retrieves rules from valid url', () => {
+            const url = nock('https://example.com')
+                        .get('/rules.json')
+                        .reply(200, expectedRules);
+            should(url).be.Object();
         });
 
         it('load default rules', () => {

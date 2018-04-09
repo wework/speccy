@@ -16,22 +16,28 @@ const options = {
     status: 'undefined',
 };
 
-const main = (str, output) => {
-    options.openapi = yaml.safeLoad(str,{json:true});
+const main = (str, outputFile) => {
+    options.openapi = yaml.safeLoad(str, { json: true });
     resolver.resolve(options)
-        .then(function(){
-            fs.writeFileSync(output, yaml.safeDump(options.openapi,{lineWidth:-1}),'utf8');
-            console.log('Resolved to ' + output);
+        .then(() => {
+            const content = yaml.safeDump(options.openapi, { lineWidth: -1 });
+            if (outputFile) {
+                fs.writeFile(outputFile, content, 'utf8', () => {
+                    console.log('Resolved to ' + outputFile);
+                });
+            }
+            else {
+                console.log(content);
+            }
             process.exit(0);
         })
-        .catch(function(err){
-            console.warn(err);
-        });
+        .catch(err => console.warn(err));
 };
 
 const command = (file, cmd) => {
     options.origin = file;
     options.source = file;
+    options.jsonSchema = cmd.jsonSchema === true;
     options.verbose = cmd.quiet ? 1 : cmd.verbose;
 
     if (file && file.startsWith('http')) {

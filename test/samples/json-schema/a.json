@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "foo": {
+            "readOnly": true,
+            "type": "string",
+            "example": "123"
+        },
+        "bar": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "example": "12345"
+        },
+        "baz": {
+            "type": ["string", "null"],
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "foo",
+        "bar"
+    ]
+}

@@ -38,9 +38,12 @@ describe('loader.js', () => {
 
         it('retrieves rules from valid url', () => {
             const url = nock('https://example.com')
-                        .get('/rules.json')
-                        .reply(200, expectedRules);
-            should(url).be.Object();
+                        .get('/')
+                        .replyWithFile(200, __dirname + '/rules/default.json', { 'Content-Type': 'application/json' });
+            const loadedNames = loader.loadRules(url).map(x => x.name)
+            should(loadedNames).be.eql(
+                expectedRules.default
+            );
         });
 
         it('load default rules', () => {

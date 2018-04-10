@@ -37,14 +37,17 @@ ${colors.yellow + pointer}
 
 function readableJsonSchemaMessages(err) {
     return err.errors.map(error => {
-        const { dataPath, params } = error;
+        const { data, dataPath, params } = error;
         if (params.missingProperty) {
             return `${dataPath} is missing property: ${params.missingProperty}`;
         }
         if (params.additionalProperty) {
             return `${dataPath} has an unexpected additional property: ${params.additionalProperty}`;
         }
-        return `unhandled invalid error: ${error}`;
+        if (params.format) {
+            return `${dataPath} has an unexpected format. It should match ${params.format}. Value is: ${data}`;
+        }
+        return `${dataPath} ${message}`;
     });
 }
 

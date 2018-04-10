@@ -4,6 +4,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 const loader = require('../lib/loader.js');
 const nock = require('nock');
+const fetch = require('node-fetch');
 
 describe('loader.js', () => {
     describe('loadRules()', () => {
@@ -36,16 +37,6 @@ describe('loader.js', () => {
             ]
         };
 
-        it('retrieves rules from valid url', () => {
-            const url = nock('https://example.com')
-                        .get('/')
-                        .replyWithFile(200, __dirname + '/rules/default.json', { 'Content-Type': 'application/json' });
-            const loadedNames = loader.loadRules(url).map(x => x.name)
-            should(loadedNames).be.eql(
-                expectedRules.default
-            );
-        });
-
         it('load default rules', () => {
             const loadedNames = loader.loadRules(['default']).map(x => x.name)
             should(loadedNames).be.eql(
@@ -53,14 +44,14 @@ describe('loader.js', () => {
             );
         });
 
-        it('load default rules', () => {
+        it('load strict rules', () => {
             const loadedNames = loader.loadRules(['strict']).map(x => x.name)
             should(loadedNames).be.eql(
                 expectedRules['default'].concat(expectedRules['strict'])
             );
         });
 
-        it('load default rules', () => {
+        it('load wework rules', () => {
             const loadedNames = loader.loadRules(['wework']).map(x => x.name)
             should(loadedNames).be.eql(
                 expectedRules['default'].concat(
@@ -68,6 +59,26 @@ describe('loader.js', () => {
                     expectedRules['wework']
                 )
             );
+        });
+
+        context('when loading from url', () => {
+            const host = 'http://example.org';
+
+            it('retrieves rules from valid url', async () => {
+                nock(host).get('/').replyWithFile(200, __dirname + '/../rules/strict.json', {
+                    'Content-Type': 'application/json'
+                });
+
+                const loadedNames = loader.loadRules([host + '/']).map(x => x.name)
+                should(loadedNames).be.containDeep(expectedRules['strict']);
+            });
+
+            xit('no idea what happens on invalid url', () => {
+                nock(host).get('/').reply(404, 'Not Found');
+
+                const loadedNames = loader.loadRules([host + '/']).map(x => x.name)
+                should(loadedNames).be.containDeep(expectedRules['strict']);
+            });
         });
     });
 

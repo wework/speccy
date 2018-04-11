@@ -5,27 +5,27 @@ const path = require('path');
 const loader = require('../lib/loader.js');
 const linter = require('../lib/linter.js');
 
+const runLinter = async (object, input) => {
+    // const results = await linter.lint('something', input).catch(err => { throw err; });
+    const results = await linter.lint(object, input).catch(err => { console.log('is it this') });
+    return results.map(result => result.rule.name);
+}
+
 function testProfile(profile) {
     profile.fixtures.forEach(fixture => {
         const { object, tests } = fixture;
         describe('linting the ' + object + " object", () => {
             tests.forEach(test => {
-                loader.loadRuleFiles(profile.rules);
-
-                const options = { lintResults : [] };
-                linter.lint(object, test.input, options);
+                loader.loadRuleFiles(profile.rules).should.be.fulfilled();
 
                 if (test.expectValid) {
-                    it(JSON.stringify(test.input) + ' is valid', done => {
-                        options.lintResults.should.be.empty();
-                        done();
+                    it(JSON.stringify(test.input) + ' is valid', () => {
+                        runLinter(object, test.input).should.be.eventually.equal([]);
                     });
                 }
                 else {
-                    it(JSON.stringify(test.input) + ' is not valid', done => {
-                        const actualRuleErrors = options.lintResults.map(result => result.rule.name);
-                        test.expectedRuleErrors.should.deepEqual(actualRuleErrors);
-                        done();
+                    it(JSON.stringify(test.input) + ' is not valid', () => {
+                        runLinter(object, test.input).should.be.eventually.equal(test.expectedRuleErrors);
                     });
                 }
             });
@@ -47,20 +47,16 @@ describe('linter.js', () => {
         })
 
         context('when rules are manually passed', () => {
-
             const lintAndExpectErrors = (rule, input, expectedErrors) => {
-                const options = { lintResults : []};
+                linter.resetRules();
                 linter.createNewRule(rule);
-                linter.lint('something', input, options);
-                const ruleErrors = options.lintResults.map(result => result.rule.name);
-                ruleErrors.should.deepEqual(expectedErrors);
+                runLinter('something', input).should.be.eventually.equal(expectedErrors);
             }
 
             const lintAndExpectValid = (rule, input) => {
-                const options = { lintResults : []};
                 linter.createNewRule(rule);
-                linter.lint('something', input, options);
-                options.lintResults.should.be.empty();
+                linter.resetRules();
+                linter.lint('something', input).catch(err => { console.log('or maybe it this') }).should.not.be.rejected();
             }
 
             context('alphabetical', () => {
@@ -74,7 +70,7 @@ describe('linter.js', () => {
                     }
                 };
 
-                it('accepts key values in order', done => {
+                it('accepts key values in order', () => {
                     const input = {
                         "tags": [
                             {"name": "bar"},
@@ -82,18 +78,17 @@ describe('linter.js', () => {
                         ]
                     };
                     lintAndExpectValid(rule, input);
-                    done();
                 });
 
-                it('fails key values out of order', done => {
+                it('fails key values out of order', () => {
                     const input = {
                         "tags": [
                             {"name": "foo"},
                             {"name": "bar"}
                         ]
                     };
-                    lintAndExpectErrors(rule, input, ['alphabetical-name']);
-                    done();
+
+                    lintAndExpectErrors(rule, input, ['alphabetical-name'])
                 });
             });
 
@@ -105,28 +100,24 @@ describe('linter.js', () => {
                     "maxLength": { "property": "summary", "value": 5 }
                 };
 
-                it('accepts values up to the max length', done => {
+                it('accepts values up to the max length', () => {
                     const input = { summary: '12345' };
                     lintAndExpectValid(rule, input);
-                    done();
                 });
 
-                it('accepts values below the max length', done => {
+                it('accepts values below the max length', () => {
                     const input = { summary: '1234' };
                     lintAndExpectValid(rule, input);
-                    done();
                 });
 
-                it('is fine if there is no summary', done => {
+                it('is fine if there is no summary', () => {
                     const input = { foo: '123'};
                     lintAndExpectValid(rule, input);
-                    done();
                 });
 
-                it('errors when string is too long', done => {
+                it('errors when string is too long', () => {
                     const input = { summary: '123456' };
                     lintAndExpectErrors(rule, input, ['gotta-be-five']);
-                    done();
                 });
             });
 
@@ -138,28 +129,24 @@ describe('linter.js', () => {
                     "properties": 2
                 };
 
-                it('one is too few', done => {
+                it('one is too few', () => {
                     const input = { foo: 'a' };
                     lintAndExpectErrors(rule, input, ['exactly-two-things']);
-                    done();
                 });
 
-                it('three is too many', done => {
+                it('three is too many', () => {
                     const input = { foo: 'a', bar: 'b', 'baz': 'c' };
                     lintAndExpectErrors(rule, input, ['exactly-two-things']);
-                    done();
                 });
 
-                it('two is just right', done => {
+                it('two is just right', () => {
                     const input = { foo: 'a', bar: 'b' };
                     lintAndExpectValid(rule, input);
-                    done();
                 });
 
-                it('two things and an extension is two things', done => {
+                it('two things and an extension is two things', () => {
                     const input = { foo: 'a', bar: 'b', 'x-baz': 'c' };
                     lintAndExpectValid(rule, input);
-                    done();
                 });
             });
 
@@ -177,13 +164,11 @@ describe('linter.js', () => {
                         }
                     };
 
-                    it('will ignore the #, split the / and regex the rest', done => {
+                    it('will ignore the #, split the / and regex the rest', () => {
                         lintAndExpectValid(rule, { "foo": "#foo/bar-baz" });
-                        done();
                     });
-                    it('fails when it finds invalid character in the split segments', done => {
+                    it('fails when it finds invalid character in the split segments', () => {
                         lintAndExpectErrors(rule, { "foo" : "#foo/bar@#$/baz" }, ['alphadash']);
-                        done();
                     });
                 });
 
@@ -198,14 +183,12 @@ describe('linter.js', () => {
                         }
                     };
 
-                    it('will allow the regex when its only alphadash', done => {
+                    it('will allow the regex when its only alphadash', () => {
                         lintAndExpectValid(rule, { "foo": "foo-bar" });
-                        done();
                     });
 
-                    it('errors when non alphadash characters show up', done => {
+                    it('errors when non alphadash characters show up', () => {
                         lintAndExpectErrors(rule, { "foo" : "foo/bar" }, ['alphadash']);
-                        done();
                     });
                 });
             });
@@ -218,10 +201,9 @@ describe('linter.js', () => {
                     "xor": ["a", "b"]
                 };
 
-                it('only allows a or b not both', done => {
+                it('only allows a or b not both', () => {
                     lintAndExpectValid(rule, { "a": 1, "c": 2 });
                     lintAndExpectErrors(rule, { "a": 1, "b": 2 }, ['one-or-tother']);
-                    done();
                 });
             });
         });

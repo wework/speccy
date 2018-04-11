@@ -3,6 +3,16 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Swagger 2.0 Without Scheme
-  contact:
-    name: Phil
 paths: {}
+components:
+    schemas:
+        foo:
+            type: object
+        bar:
+            type: object
+        baz:
+            type: object
+        ban:
+            type: object
+        basdf:
+            type: object

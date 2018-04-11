@@ -18,17 +18,19 @@ function testProfile(profile) {
         const { object, tests } = fixture;
         describe(`linting the ${object} object`, () => {
             tests.forEach(async test => {
-                await loader.loadRuleFiles(profile.rules, { skip: test.skip });
-                const results = await getLinterErrors(runLinter(object, test.input));
+                const { input, expectedRuleErrors, expectValid, skip = [] } = test;
 
-                if (test.expectValid) {
-                    it(JSON.stringify(test.input) + ' is valid', () => {
+                await loader.loadRuleFiles(profile.rules, { skip });
+                const results = await getLinterErrors(runLinter(object, input));
+
+                if (expectValid) {
+                    it(JSON.stringify(input) + ' is valid', () => {
                         results.should.be.empty();
                     });
                 }
                 else {
-                    it(JSON.stringify(test.input) + ' is not valid', () => {
-                        results.should.be.deepEqual(test.expectedRuleErrors);
+                    it(JSON.stringify(input) + ' is not valid', () => {
+                        results.should.be.deepEqual(expectedRuleErrors);
                     });
                 }
             });

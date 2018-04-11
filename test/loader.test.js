@@ -1,10 +1,10 @@
 'use strict';
 
-const path = require('path');
-const yaml = require('js-yaml');
+const fetch = require('node-fetch');
 const loader = require('../lib/loader.js');
 const nock = require('nock');
-const fetch = require('node-fetch');
+const path = require('path');
+const yaml = require('js-yaml');
 
 describe('loader.js', () => {
     describe('loadRuleFiles()', () => {
@@ -51,6 +51,7 @@ describe('loader.js', () => {
 
         context('when loading from url', () => {
             const host = 'http://example.org';
+            const url = host + '/';
 
             it('retrieves rules from valid url', () => {
                 nock(host).get('/').replyWithFile(200, __dirname + '/../rules/strict.json', {
@@ -60,10 +61,27 @@ describe('loader.js', () => {
                 loader.loadRuleFiles([host + '/']).should.be.fulfilledWith([host + '/', 'default']);
             });
 
-            it('no idea what happens on invalid url', () => {
-                nock(host).get('/').reply(404, 'Not Found');
-                const url = host + '/';
-                loader.loadRuleFiles([url]).should.be.rejectedWith('FetchError');
+            context('when the file being loaded is garbage', () => {
+                const setupMock = () => nock(host).get('/').reply(200, 'this is not json AT ALL');
+
+                it('reject with a ReadError', () => {
+                    setupMock();
+                    loader.loadRuleFiles([url]).should.be.rejectedWith(loader.ReadError);
+                });
+
+                it('error should be useful', () => {
+                    setupMock();
+                    loader.loadRuleFiles([url]).should.be.rejectedWith(/Invalid JSON: invalid json response body/);
+                });
+            })
+
+            context('when the url is not found', () => {
+                const setupMock = () => nock(host).get('/').reply(404);
+
+                it('rejects with an OpenError', () => {
+                    setupMock();
+                    loader.loadRuleFiles([url]).should.be.rejectedWith(loader.OpenError);
+                });
             });
         });
     });
@@ -91,26 +109,12 @@ describe('loader.js', () => {
             should(spec.paths['/a'].post.description).equal('Some operation object');
         });
 
-        it('throws OpenError for non-existant file', async () => {
-            let thrownError;
-            try {
-                await loader.loadSpec(samplesDir + 'nope.yaml');
-            }
-            catch (error) {
-                thrownError = error;
-            }
-            should(thrownError.name).equal('OpenError');
+        it('throws OpenError for non-existant file', () => {
+            loader.loadSpec(samplesDir + 'nope.yaml').should.be.rejectedWith(loader.OpenError)
         });
 
-        it('throws ReadError for invalid YAML/JSON', async () => {
-            let thrownError;
-            try {
-                await loader.loadSpec(samplesDir + 'not-openapi.txt');
-            }
-            catch (error) {
-                thrownError = error;
-            }
-            should(thrownError.name).equal('ReadError');
+        it('throws ReadError for invalid YAML/JSON', () => {
+            loader.loadSpec(samplesDir + 'not-openapi.txt').should.be.rejectedWith(loader.ReadError);
         });
     });
 });

@@ -48,6 +48,9 @@ const command = (file, cmd) => {
         });
     }
     else {
+        if (options.verbose) {
+            console.log('READ ' + file);
+        }
         fs.readFile(file, 'utf8', (err,data) => {
             if (err)
                 console.warn(err);

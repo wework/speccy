@@ -80,11 +80,7 @@ const command = async (file, cmd) => {
     const verbose = cmd.quiet ? 1 : cmd.verbose;
     const spec = await loader.readOrError(file, { verbose, resolve: true });
 
-    loader.loadRuleFiles(cmd.rules);
-
-    // if (verbose > 1) {
-    //     console.log('Found ' + rules.length + ' rules: ' + rules.map(x => x.name))
-    // };
+    loader.loadRuleFiles(cmd.rules, { verbose, skip: cmd.skip });
 
     validator.validate(spec, { verbose }, (err, _options) => {
         const { context, lintResults } = _options;

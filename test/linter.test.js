@@ -5,27 +5,30 @@ const path = require('path');
 const loader = require('../lib/loader.js');
 const linter = require('../lib/linter.js');
 
-const runLinter = async (object, input) => {
-    // const results = await linter.lint('something', input).catch(err => { throw err; });
-    const results = await linter.lint(object, input).catch(err => { console.log('is it this') });
-    return results.map(result => result.rule.name);
+const runLinter = (object, input) => {
+    return linter.lint(object, input).catch(err => { console.log('is it this') });
+}
+
+const getLinterErrors = async (linter) => {
+    return (await linter).map(result => result.rule.name);
 }
 
 function testProfile(profile) {
     profile.fixtures.forEach(fixture => {
         const { object, tests } = fixture;
-        describe('linting the ' + object + " object", () => {
-            tests.forEach(test => {
-                loader.loadRuleFiles(profile.rules).should.be.fulfilled();
+        describe(`linting the ${object} object`, () => {
+            tests.forEach(async test => {
+                await loader.loadRuleFiles(profile.rules, { skip: test.skip });
+                const results = await getLinterErrors(runLinter(object, test.input));
 
                 if (test.expectValid) {
                     it(JSON.stringify(test.input) + ' is valid', () => {
-                        runLinter(object, test.input).should.be.eventually.equal([]);
+                        results.should.be.empty();
                     });
                 }
                 else {
                     it(JSON.stringify(test.input) + ' is not valid', () => {
-                        runLinter(object, test.input).should.be.eventually.equal(test.expectedRuleErrors);
+                        results.should.be.deepEqual(test.expectedRuleErrors);
                     });
                 }
             });
@@ -47,16 +50,20 @@ describe('linter.js', () => {
         })
 
         context('when rules are manually passed', () => {
-            const lintAndExpectErrors = (rule, input, expectedErrors) => {
-                linter.resetRules();
+            const lintAndExpectErrors = async (rule, input, expectedErrors) => {
+                linter.initialize();
                 linter.createNewRule(rule);
-                runLinter('something', input).should.be.eventually.equal(expectedErrors);
+                (await getLinterErrors(runLinter('something', input))).should.be.deepEqual(expectedErrors);
             }
 
-            const lintAndExpectValid = (rule, input) => {
+            const lintAndExpectValid = async (rule, input) => {
+                linter.initialize();
                 linter.createNewRule(rule);
-                linter.resetRules();
-                linter.lint('something', input).catch(err => { console.log('or maybe it this') }).should.not.be.rejected();
+                const lint = runLinter('something', input);
+                // rejections are bad
+                lint.should.not.be.rejected();
+                // dont want any linter errors either
+                (await getLinterErrors(lint)).should.be.empty();
             }
 
             context('alphabetical', () => {

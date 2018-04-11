@@ -10,10 +10,9 @@ function testProfile(profile) {
         const { object, tests } = fixture;
         describe('linting the ' + object + " object", () => {
             tests.forEach(test => {
-                const rules = loader.loadRules(profile.rules, test.skip);
-                const options = { lintResults : []};
+                loader.loadRuleFiles(profile.rules);
 
-                linter.setRules(rules);
+                const options = { lintResults : [] };
                 linter.lint(object, test.input, options);
 
                 if (test.expectValid) {
@@ -25,7 +24,7 @@ function testProfile(profile) {
                 else {
                     it(JSON.stringify(test.input) + ' is not valid', done => {
                         const actualRuleErrors = options.lintResults.map(result => result.rule.name);
-                        actualRuleErrors.should.deepEqual(test.expectedRuleErrors);
+                        test.expectedRuleErrors.should.deepEqual(actualRuleErrors);
                         done();
                     });
                 }
@@ -51,7 +50,7 @@ describe('linter.js', () => {
 
             const lintAndExpectErrors = (rule, input, expectedErrors) => {
                 const options = { lintResults : []};
-                linter.setRules([rule]);
+                linter.createNewRule(rule);
                 linter.lint('something', input, options);
                 const ruleErrors = options.lintResults.map(result => result.rule.name);
                 ruleErrors.should.deepEqual(expectedErrors);
@@ -59,7 +58,7 @@ describe('linter.js', () => {
 
             const lintAndExpectValid = (rule, input) => {
                 const options = { lintResults : []};
-                linter.setRules([rule]);
+                linter.createNewRule(rule);
                 linter.lint('something', input, options);
                 options.lintResults.should.be.empty();
             }

@@ -7,7 +7,7 @@ const nock = require('nock');
 const fetch = require('node-fetch');
 
 describe('loader.js', () => {
-    describe('loadRules()', () => {
+    describe('loadRuleFiles()', () => {
         const expectedRules = {
             default: [
                 "parameter-description",
@@ -38,46 +38,32 @@ describe('loader.js', () => {
         };
 
         it('load default rules', () => {
-            const loadedNames = loader.loadRules(['default']).map(x => x.name)
-            should(loadedNames).be.eql(
-                expectedRules.default
-            );
+            loader.loadRuleFiles(['default']).should.be.fulfilledWith(['default']);
         });
 
         it('load strict rules', () => {
-            const loadedNames = loader.loadRules(['strict']).map(x => x.name)
-            should(loadedNames).be.eql(
-                expectedRules['default'].concat(expectedRules['strict'])
-            );
+            loader.loadRuleFiles(['strict']).should.be.fulfilledWith(['strict', 'default']);
         });
 
         it('load wework rules', () => {
-            const loadedNames = loader.loadRules(['wework']).map(x => x.name)
-            should(loadedNames).be.eql(
-                expectedRules['default'].concat(
-                    expectedRules['strict'],
-                    expectedRules['wework']
-                )
-            );
+            loader.loadRuleFiles(['wework']).should.be.fulfilledWith(['wework', 'strict', 'default']);
         });
 
         context('when loading from url', () => {
             const host = 'http://example.org';
 
-            it('retrieves rules from valid url', async () => {
+            it('retrieves rules from valid url', () => {
                 nock(host).get('/').replyWithFile(200, __dirname + '/../rules/strict.json', {
                     'Content-Type': 'application/json'
                 });
 
-                const loadedNames = loader.loadRules([host + '/']).map(x => x.name)
-                should(loadedNames).be.containDeep(expectedRules['strict']);
+                loader.loadRuleFiles([host + '/']).should.be.fulfilledWith([host + '/', 'default']);
             });
 
-            xit('no idea what happens on invalid url', () => {
+            it('no idea what happens on invalid url', () => {
                 nock(host).get('/').reply(404, 'Not Found');
-
-                const loadedNames = loader.loadRules([host + '/']).map(x => x.name)
-                should(loadedNames).be.containDeep(expectedRules['strict']);
+                const url = host + '/';
+                loader.loadRuleFiles([url]).should.be.rejectedWith('FetchError');
             });
         });
     });

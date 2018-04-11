@@ -36,6 +36,7 @@ const command = async (specFile, cmd) => {
 
     const html = htmlOrError(specFile);
     const spec = await loader.readOrError(specFile, {
+        jsonSchema: cmd.jsonSchema === true,
         resolve: true,
         verbose
     });

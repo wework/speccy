@@ -83,6 +83,26 @@ describe('loader.js', () => {
             should(spec.paths['/a'].post.description).equal('Some operation object');
         });
 
+        it('resolves JSON Schema $refs when passed { jsonSchema: true }', async () => {
+            const spec = await loader.loadSpec(samplesDir + 'json-schema/openapi.yaml', {
+                jsonSchema: true,
+                resolve: true
+            });
+
+            const properties = spec.paths['/a'].get.responses['200'].content['application/json'].schema.properties;
+            should(properties.foo).match({
+                "readOnly": true,
+                "type": "string",
+                "example": "123"
+            });
+            should(properties.bar).match({
+                "type": "string",
+                "format": "uuid",
+                "example": "12345",
+                "nullable": true
+            });
+        });
+
         it('throws OpenError for non-existant file', async () => {
             let thrownError;
             try {

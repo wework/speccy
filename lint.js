@@ -78,7 +78,14 @@ ${colors.reset + truncateLongMessages(error.message)}
 
 const command = async (file, cmd) => {
     const verbose = cmd.quiet ? 1 : cmd.verbose;
-    const spec = await loader.readOrError(file, { verbose, resolve: true });
+
+    const options = {
+        jsonSchema: cmd.jsonSchema === true,
+        resolve: true,
+        verbose,
+    }
+
+    const spec = await loader.readOrError(file, options);
     const rules = loader.loadRules(cmd.rules, cmd.skip);
 
     if (verbose > 1) {

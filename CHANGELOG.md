@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ## Removed
 - Removed switch --watch as it didn't actually work, and was flagging "security issues" on npm
-
+## Added
+- New switch `--json-schema / -j` will tell speccy to resolve $refs as JSON Schema, converting them to OpenAPI on the fly
 
 ## [0.5.4] - 2018-04-04
 ### Changed

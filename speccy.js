@@ -24,13 +24,15 @@ program
     .option('-q, --quiet', 'reduce verbosity')
     .option('-r, --rules [ruleFile]', 'Provide multiple rules files', collect, [])
     .option('-s, --skip [ruleName]', 'Provide multiple rules to skip', collect, [])
+    .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects')
     .option('-v, --verbose', 'increase verbosity', 2)
     .action(lint.command);
 
 program
     .command('resolve <file-or-url>')
-    .option('-o, --output <file>', 'file to output to', 'resolved.yaml')
+    .option('-o, --output <file>', 'file to output to')
     .option('-q, --quiet', 'reduce verbosity')
+    .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects')
     .option('-v, --verbose', 'increase verbosity', 2)
     .action(resolve.command);
 
@@ -39,6 +41,7 @@ program
     .description('View specifications in beautiful human readable documentation')
     .option('-p, --port [value]', 'port on which the server will listen', 5000)
     .option('-q, --quiet', 'reduce verbosity')
+    .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects')
     .option('-v, --verbose', 'increase verbosity', 2)
     // TODO .option('-w, --watch', 'reloading browser on spec file changes')
     .action(serve.command);
@@ -47,4 +50,3 @@ program.parse(process.argv,function(){
     // Show help if nothing else is going on
     if (!program.args.length) program.help();
 });
-

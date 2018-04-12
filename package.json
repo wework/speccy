@@ -6,7 +6,7 @@
         "speccy": "./speccy.js"
     },
     "scripts": {
-        "test": "mocha",
+        "test": "nyc --reporter=html --reporter=text mocha",
         "coverage": "nyc report --reporter=text-lcov | coveralls"
     },
     "preferGlobal": true,

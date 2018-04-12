@@ -9,8 +9,8 @@ const runLinter = (object, input, options = {}) => {
     return linter.lint(object, input, options);
 }
 
-const getLinterErrors = async linter => {
-    return (await linter).map(result => result.rule.name);
+const getLinterErrors = linter => {
+    return linter.map(result => result.rule.name);
 }
 
 const testFixture = (fixture, rules) => {
@@ -18,25 +18,23 @@ const testFixture = (fixture, rules) => {
         const { input, expectedRuleErrors, expectValid, skip = [] } = test;
 
         loader.loadRuleFiles(rules).then(() => {
-            return runLinter(fixture.object, input, { skip }).then(results => {
-                const actualRuleErrors = results.map(result => result.rule.name);
-                if (expectValid) {
-                    var msg = JSON.stringify(input) + ' is valid';
-                    var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');
-                } else {
-                    var msg = JSON.stringify(input) + ' is not valid';
-                    var assertion = () => actualRuleErrors.should.be.deepEqual(expectedRuleErrors, 'expected linter errors do not match those returned');
-                }
+            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, { skip }));
+            if (expectValid) {
+                var msg = JSON.stringify(input) + ' is valid';
+                var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');
+            } else {
+                var msg = JSON.stringify(input) + ' is not valid';
+                var assertion = () => actualRuleErrors.should.be.deepEqual(expectedRuleErrors, 'expected linter errors do not match those returned');
+            }
 
-                it(msg, done => {
-                    try {
-                        assertion();
-                        done();
-                    }
-                    catch (err) {
-                        done(err);
-                    }
-                });
+            it(msg, done => {
+                try {
+                    assertion();
+                    done();
+                }
+                catch (err) {
+                    done(err);
+                }
             });
         });
     });
@@ -59,20 +57,16 @@ describe('linter.js', () => {
         })
 
         context('when rules are manually passed', () => {
-            const lintAndExpectErrors = async (rule, input, expectedErrors) => {
+            const lintAndExpectErrors = (rule, input, expectedErrors) => {
                 linter.initialize();
                 linter.createNewRule(rule);
-                (await getLinterErrors(runLinter('something', input))).should.be.deepEqual(expectedErrors);
+                getLinterErrors(runLinter('something', input)).should.be.deepEqual(expectedErrors);
             }
 
             const lintAndExpectValid = async (rule, input) => {
                 linter.initialize();
                 linter.createNewRule(rule);
-                const lint = runLinter('something', input);
-                // rejections are bad
-                lint.should.not.be.rejected();
-                // dont want any linter errors either
-                (await getLinterErrors(lint)).should.be.empty();
+                getLinterErrors(runLinter('something', input)).should.be.empty();
             }
 
             context('alphabetical', () => {

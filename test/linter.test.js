@@ -5,43 +5,39 @@ const path = require('path');
 const loader = require('../lib/loader.js');
 const linter = require('../lib/linter.js');
 
-const runLinter = (object, input) => {
-    return linter.lint(object, input).catch(err => { console.log('is it this') });
+const runLinter = (object, input, options = {}) => {
+    return linter.lint(object, input, options);
 }
 
-const getLinterErrors = async (linter) => {
+const getLinterErrors = async linter => {
     return (await linter).map(result => result.rule.name);
 }
 
-async function asyncForEach(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array)
-  }
-}
-
-const testFixture = async (fixture, rules) => {
-    return await asyncForEach(fixture.tests, async test => {
+const testFixture = (fixture, rules) => {
+    fixture.tests.forEach(test => {
         const { input, expectedRuleErrors, expectValid, skip = [] } = test;
 
-        await loader.loadRuleFiles(rules, { skip });
-        const results = await getLinterErrors(runLinter(fixture.object, input));
+        loader.loadRuleFiles(rules).then(() => {
+            return runLinter(fixture.object, input, { skip }).then(results => {
+                const actualRuleErrors = results.map(result => result.rule.name);
+                if (expectValid) {
+                    var msg = JSON.stringify(input) + ' is valid';
+                    var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');
+                } else {
+                    var msg = JSON.stringify(input) + ' is not valid';
+                    var assertion = () => actualRuleErrors.should.be.deepEqual(expectedRuleErrors, 'expected linter errors do not match those returned');
+                }
 
-        if (expectValid) {
-            var msg = JSON.stringify(input) + ' is valid';
-            var assertion = () => results.should.be.empty('expected no linter errors, but got some');
-        } else {
-            var msg = JSON.stringify(input) + ' is not valid'
-            var assertion = () => results.should.be.deepEqual(expectedRuleErrors, 'expected linter errors do not match those returned');
-        }
-
-        it(msg, done => {
-            try {
-                assertion();
-                done();
-            }
-            catch (err) {
-                done(err);
-            }
+                it(msg, done => {
+                    try {
+                        assertion();
+                        done();
+                    }
+                    catch (err) {
+                        done(err);
+                    }
+                });
+            });
         });
     });
 }

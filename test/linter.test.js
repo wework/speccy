@@ -13,27 +13,35 @@ const getLinterErrors = async (linter) => {
     return (await linter).map(result => result.rule.name);
 }
 
-function testProfile(profile) {
-    profile.fixtures.forEach(fixture => {
-        const { object, tests } = fixture;
-        describe(`linting the ${object} object`, () => {
-            tests.forEach(async test => {
-                const { input, expectedRuleErrors, expectValid, skip = [] } = test;
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array)
+  }
+}
 
-                await loader.loadRuleFiles(profile.rules, { skip });
-                const results = await getLinterErrors(runLinter(object, input));
+const testFixture = async (fixture, rules) => {
+    return await asyncForEach(fixture.tests, async test => {
+        const { input, expectedRuleErrors, expectValid, skip = [] } = test;
 
-                if (expectValid) {
-                    it(JSON.stringify(input) + ' is valid', () => {
-                        results.should.be.empty();
-                    });
-                }
-                else {
-                    it(JSON.stringify(input) + ' is not valid', () => {
-                        results.should.be.deepEqual(expectedRuleErrors);
-                    });
-                }
-            });
+        await loader.loadRuleFiles(rules, { skip });
+        const results = await getLinterErrors(runLinter(fixture.object, input));
+
+        if (expectValid) {
+            var msg = JSON.stringify(input) + ' is valid';
+            var assertion = () => results.should.be.empty('expected no linter errors, but got some');
+        } else {
+            var msg = JSON.stringify(input) + ' is not valid'
+            var assertion = () => results.should.be.deepEqual(expectedRuleErrors, 'expected linter errors do not match those returned');
+        }
+
+        it(msg, done => {
+            try {
+                assertion();
+                done();
+            }
+            catch (err) {
+                done(err);
+            }
         });
     });
 }
@@ -42,12 +50,15 @@ describe('linter.js', () => {
     describe('lint()', () => {
         const profilesDir = path.join(__dirname, './profiles/');
 
-        fs.readdirSync(profilesDir).forEach(function (file) {
-            const profile = JSON.parse(fs.readFileSync(profilesDir + file, 'utf8'))
-            const profileName = file.replace(path.extname(file), '')
+        ['default', 'strict'].forEach(profileName => {
+            const profile = JSON.parse(fs.readFileSync(profilesDir + profileName + '.json', 'utf8'))
 
             context('when `' + profileName + '` profile is loaded', () => {
-                testProfile(profile);
+                profile.fixtures.forEach(fixture => {
+                    describe(`linting the ${fixture.object} object`, () => {
+                        testFixture(fixture, profile.rules);
+                    });
+                });
             });
         })
 

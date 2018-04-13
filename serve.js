@@ -2,7 +2,6 @@
 
 'use strict';
 
-const browserSync = require('browser-sync');
 const express = require('express');
 const path = require('path');
 const server = require('./lib/server.js');

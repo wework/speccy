@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const yaml = require('js-yaml');
-const fetch = require('node-fetch');
+const loader = require('./lib/loader.js');
 const resolver = require('./lib/resolver.js');
 
 const options = {
@@ -16,50 +16,22 @@ const options = {
     status: 'undefined',
 };
 
-const main = (str, outputFile) => {
-    options.openapi = yaml.safeLoad(str, { json: true });
-    resolver.resolve(options)
-        .then(() => {
-            const content = yaml.safeDump(options.openapi, { lineWidth: -1 });
-            if (outputFile) {
-                fs.writeFile(outputFile, content, 'utf8', () => {
-                    console.log('Resolved to ' + outputFile);
-                });
-            }
-            else {
-                console.log(content);
-            }
-            process.exit(0);
-        })
-        .catch(err => console.warn(err));
-};
-
-const command = (file, cmd) => {
-    options.origin = file;
-    options.source = file;
+const command = async (file, cmd) => {
     options.jsonSchema = cmd.jsonSchema === true;
     options.verbose = cmd.quiet ? 1 : cmd.verbose;
 
-    if (file && file.startsWith('http')) {
-        if (options.verbose) {
-            console.log('GET ' + file);
-        }
-        fetch(file, { agent:options.agent }).then(res => {
-            if (res.status !== 200) throw new Error(`Received status code ${res.status}`);
-            return res.text();
-        }).then(body => {
-            main(body, cmd.output);
-        }).catch(err => {
-            console.warn(err);
+    const spec = await loader.readOrError(file, options);
+    const content = yaml.safeDump(spec, { lineWidth: -1 });
+
+    if (cmd.output) {
+        fs.writeFile(cmd.output, content, 'utf8', () => {
+            if (options.verbose > 1) {
+                console.log('Resolved to ' + cmd.output);
+            }
         });
     }
     else {
-        fs.readFile(file, 'utf8', (err,data) => {
-            if (err)
-                console.warn(err);
-            else
-                main(data, cmd.output);
-        });
+        console.log(content);
     }
 };
 

@@ -79,23 +79,17 @@ ${colors.reset + truncateLongMessages(error.message)}
 const command = async (file, cmd) => {
     const verbose = cmd.quiet ? 1 : cmd.verbose;
 
-    const options = {
+    linter.initialize();
+
+    await loader.loadRuleFiles(cmd.rules, { verbose });
+
+    const spec = await loader.readOrError(file, {
         jsonSchema: cmd.jsonSchema === true,
         resolve: true,
         verbose,
-    }
+    });
 
-    const spec = await loader.readOrError(file, options);
-    const rules = loader.loadRules(cmd.rules, cmd.skip);
-
-    if (verbose > 1) {
-        console.log('Found ' + rules.length + ' rules: ' + rules.map(x => x.name))
-    };
-
-    // Prep the linter with these rules
-    linter.setRules(rules);
-
-    validator.validate(spec, { verbose }, (err, _options) => {
+    validator.validate(spec, { verbose, skip: cmd.skip }, (err, _options) => {
         const { context, lintResults } = _options;
 
         if (err) {

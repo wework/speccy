@@ -6,9 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ## Removed
-- Removed switch --watch as it didn't actually work, and was flagging "security issues" on npm
+- Removed switch `--watch` as it didn't actually work, and was flagging "security issues" on npm ([#46])
 ## Added
-- New switch `--json-schema / -j` will tell speccy to resolve $refs as JSON Schema, converting them to OpenAPI on the fly
+- Support URLs in `--rules` for lint command ([#41])
+- New switch `--json-schema / -j` will tell speccy to resolve $refs as JSON Schema, converting them to OpenAPI on the fly ([#45])
+
+[#41]: https://github.com/wework/speccy/pull/41
+[#45]: https://github.com/wework/speccy/pull/45
+[#46]: https://github.com/wework/speccy/pull/46
+
 
 ## [0.5.4] - 2018-04-04
 ### Changed

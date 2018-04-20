@@ -1,0 +1,1238 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Swagger Petstore",
+    "description": "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.",
+    "license": {
+      "name": "MIT",
+      "url": "http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://petstore.swagger.io/v2",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/pet": {
+      "put": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "updatePet",
+        "description": "Update an existing pet",
+        "operationId": "updatePet",
+        "parameters": [],
+        "requestBody": {
+          "description": "Pet object that needs to be added to the store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Pet object that needs to be added to the store",
+                "$ref": "#/components/schemas/Pet"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "405": {
+            "description": "Validation exception"
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      },
+      "post": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "addPet",
+        "description": "Add a new pet to the store",
+        "operationId": "addPet",
+        "parameters": [],
+        "requestBody": {
+          "description": "Pet object that needs to be added to the store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Pet object that needs to be added to the store",
+                "$ref": "#/components/schemas/Pet"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/pet/findByStatus": {
+      "get": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "findPetsByStatus",
+        "description": "Finds Pets by status",
+        "operationId": "findPetsByStatus",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status values that need to be considered for filter",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Status6"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  },
+                  "description": "successful operation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value"
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/pet/findByTags": {
+      "get": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "findPetsByTags",
+        "description": "Finds Pets by tags",
+        "operationId": "findPetsByTags",
+        "parameters": [
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Tags to filter by",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  },
+                  "description": "successful operation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tag value"
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/pet/{petId}": {
+      "get": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "getPetById",
+        "description": "Find pet by ID",
+        "operationId": "getPetById",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet to return",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "successful operation",
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      },
+      "post": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "updatePetWithForm",
+        "description": "Updates a pet in the store with form data",
+        "operationId": "updatePetWithForm",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet that needs to be updated",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Updated name of the pet",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Updated status of the pet",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      },
+      "delete": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "deletePet",
+        "description": "Deletes a pet",
+        "operationId": "deletePet",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "Pet id to delete",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "api_key",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/pet/{petId}/uploadImage": {
+      "post": {
+        "tags": [
+          "pet"
+        ],
+        "summary": "uploadFile",
+        "description": "uploads an image",
+        "operationId": "uploadFile",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet to update",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "additionalMetadata",
+            "in": "query",
+            "description": "Additional data to pass to server",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "file",
+            "in": "query",
+            "description": "file to upload",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "successful operation",
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/store/inventory": {
+      "get": {
+        "tags": [
+          "store"
+        ],
+        "summary": "getInventory",
+        "description": "Returns pet inventories by status",
+        "operationId": "getInventory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "description": "successful operation",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/store/order": {
+      "post": {
+        "tags": [
+          "store"
+        ],
+        "summary": "placeOrder",
+        "description": "Place an order for a pet",
+        "operationId": "placeOrder",
+        "parameters": [],
+        "requestBody": {
+          "description": "order placed for purchasing the pet",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "order placed for purchasing the pet",
+                "$ref": "#/components/schemas/Order"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "successful operation",
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Order"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/store/order/{orderId}": {
+      "get": {
+        "tags": [
+          "store"
+        ],
+        "summary": "getOrderById",
+        "description": "Find purchase order by ID",
+        "operationId": "getOrderById",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "ID of pet that needs to be fetched",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "successful operation",
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Order not found"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      },
+      "delete": {
+        "tags": [
+          "store"
+        ],
+        "summary": "deleteOrder",
+        "description": "Delete purchase order by ID",
+        "operationId": "deleteOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "ID of the order that needs to be deleted",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Order not found"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "createUser",
+        "description": "Create user",
+        "operationId": "createUser",
+        "parameters": [],
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Created user object",
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "successful operation"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/user/createWithArray": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "createUsersWithArrayInput",
+        "description": "Creates list of users with given input array",
+        "operationId": "createUsersWithArrayInput",
+        "parameters": [],
+        "requestBody": {
+          "description": "List of user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "description": "List of user object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "successful operation"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/user/createWithList": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "createUsersWithListInput",
+        "description": "Creates list of users with given input array",
+        "operationId": "createUsersWithListInput",
+        "parameters": [],
+        "requestBody": {
+          "description": "List of user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "description": "List of user object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "successful operation"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/user/login": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "loginUser",
+        "description": "Logs user into the system",
+        "operationId": "loginUser",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "The user name for login",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "The password for login in clear text",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "successful operation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/user/logout": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "logoutUser",
+        "description": "Logs out current logged in user session",
+        "operationId": "logoutUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "successful operation"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/user/{username}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "getUserByName",
+        "description": "Get user by user name",
+        "operationId": "getUserByName",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "The name that needs to be fetched. Use user1 for testing.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "successful operation",
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username supplied"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "updateUser",
+        "description": "Updated user",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "name that need to be updated",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Updated user object",
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user supplied"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "deleteUser",
+        "description": "Delete user",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "The name that needs to be deleted",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "style": "matrix",
+            "explode": false,
+            "allowReserved": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username supplied"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "deprecated": false,
+        "security": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Order": {
+        "title": "Order",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "petId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "shipDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "description": "Order Status",
+            "$ref": "#/components/schemas/Status"
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Status": {
+        "title": "Status",
+        "enum": [
+          "placed",
+          "approved",
+          "delivered"
+        ],
+        "type": "string"
+      },
+      "Category": {
+        "title": "Category",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "title": "User",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "userStatus": {
+            "type": "integer",
+            "description": "User Status",
+            "format": "int32"
+          }
+        }
+      },
+      "Tag": {
+        "title": "Tag",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Pet": {
+        "title": "Pet",
+        "required": [
+          "name",
+          "photoUrls"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "photoUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "description": ""
+          },
+          "status": {
+            "description": "pet status in the store",
+            "$ref": "#/components/schemas/Status6"
+          }
+        }
+      },
+      "Status6": {
+        "title": "Status6",
+        "enum": [
+          "available",
+          "pending",
+          "sold"
+        ],
+        "type": "string"
+      },
+      "ApiResponse": {
+        "title": "ApiResponse",
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {}
+  ]
+}

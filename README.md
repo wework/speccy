@@ -26,9 +26,9 @@ Options:
 
 Commands:
 
-  lint [options] <file-or-url>
-  resolve [options] <file-or-url>
-  serve [options] <file>
+  lint [options] <file-or-url>     ensure specs are not just valid OpenAPI, but lint against specified rules
+  resolve [options] <file-or-url>  pull in external $ref files to create one mega-file
+  serve [options] <file-or-url>    view specifications in beautiful human readable documentation
 ```
 
 ### Lint Command
@@ -38,13 +38,16 @@ The goal here is to sniff your files for potentially bad things. "Bad" is object
 ```
 Usage: lint [options] <file-or-url>
 
-Ensure your OpenAPI files are valid and up to scratch
+ensure specs are not just valid OpenAPI, but lint against specified rules
 
 Options:
 
-    -r, --rules [ruleFile]  use this multiple times to select multiple rules files
-    -s, --skip [ruleName]   use this multiple times to skip specific rules
-    -h, --help              output usage information
+  -q, --quiet             reduce verbosity
+  -r, --rules [ruleFile]  provide multiple rules files
+  -s, --skip [ruleName]   provide multiple rules to skip
+  -j, --json-schema       treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  -v, --verbose           increase verbosity
+  -h, --help              output usage information
 ```
 
 You'll see output such as:
@@ -72,18 +75,20 @@ Contributions of rules and rule actions for the linter are very much appreciated
 
 ### Serve Command
 
-Using [ReDoc] and the handy utility [redocup], speccy can offer a preview of your
-specifications, in human-readable format. In the future we'll have speccy outlining improvements right in here, but one thing at a time ey?
+Using [ReDoc], speccy can offer a preview of your specifications, in human-readable format.
+In the future we'll have speccy outlining improvements right in here, but one thing at a time.
 
 ```
-Usage: serve [options] spec-json-or-yaml-path
+Usage: serve [options] <file-or-url>
 
-View specifications in beautiful human readable documentation
+view specifications in beautiful human readable documentation
 
 Options:
 
   -p, --port [value]  port on which the server will listen (default: 5000)
-  -w, --watch         reloding browser on spec file changes
+  -q, --quiet         reduce verbosity
+  -j, --json-schema   treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  -v, --verbose       increase verbosity
   -h, --help          output usage information
 ```
 

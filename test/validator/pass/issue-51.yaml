@@ -1,0 +1,41 @@
+openapi: 3.0.1
+
+info:
+  title: An API that Speccy hates
+  description: Speccy doesn't like my UUID schema.
+  contact:
+    name: Iain McGinniss
+    email: iain.mcginniss@wework.com
+  version: 1.0.0
+
+tags:
+- name: demanded-by-speccy
+  description: Speccy demands that I have tags defined. Ergo, a tag.
+
+components:
+  schemas:
+    uuid:
+      description: An RFC 4122 formatted UUID.
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      externalDocs:
+        description: >
+          RFC 4122 - A Universally Unique IDentifier (UUID) URN Namespace
+        url: https://tools.ietf.org/html/rfc4122.html#section-4.1
+
+paths:
+  /api/uuid:
+    get:
+      operationId: listUuids
+      description: Provides a list of UUIDs, for reasons.
+      tags:
+      - demanded-by-speccy
+      responses:
+        200:
+          description: A list of UUIDs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/uuid'

@@ -4,7 +4,7 @@
 
 const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
-const validator = require('./lib/validate.js');
+const validator = require('./lib/validator.js');
 
 const colors = process.env.NODE_DISABLE_COLORS ? {} : {
   red: '\x1b[31m',

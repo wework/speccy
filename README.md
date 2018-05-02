@@ -106,8 +106,8 @@ the specification.  For example:
 const loader = require('speccy/lib/loader');
 
 const options = {
-  resolve: true, // Resolve external references 
-  json: true     // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  resolve: true,   // Resolve external references 
+  jsonSchema: true // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
 };
 
 loader
@@ -125,8 +125,8 @@ const loader = require('speccy/lib/loader');
 const { dereference } = require('reftools/lib/dereference');
 
 const options = {
-  resolve: true, // Resolve external references 
-  json: true     // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  resolve: true,   // Resolve external references 
+  jsonSchema: true // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
 };
 
 module.exports = () => loader

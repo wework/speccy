@@ -27,6 +27,11 @@ jobs:
     node-latest:
         <<: *shared
 
+    node-10:
+        docker:
+            - image: circleci/node:10
+        <<: *shared
+
     node-9:
         docker:
             - image: circleci/node:9
@@ -42,5 +47,6 @@ workflows:
     commit:
         jobs:
             - node-latest
+            - node-10
             - node-9
             - node-8

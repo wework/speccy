@@ -31,7 +31,7 @@ describe('validator.js', () => {
                         validator.validate(spec, {}, err => {
                             done(err);
                         });
-                    });
+                    }).catch(err => done(err));
                 });
             });
         });
@@ -47,6 +47,8 @@ describe('validator.js', () => {
                             if (err) return done();
                             done(new Error('no validation error'));
                         });
+                    }).catch(err => {
+                        if (err) return done();
                     });
                 });
             });

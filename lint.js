@@ -89,7 +89,7 @@ const command = async (file, cmd) => {
         verbose,
     });
 
-    validator.validate(spec, { verbose, skip: cmd.skip }, (err, _options) => {
+    validator.validate(spec, { verbose, skip: cmd.skip, openApiVersion: cmd.openApiVersion, }, (err, _options) => {
         const { context, lintResults } = _options;
 
         if (err) {

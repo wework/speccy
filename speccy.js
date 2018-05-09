@@ -22,6 +22,7 @@ program
 program
     .command('lint <file-or-url>')
     .description('ensure specs are not just valid OpenAPI, but lint against specified rules')
+    .option('-o, --open-api-version [value]', 'provide OpenAPI specification version to use', 3)
     .option('-q, --quiet', 'reduce verbosity')
     .option('-r, --rules [ruleFile]', 'provide multiple rules files', collect, [])
     .option('-s, --skip [ruleName]', 'provide multiple rules to skip', collect, [])

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2018-05-10
+### Breaking Change
+- Error now raised for all commands when `$ref` points to a file that does not exist, or cannot be opened
+### Fixed
+- Bumped `json-schema-to-openapi-schema` to v0.2.0 so subschemas will be converted
+- Invalid keywords will be stripped everywhere instead of just root
+
 ## [0.6.0] - 2018-05-04
 ## Removed
 - Removed switch `--watch` as it didn't actually work, and was flagging "security issues" on npm ([#46])

@@ -37,7 +37,7 @@ Commands:
 
 ### Lint Command
 
-The goal here is to sniff your files for potentially bad things. "Bad" is objective, but you'll see validation errors, along with special rules for making your APIs better..
+The goal here is to sniff your files for potentially bad things. "Bad" is subjective, but you'll see validation errors, along with special rules for making your APIs better..
 
 ```
 Usage: lint [options] <file-or-url>

@@ -2,7 +2,7 @@
 
 const path = require('path');
 const loader = require('../lib/loader.js');
-const validator = require('../lib/validator.js');
+const validator = require('../lib/validation-strategies/openapi-v2.js');
 const fs = require('fs');
 
 const fetchTestFiles = dir => {
@@ -18,12 +18,12 @@ const fetchTestFiles = dir => {
     return [].concat(...allFiles).filter(file => file.match(/\.(json|yaml|yml)$/));
 }
 
-describe('validator.js', () => {
+describe('openapi-v2.js', () => {
     describe('validate()', () => {
         const options = { resolve: true };
 
         context('when provided valid specifications', () => {
-            const samplesPath = path.join(__dirname, './validator/pass');
+            const samplesPath = path.join(__dirname, './validator/openapi-v2/pass');
 
             fetchTestFiles(samplesPath).forEach(test => {
                 it(`${test} is valid`, done => {
@@ -37,7 +37,7 @@ describe('validator.js', () => {
         });
 
         context('when provided invalid specifications', () => {
-            const samplesPath = path.join(__dirname, './validator/fail');
+            const samplesPath = path.join(__dirname, './validator/openapi-v2/fail');
 
             fetchTestFiles(samplesPath).forEach(test => {
                 it(`${test} is invalid`, done => {

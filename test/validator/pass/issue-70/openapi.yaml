@@ -1,0 +1,15 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Test
+components:
+  schemas:
+    $ref: ./include/def.json
+paths:
+  /:
+    get:
+      parameters:
+        - name: foobar
+          in: query
+          schema:
+            $ref: ./include/def.json#/definitions/foobar

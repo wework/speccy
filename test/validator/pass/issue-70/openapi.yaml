@@ -4,7 +4,7 @@ info:
   title: Test
 components:
   schemas:
-    $ref: ./include/def.json
+    $ref: ./include/def.json#/properties
 paths:
   /:
     get:
@@ -12,4 +12,7 @@ paths:
         - name: foobar
           in: query
           schema:
-            $ref: ./include/def.json#/definitions/foobar
+            $ref: ./include/def.json#/properties/foobar
+      responses:
+        200:
+          description: yay

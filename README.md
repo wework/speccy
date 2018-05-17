@@ -8,6 +8,10 @@ Make sure your OpenAPI 3.0 specifications are more than just valid, make sure th
 
 Taking off from where [Mike Ralphson] started with linting in [swagger2openapi], Speccy aims to become the [rubocop] or [eslint] of OpenAPI.
 
+## Requirements
+
+- **NodeJS:** v8 - v10
+
 ## OpenAPI Specification
 
 Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
@@ -33,7 +37,7 @@ Commands:
 
 ### Lint Command
 
-The goal here is to sniff your files for potentially bad things. "Bad" is objective, but you'll see validation errors, along with special rules for making your APIs better..
+The goal here is to sniff your files for potentially bad things. "Bad" is subjective, but you'll see validation errors, along with special rules for making your APIs better..
 
 ```
 Usage: lint [options] <file-or-url>

@@ -106,7 +106,9 @@ const command = async (file, cmd) => {
             process.exit(1);
         }
 
-        console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
+        if (!cmd.quiet) {
+          console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
+        }
         process.exit(0);
     });
 };

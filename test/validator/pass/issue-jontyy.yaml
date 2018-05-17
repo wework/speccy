@@ -1,0 +1,25 @@
+openapi: 3.0.1
+
+info:
+  title: not should work juuust fine
+  description: not was sad without oneOf for a while
+  contact:
+    name: Jontty
+  version: 1.0.0
+
+tags:
+- name: foo
+  description: bar
+
+paths:
+  /api/uuid:
+    get:
+      description: thing
+      responses:
+        200:
+          description: Stuff
+          content:
+            application/json:
+              schema:
+                not:
+                  required: [ 'post-office-box' ]

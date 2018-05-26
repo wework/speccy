@@ -37,7 +37,7 @@ ${colors.yellow + pointer}
 
 function readableJsonSchemaMessages(err) {
     return err.errors.map(error => {
-        const { data, dataPath, params } = error;
+        const { data, dataPath, params, message } = error;
         if (params.missingProperty) {
             return `${dataPath} is missing property: ${params.missingProperty}`;
         }

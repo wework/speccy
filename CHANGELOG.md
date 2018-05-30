@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Fixed
+- Resolver was treating `$ref` with a URL like a file. ([#80])
+
+[#80]: https://github.com/wework/speccy/pull/80
+
 ## [0.7.1] - 2018-05-17
 ### Fixed
 - Using `not` without `oneOf` since 0.7.0 was causing validation failures

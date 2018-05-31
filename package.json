@@ -1,6 +1,6 @@
 {
     "name": "speccy",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "description": "Your friendly OpenAPI v3.0 #WellActually CLI assistant.",
     "bin": {
         "speccy": "./speccy.js"
@@ -51,7 +51,6 @@
         "json-schema-to-openapi-schema": "^0.2.0",
         "node-fetch": "^1.7.3",
         "node-readfiles": "^0.2.0",
-        "npm": "^6.1.0",
         "redoc": "next",
         "reftools": "0.0.20",
         "should": "^13.2.0"

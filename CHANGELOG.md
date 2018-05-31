@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fix `message is undefined` error ([#78])
 - Resolver was treating `$ref` with a URL like a file. ([#80])
+- Show more useful validation warnings when certain properties are the incorrect type. ([#83])
 
 [#78]: https://github.com/wework/speccy/pull/78
 [#80]: https://github.com/wework/speccy/pull/80
+[#83]: https://github.com/wework/speccy/pull/83
 
 ## [0.7.1] - 2018-05-17
 ### Fixed

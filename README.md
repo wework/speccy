@@ -106,11 +106,11 @@ Not just a command line tool, speccy can be used to normalize machine-readable s
 The loader object will return a promise that resolves to an object containing
 the specification.  For example:
 
-```javascript
+``` javascript
 const loader = require('speccy/lib/loader');
 
 const options = {
-  resolve: true,   // Resolve external references 
+  resolve: true,   // Resolve external references
   jsonSchema: true // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
 };
 
@@ -120,24 +120,6 @@ loader
 ```
 
 If `options.resolve` is truthy, speccy will resolve _external_ references.
-However, the loaded specification it may contain JSON pointers in lieu of
-_internal_ javascript references.  A library like reftools can convert those
-pointers back to references:
-
-```javascript
-const loader = require('speccy/lib/loader');
-const { dereference } = require('reftools/lib/dereference');
-
-const options = {
-  resolve: true,   // Resolve external references 
-  jsonSchema: true // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
-};
-
-module.exports = () => loader
-  .loadSpec('path/to/my/spec', options)             // Load the spec...
-  .then(spec => Promise.resolve(dereference(spec))) // Resolve internal references.
-  .then(spec => console.log(JSON.stringify(spec));  // ...and print it out.
-```
 
 ## Tests
 

@@ -1,0 +1,11 @@
+global:
+  jsonSchema: true
+lint:
+  jsonSchema: false
+  rules:
+    - strict
+    - ./config/foo-rules.json
+  skip:
+    - info-contact
+serve:
+  port: 8000

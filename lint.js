@@ -81,6 +81,11 @@ const command = async (file, cmd) => {
 
     linter.initialize();
 
+    // if (config.fileExists()) {
+    //   await loader.loadRuleFiles(config.getConfigRules(lint), { verbose });
+    // } else {
+    //   await loader.loadRuleFiles(cmd.rules, { verbose });
+    // }
     await loader.loadRuleFiles(cmd.rules, { verbose });
 
     const spec = await loader.readOrError(file, {

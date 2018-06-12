@@ -4,7 +4,7 @@ lint:
   jsonSchema: false
   rules:
     - strict
-    - ./config/foo-rules.json
+    - foo-rules
   skip:
     - info-contact
 serve:

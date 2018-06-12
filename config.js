@@ -6,7 +6,6 @@
 
 const fs = require("fs"),
       path = require("path"),
-      yamlParse = require("node-yaml-config"),
       yaml = require('js-yaml');
 
 
@@ -30,23 +29,28 @@ function fileExists() {
   }
 }
 
-// Builds and returns config object if config file found
-// NOTE: function may not be necessary
-function getConfig() {
+// Returns config object if config file found
+function getConfigFile() {
   if (fileExists()) {
     var config = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'), { json: true });
     return config;
   }
 }
 
-// Returns array of rules file locations(s) from config file
-// function getConfigRules() {
-//  let config = [];
-//  for each rules config.push(rule)
-//  return config
-// }
+// Returns array of rules file(s) from config file
+function getConfigRules() {
+  const config = getConfigFile();
+  let rulesFiles = [];
+
+  config.lint.rules.forEach(function(rule) {
+    rulesFiles.push(rule);
+  });
+
+  return rulesFiles
+}
 
 module.exports = {
   fileExists,
-  getConfig
+  getConfigFile,
+  getConfigRules
 };

@@ -14,7 +14,6 @@ const config = require('./config');
 
 function collect(val, item) {
   item.push(val);
-  item.push(config.getConfig());  // NOTE: determine how to load here
   return item;
 }
 

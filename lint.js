@@ -2,6 +2,7 @@
 
 'use strict'
 
+const config = require('./config.js')
 const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
 const validator = require('./lib/validator.js');
@@ -81,12 +82,11 @@ const command = async (file, cmd) => {
 
     linter.initialize();
 
-    // if (config.fileExists()) {
-    //   await loader.loadRuleFiles(config.getConfigRules(lint), { verbose });
-    // } else {
-    //   await loader.loadRuleFiles(cmd.rules, { verbose });
-    // }
-    await loader.loadRuleFiles(cmd.rules, { verbose });
+    if (config.fileExists()) {
+      await loader.loadRuleFiles(config.getConfigRules(), { verbose });
+    } else {
+      await loader.loadRuleFiles(cmd.rules, { verbose });
+    }
 
     const spec = await loader.readOrError(file, {
         jsonSchema: cmd.jsonSchema === true,

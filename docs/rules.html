@@ -4,8 +4,8 @@ title: Linter Rules
 permalink: /rules/
 ---
 
-<section class="resume-section p-3 p-lg-5 d-flex flex-column" id="education">
-  <div class="my-auto">
+<section class="resume-section p-3 p-lg-5 d-flex flex-column">
+  <div class="container">
     <h2 class="mb-5">Linter Rules</h2>
 
     <p>Speccy ships with two rules files, which contain a bunch of rules for linting your specifications: `default` and `strict`. You can pass `--rules=default` or You can pass `--rules=strict` to enable these files, or you can make your own.</p>
@@ -26,8 +26,18 @@ permalink: /rules/
         </thead>
         {% for rule in site.data.rules.default %}
         <tr>
-          <td>{{ rule.name }}</td>
-          <td>{{ rule.object }}</td>
+          <td id="{{ rule.name }}">
+            <a href="#{{ rule.name }}">{{ rule.name }}</a>
+          </td>
+          <td>
+              {% if rule.object == "*" %}
+              <em>everything</em>
+              {% elsif rule.object == "openapi" %}
+              <a href="https://swagger.io/specification/#oasObject">{{ rule.object }}</a>
+              {% else %}
+              <a href="https://swagger.io/specification/#{{ rule.object }}Object">{{ rule.object }}</a>
+              {% endif %}
+          </td>
           <td>{{ rule.description }}</td>
         </tr>
         <tr>

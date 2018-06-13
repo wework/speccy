@@ -9,6 +9,8 @@ const { version } = require('./package.json');
 const lint = require('./lint.js');
 const resolve = require('./resolve.js');
 const serve = require('./serve.js');
+const config = require('./config');
+
 
 function collect(val, item) {
   item.push(val);

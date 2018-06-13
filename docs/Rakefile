@@ -1,0 +1,17 @@
+title: "Speccy - The #WellActually Assistant for your API Specifications!"
+description: >-
+  Make sure your OpenAPI 3.0 specifications are more than just valid, make sure they're useful!
+url: "https://speccy.io/" # the base hostname & protocol for your site, e.g. http://example.com
+
+# Build settings
+markdown: kramdown
+
+plugins:
+  - jekyll-assets
+  - jekyll-seo-tag
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - .tools-versions
+  - .gitignore

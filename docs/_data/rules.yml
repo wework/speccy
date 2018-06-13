@@ -179,3 +179,51 @@ default:
     description: "markdown descriptions should not contain 'eval('"
     more: |
       Letting specification authors eval random code is proabably a Bad Idea™.
+
+strict:
+  - name: "contact-properties"
+    object: "contact"
+    description: "contact object should have name, url and email"
+    more: >
+        To make contact info the most useful, all of the options should be used. Including
+        a URL and an email address means the user has the most options to be able to get
+        in touch, maybe including a URL to your slack channel, or to a support portal,
+        and the email could be a team/company address to avoid having a single human as a
+        bottleneck.
+
+  - name: "license-url"
+    object: "license"
+    description: "license object should include url"
+    more: >
+        Having a license is generally a helpful idea, it lets potential users know how
+        they are allowed to leverage your API. Pick one from this [great list](https://opensource.org/licenses),
+        anywhere else, or make your own and link to it.
+
+  - name: "server-not-example.com"
+    object: "server"
+    description: "server url should not point at example.com"
+    more: >
+        You can do better than example.com! Set up at least a [mock server](http://openapi.tools/#mock),
+        maybe even a sandbox, or an actual implementation for users to play with.
+
+  - name: "tag-description"
+    object: "tag"
+    description: "tag object should have a description"
+    more: |
+        Adding descriptions to tags is a great way to explain business logic for the concept.
+
+        Often specifications will explain that there is a POST /foos and that creates a foo, and
+        there is a GET /foos which gets a bunch of foos, but nobody really explains what a Foo is
+        at any point.
+
+        ```
+        openapi: 3.0.1
+        tags:
+            - name: Foo
+              description: |
+                Multiple lines of text explain all about the concept of a foo in this system, how
+                they might related to other items, what sort of stage in the workflow are they
+                created, etc.
+
+                You can even put *markdown* in here!
+        ```

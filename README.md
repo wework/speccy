@@ -69,8 +69,6 @@ There are going to be different things people are interested in, so the [default
 
 There are [strict rules][rules-strict] which demand more contact details, "real" domains, a license, and requires tags have a description!
 
-There are also [wework rules][rules-wework], building things we consider important on top of the strict rules; keeping summaries short (so they fit into ReDoc navigation for example).
-
 #### Rules
 
 Rule actions from the [default rules][rules-default] will be used if no rules file is specified. Right now there are only the three bundled options, but supporting custom rules files via local path and URL is on the roadmap.

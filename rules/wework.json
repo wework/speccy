@@ -1,19 +1,15 @@
 {
-    "require" : "strict",
-    "rules" : [
-        {
-            "name": "x-tagGroups",
-            "object": "openapi",
-            "enabled": true,
-            "description": "Expected x-tagGroups to exist to help group up the tags for navigation",
-            "truthy": "x-tagGroups"
-        },
-        {
-            "name":"short-summary",
-            "object": "operation",
-            "enabled": true,
-            "description": "summary should be short (description can be long)",
-            "maxLength": { "property": "summary", "value": 20 }
-        }
-    ]
+  "require": "strict",
+  "rules": [
+    {
+      "name": "short-summary",
+      "object": "operation",
+      "enabled": true,
+      "description": "summary should be short (description can be long)",
+      "maxLength": {
+        "property": "summary",
+        "value": 20
+      }
+    }
+  ]
 }

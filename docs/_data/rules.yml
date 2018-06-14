@@ -1,0 +1,229 @@
+default:
+
+  - name: "parameter-description"
+    object: "parameter"
+    description: "parameter objects should have a description"
+    more: |
+      Descriptions help human beings understand what sort of value a property should have, beyond the
+      obvious type and format. If the field is `distance` and the format is `float`, you can tell the
+      reader if that field is meant to be kilometers, meters, feet, inches, miles, or yards. Same goes
+      for currency, is this Pounds Sterling or Yen?
+
+  - name:  "operation-operationId"
+    object: "operation"
+    description: "operation should have an operationId"
+    more: |
+      Each operation should have an operationId, which is helpful for referencing the operation later.
+
+      Some documentation systems will use it for the URL, meaning folks are going to share links to that
+      operation. If you add an operationId later, it'll break that URL, so best to create one as early as
+      possible.
+
+  - name:  "operation-summary-or-description"
+    object: "operation"
+    description: "operation should have summary or description"
+    more: |
+      A summary (short) or description (longer) help humans understand what this operation is meant to be
+      doing. Without explaining it for a human, they have to guess, and guessing leads to unexpected outcomes.
+
+  - name:  "operation-tags"
+    object: "operation"
+    description: "operation should have non-empty tags array"
+    more: |
+      Documentation systems use tags for grouping navigation, which is especially useful for larger APIs. Tags
+      can be defined in the top level `tags` object, and the operations `tags` array is simply a list of tag names.
+
+      ```
+      openapi: 3.0.1
+
+      tags:
+        - name: Pokèmon
+
+      paths:
+        /pokemons:
+          get:
+            operationId: get-pokemons
+            tags:
+              - Pokèmon
+      ```
+
+  - name: "server-trailing-slash"
+    object: "server"
+    description: "server url should not have a trailing slash"
+    more: |
+      The `url` in the server object should not have a trailing slash, because that `/` is actually rhe first
+      character of the path. Having it in both places will confuse some vendor tooling and you might see `//`
+      showing up in the full URL.
+
+      **Good**
+
+      ```
+      servers:
+        - url: https://example.org/api
+      ```
+
+      **Bad**
+
+      ```
+      servers:
+        - url: https://example.org/api/
+      ```
+
+  - name:  "openapi-tags"
+    object: "openapi"
+    description: "openapi object should have non-empty tags array"
+    more: |
+      Documentation systems use tags for grouping navigation, which is especially useful for larger APIs. Although
+      tags can be defined on the fly in operations without defining them, a top-level `tags` object allows you
+      to control the order tags are displayed in many tools.
+
+      Find all of the tags used in various operations, and define them in the top-level `tags` object.
+
+      ```
+      openapi: 3.0.1
+
+      tags:
+        - name: Gym
+        - name: Pokèmon
+
+      paths:
+        /pokemons:
+          get:
+            operationId: get-pokemons
+            tags:
+              - Pokèmon
+        /gyms:
+          get:
+            operationId: get-gyms
+            tags:
+              - Gym
+      ```
+
+  - name:  "openapi-tags-alphabetical"
+    object: "openapi"
+    description: "openapi object should have alphabetical tags"
+    more: |
+      Seeing as some tools render tags in the order they're defined, it's just a Good Idea™ to
+      define them in alphabetical order.
+
+  - name:  "reference-no-other-properties"
+    object: "reference"
+    description: "reference objects should only have a $ref property"
+    more: |
+      You should avoid having other keywords sat next to a `$ref`, as the OpenAPI
+      spec instructs tools to ignore any siblings. Due to that, putting things is
+      not only going against the spec, but it's pointless, and potentially confusing
+      to people reading the files. It may also trigger errors in some validators.
+
+  - name:  "example-value-or-externalValue"
+    object: "example"
+    description: "example should have either value or externalValue"
+    more: |
+      You can use the `value` keywords or the `externalValue` keyword, but you can't use both!
+
+  - name: "no-script-tags-in-markdown"
+    object: "*"
+    description: "markdown descriptions should not contain script tags"
+    more: |
+      Putting script tags in markdown descriptions is a recipe for disaster, as it might
+      try to run arbitrary JavaScript on documentation views, or who knows what else.
+
+      If the specs were written come from an untrusted source, this would be considered a
+      security concern.
+
+  - name: "info-contact"
+    object: "info"
+    description: "info object should contain contact object"
+    more: |
+      Users of your API should be able to contact you, so put your contact information in
+      the info object.
+
+      ``` yaml
+      openapi: 3.0.1
+      info:
+        contact:
+        name: API Support
+        url: http://www.example.com/support
+        email: support@example.com
+      ```
+
+  - name: "license-apimatic-bug"
+    object: "license"
+    description: "license url should not point at gruntjs"
+    more: |
+      There was a funny little bug with the Apimatic Transformer a while back where all
+      transformed OpenAPI specifications would have the license set to MIT with a URL to
+      the license file in the gruntjs repository.
+
+      This was fixed, but if you have that floating around in your spec you probably want
+      to point that somewhere else.
+
+      **Good**
+
+      ```
+      info:
+        license:
+          url: https://opensource.org/licenses/MIT
+      ```
+
+      **Bad**
+
+      ```
+      info:
+        license:
+          url: http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT
+      ```
+
+  - name: "no-eval-in-descriptions"
+    object: "*"
+    description: "markdown descriptions should not contain 'eval('"
+    more: |
+      Letting specification authors eval random code is proabably a Bad Idea™.
+
+strict:
+  - name: "contact-properties"
+    object: "contact"
+    description: "contact object should have name, url and email"
+    more: >
+        To make contact info the most useful, all of the options should be used. Including
+        a URL and an email address means the user has the most options to be able to get
+        in touch, maybe including a URL to your slack channel, or to a support portal,
+        and the email could be a team/company address to avoid having a single human as a
+        bottleneck.
+
+  - name: "license-url"
+    object: "license"
+    description: "license object should include url"
+    more: >
+        Having a license is generally a helpful idea, it lets potential users know how
+        they are allowed to leverage your API. Pick one from this [great list](https://opensource.org/licenses),
+        anywhere else, or make your own and link to it.
+
+  - name: "server-not-example.com"
+    object: "server"
+    description: "server url should not point at example.com"
+    more: >
+        You can do better than example.com! Set up at least a [mock server](http://openapi.tools/#mock),
+        maybe even a sandbox, or an actual implementation for users to play with.
+
+  - name: "tag-description"
+    object: "tag"
+    description: "tag object should have a description"
+    more: |
+        Adding descriptions to tags is a great way to explain business logic for the concept.
+
+        Often specifications will explain that there is a POST /foos and that creates a foo, and
+        there is a GET /foos which gets a bunch of foos, but nobody really explains what a Foo is
+        at any point.
+
+        ```
+        openapi: 3.0.1
+        tags:
+            - name: Foo
+              description: |
+                Multiple lines of text explain all about the concept of a foo in this system, how
+                they might related to other items, what sort of stage in the workflow are they
+                created, etc.
+
+                You can even put *markdown* in here!
+        ```

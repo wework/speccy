@@ -1,22 +1,9 @@
-# speccy
+---
+# Feel free to add content and custom Front Matter to this file.
+# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
-[![CircleCI](https://circleci.com/gh/wework/speccy.svg?style=svg)](https://circleci.com/gh/wework/speccy)
-[![Coverage Status](https://coveralls.io/repos/github/wework/speccy/badge.svg)](https://coveralls.io/github/wework/speccy)
-[![Known Vulnerabilities](https://snyk.io/test/npm/speccy/badge.svg)](https://snyk.io/test/npm/speccy)
-
-Make sure your OpenAPI 3.0 specifications are more than just valid, make sure they're useful!
-
-Taking off from where [Mike Ralphson] started with linting in [swagger2openapi], Speccy aims to become the [rubocop] or [eslint] of OpenAPI.
-
-## Requirements
-
-- **NodeJS:** v8 - v10
-
-## OpenAPI Specification
-
-Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
-
-If you want to run speccy on OpenAPI (f.k.a Swagger) v2.0 specs, run it through [swagger2openapi] first and speccy can give advice on the output.
+layout: home
+---
 
 ## Usage
 
@@ -69,11 +56,37 @@ There are going to be different things people are interested in, so the [default
 
 There are [strict rules][rules-strict] which demand more contact details, "real" domains, a license, and requires tags have a description!
 
+There are also [wework rules][rules-wework], building things we consider important on top of the strict rules; keeping summaries short (so they fit into ReDoc navigation for example).
+
 #### Rules
 
 Rule actions from the [default rules][rules-default] will be used if no rules file is specified. Right now there are only the three bundled options, but supporting custom rules files via local path and URL is on the roadmap.
 
 Contributions of rules and rule actions for the linter are very much appreciated.
+
+
+### Resolve Command
+
+Resolving `$ref` is the art of taking multiple files and squashing them all down into one big OpenAPI file. By default it will output to stdout, but you can pass `-o` with a file name to write the file locally.
+
+```
+Usage: resolve [options] <file-or-url>
+
+pull in external $ref files to create one mega-file
+
+Options:
+
+  -o, --output <file>  file to output to
+  -q, --quiet          reduce verbosity
+  -j, --json-schema    treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  -v, --verbose        increase verbosity
+  -h, --help           output usage information
+```
+
+Starting with the fantastic resolver logic form swagger2openapi, speccy has one of the most robust
+resolvers out there. It avoid cyclical dependencies (when A has a property that `$ref`s A, which in turn destroys your CPU), and all sorts of other things.
+
+Thanks to the `--json-schema` switch, you can have an OpenAPI file which `$ref`s JSON Schema files (not just OpenAPI-flavoured JSON Schema), then resolve them all into one real OpenAPI file, thanks to [wework/json-schema-to-openapi-schema].
 
 ### Serve Command
 

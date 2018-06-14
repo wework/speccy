@@ -1,0 +1,29 @@
+<table class="table table-striped table-inverted">
+  <thead>
+    <tr>
+      <td>Name</td>
+      <td>OpenAPI Object</td>
+      <td>Description</td>
+    </tr>
+  </thead>
+  {% for rule in include.rules %}
+  <tr>
+    <td id="{{ rule.name }}">
+      <a href="#{{ rule.name }}">{{ rule.name }}</a>
+    </td>
+    <td>
+        {% if rule.object == "*" %}
+        <em>everything</em>
+        {% elsif rule.object == "openapi" %}
+        <a href="https://swagger.io/specification/#oasObject">{{ rule.object }}</a>
+        {% else %}
+        <a href="https://swagger.io/specification/#{{ rule.object }}Object">{{ rule.object }}</a>
+        {% endif %}
+    </td>
+    <td>{{ rule.description }}</td>
+  </tr>
+  <tr>
+    <td colspan=3>{{ rule.more | markdownify }}</td>
+  </tr>
+  {% endfor %}
+</table>

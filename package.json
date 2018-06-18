@@ -45,9 +45,9 @@
     "dependencies": {
         "ajv": "^5.0.1",
         "commander": "^2.14.1",
+        "config": "^1.30.0",
         "ejs": "^2.5.2",
         "express": "^4.14.0",
-        "file-finder": "^0.1.2",
         "js-yaml": "^3.6.1",
         "json-schema-to-openapi-schema": "^0.2.0",
         "node-fetch": "^1.7.3",

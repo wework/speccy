@@ -1,0 +1,10 @@
+global:
+  jsonSchema: true
+lint:
+  jsonSchema: true
+  rules:
+    - foo-rules
+  skip:
+    - info-contact
+serve:
+  port: 8000

@@ -16,4 +16,3 @@ exclude:
   - .tools-versions
   - .gitignore
   - node_modules/
-  - vendor/

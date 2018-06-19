@@ -75,6 +75,29 @@ Rule actions from the [default rules][rules-default] will be used if no rules fi
 
 Contributions of rules and rule actions for the linter are very much appreciated.
 
+### Resolve Command
+
+Resolving `$ref` is the art of taking multiple files and squashing them all down into one big OpenAPI file. By default it will output to stdout, but you can pass `-o` with a file name to write the file locally.
+
+```
+Usage: resolve [options] <file-or-url>
+
+pull in external $ref files to create one mega-file
+
+Options:
+
+  -o, --output <file>  file to output to
+  -q, --quiet          reduce verbosity
+  -j, --json-schema    treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  -v, --verbose        increase verbosity
+  -h, --help           output usage information
+```
+
+Starting with the fantastic resolver logic form swagger2openapi, speccy has one of the most robust
+resolvers out there. It avoid cyclical dependencies (when A has a property that `$ref`s A, which in turn destroys your CPU), and all sorts of other things.
+
+Thanks to the `--json-schema` switch, you can have an OpenAPI file which `$ref`s JSON Schema files (not just OpenAPI-flavoured JSON Schema), then resolve them all into one real OpenAPI file, thanks to [wework/json-schema-to-openapi-schema].
+
 ### Serve Command
 
 Using [ReDoc], speccy can offer a preview of your specifications, in human-readable format.
@@ -93,8 +116,6 @@ Options:
   -v, --verbose       increase verbosity
   -h, --help          output usage information
 ```
-
-Like everything in speccy, this only works for OpenAPI v3.
 
 ### Calling Speccy from Code
 
@@ -150,3 +171,4 @@ npm test
 [rules-strict]: https://github.com/wework/speccy/blob/master/rules/strict.json
 [rules-wework]: https://github.com/wework/speccy/blob/master/rules/wework.json
 [swagger2openapi]: https://github.com/Mermade/swagger2openapi/
+[wework/json-schema-to-openapi-schema]: https://github.com/wework/json-schema-to-openapi-schema

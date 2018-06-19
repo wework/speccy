@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2018-06-19
+### Added
+- Provide "More Info" links in linter errors, so users understand the reasoning behind various rules. ([#78])
+
+
+[#90]: https://github.com/wework/speccy/pull/90
+
 ## [0.7.2] - 2018-05-31
 ### Fixed
 - Fix `message is undefined` error ([#78])

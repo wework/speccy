@@ -17,7 +17,7 @@ default:
 
       Some documentation systems will use it for the URL, meaning folks are going to share links to that
       operation. If you add an operationId later, it'll break that URL, so best to create one as early as
-      possible.
+      possible. operationIds are also often used by code-generation tools to name route-handling functions.
 
   - name:  "operation-summary-or-description"
     object: "operation"
@@ -51,7 +51,7 @@ default:
     object: "server"
     description: "server url should not have a trailing slash"
     more: |
-      The `url` in the server object should not have a trailing slash, because that `/` is actually rhe first
+      The `url` in the server object should not have a trailing slash, because that `/` is actually the first
       character of the path. Having it in both places will confuse some vendor tooling and you might see `//`
       showing up in the full URL.
 
@@ -75,7 +75,7 @@ default:
     more: |
       Documentation systems use tags for grouping navigation, which is especially useful for larger APIs. Although
       tags can be defined on the fly in operations without defining them, a top-level `tags` object allows you
-      to control the order tags are displayed in many tools.
+      to control both the order tags are displayed in many tools and their descriptions.
 
       Find all of the tags used in various operations, and define them in the top-level `tags` object.
 
@@ -111,7 +111,7 @@ default:
     description: "reference objects should only have a $ref property"
     more: |
       You should avoid having other keywords sat next to a `$ref`, as the OpenAPI
-      spec instructs tools to ignore any siblings. Due to that, putting things is
+      spec instructs tools to ignore any siblings. Due to that, putting things there is
       not only going against the spec, but it's pointless, and potentially confusing
       to people reading the files. It may also trigger errors in some validators.
 
@@ -119,8 +119,9 @@ default:
     object: "example"
     description: "example should have either value or externalValue"
     more: |
-      You can use the `value` keywords or the `externalValue` keyword, but you can't use both!
-
+      The `value` and `externalValue` keywords are mutually exclusive, but both optional. 
+      An example is of little use without one or the other!
+      
   - name: "no-script-tags-in-markdown"
     object: "*"
     description: "markdown descriptions should not contain script tags"
@@ -128,7 +129,7 @@ default:
       Putting script tags in markdown descriptions is a recipe for disaster, as it might
       try to run arbitrary JavaScript on documentation views, or who knows what else.
 
-      If the specs were written come from an untrusted source, this would be considered a
+      If the specs come from an untrusted source, this would be considered a
       security concern.
 
   - name: "info-contact"
@@ -178,7 +179,7 @@ default:
     object: "*"
     description: "markdown descriptions should not contain 'eval('"
     more: |
-      Letting specification authors eval random code is proabably a Bad Idea™.
+      Letting specification authors eval random code is probably a Bad Idea™.
 
 strict:
   - name: "contact-properties"

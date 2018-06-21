@@ -4,6 +4,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/wework/speccy/badge.svg)](https://coveralls.io/github/wework/speccy)
 [![Known Vulnerabilities](https://snyk.io/test/npm/speccy/badge.svg)](https://snyk.io/test/npm/speccy)
 
+[Website](http://speccy.io)
+
 Make sure your OpenAPI 3.0 specifications are more than just valid, make sure they're useful!
 
 Taking off from where [Mike Ralphson] started with linting in [swagger2openapi], Speccy aims to become the [rubocop] or [eslint] of OpenAPI.
@@ -33,6 +35,27 @@ Commands:
   lint [options] <file-or-url>     ensure specs are not just valid OpenAPI, but lint against specified rules
   resolve [options] <file-or-url>  pull in external $ref files to create one mega-file
   serve [options] <file-or-url>    view specifications in beautiful human readable documentation
+```
+### Config File
+
+In the aim to be more configurable, Speccy now can make use of a YAML config file containing rules in addition to passing in rules via the command line. In the directory `./.speccy/` is where you can place your config file `default.yml` which will be loaded.
+
+Example:
+```yaml
+# ./speccy/default.example.yml
+
+global:
+  jsonSchema: true
+lint:
+  jsonSchema: false
+  rules:
+    - strict
+    - foo-rules
+  skip:
+    - info-contact
+serve:
+  port: 8000
+
 ```
 
 ### Lint Command

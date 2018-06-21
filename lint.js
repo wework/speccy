@@ -2,9 +2,6 @@
 
 'use strict'
 
-process.env["NODE_CONFIG_DIR"] = "./.speccy";
-
-const config = require('config');
 const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
 const validator = require('./lib/validator.js');
@@ -86,7 +83,6 @@ const command = async (file, cmd) => {
 
     linter.initialize();
 
-    const rules = [].concat(config.get('lint.rules'), cmd.rules);
     await loader.loadRuleFiles(cmd.rules, { verbose });
 
     const spec = await loader.readOrError(file, {

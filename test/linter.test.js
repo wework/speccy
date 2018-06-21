@@ -1,8 +1,5 @@
 'use strict';
 
-process.env["NODE_CONFIG_DIR"] = "./.speccy";
-
-const config = require('config');
 const fs = require('fs');
 const path = require('path');
 const loader = require('../lib/loader.js');
@@ -60,19 +57,7 @@ describe('linter.js', () => {
                     });
                 });
             });
-        });
-
-        context('when obtaining rules from config file', () => {
-          const rules = config.get('lint.rules');
-
-          it('gets rules', () => {
-            if(rules);
-          });
-
-          it('loads rules', () => {
-            loader.loadRuleFiles(rules);
-          });
-        });
+        })
 
         context('when rules are manually passed', () => {
             const lintAndExpectErrors = (rule, input, expectedErrors) => {

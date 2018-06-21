@@ -45,6 +45,7 @@
   "dependencies": {
     "ajv": "^5.0.1",
     "commander": "^2.14.1",
+    "config": "^1.30.0",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",

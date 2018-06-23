@@ -1,8 +1,5 @@
 'use strict';
 
-process.env["NODE_CONFIG_DIR"] = "./.speccy";
-
-const config = require('config');
 const fs = require('fs');
 const path = require('path');
 const loader = require('../lib/loader.js');
@@ -62,17 +59,37 @@ describe('linter.js', () => {
             });
         });
 
-        context('when obraining rules from config file', () => {
-            const rules = config.get('lint.rules');
+        context('when config file is loaded', () => {
+            process.env["NODE_CONFIG_DIR"] = "./test/samples/config";
 
-            it('gets rules', () => {
-              if(rules);
+            const config = require('config');
+
+            it('accepts jsonSchema option when set', () => {
+                if (config.has("lint.jsonSchema")) {
+                    return true;
+                }
             });
 
-            it('loads rules', () => {
-              loader.loadRuleFiles(rules);
+            it('accepts when total rule options are greater than zero', () => {
+                let rules;
+                if (config.has("lint.rules")) {
+                    rules = config.get("lint.rules");
+                }
+                if (rules.length > 0) {
+                    return true;
+                }
             });
-        })
+
+            it('accepts skip options when total is greater than zero', () => {
+                let skip;
+                if (config.has("lint.skip")) {
+                    skip = config.get("lint.skip");
+                }
+                if (skip.length > 0) {
+                    return true;
+                }
+            });
+        });
 
         context('when rules are manually passed', () => {
             const lintAndExpectErrors = (rule, input, expectedErrors) => {

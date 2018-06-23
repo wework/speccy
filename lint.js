@@ -6,7 +6,6 @@ process.env["NODE_CONFIG_DIR"] = "./.speccy";
 process.env["SUPPRESS_NO_CONFIG_WARNING"] = true;
 
 const config = require('config');
-const fs = require('fs');
 const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
 const validator = require('./lib/validator.js');
@@ -85,14 +84,24 @@ More information: https://speccy.io/rules/#${rule.name}
 
 const command = async (file, cmd) => {
     const verbose = cmd.quiet ? 1 : cmd.verbose;
-    let rules = [].concat(cmd.rules);
 
     linter.initialize();
 
-    if(fs.existsSync(process.env["NODE_CONFIG_DIR"] + "/default.yml")) {
-        rules = rules.concat(config.get('lint.rules'));
+    if (config.has('lint.rules')) {
+        cmd.rules = cmd.rules.concat(config.get('lint.rules'));
     }
-    await loader.loadRuleFiles(rules, { verbose });
+
+    if (config.has('lint.skip')) {
+        cmd.skip = cmd.skip.concat(config.get('lint.skip'));
+    }
+
+    if (config.has('global.jsonSchema')) {
+        options.jsonSchema = config.get('global.jsonSchema');
+    } else if (config.has('lint.jsonSchema')) {
+        cmd.jsonSchema = config.get('lint.jsonSchema');
+    }
+
+    await loader.loadRuleFiles(cmd.rules, { verbose });
 
     const spec = await loader.readOrError(file, {
         jsonSchema: cmd.jsonSchema === true,

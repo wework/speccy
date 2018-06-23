@@ -1,0 +1,11 @@
+global:
+  jsonSchema: true
+lint:
+  jsonSchema: false
+  rules:
+    - strict
+    - foo-rules
+  skip:
+    - info-contact
+serve:
+  port: 8888

@@ -17,7 +17,12 @@ const options = {
 };
 
 const command = async (file, cmd) => {
-    options.jsonSchema = cmd.jsonSchema === true;
+    if (config.has('global.jsonSchema')) {
+        options.jsonSchema = config.get('global.jsonSchema');
+    } else {
+        options.jsonSchema = cmd.jsonSchema === true;
+    }
+
     options.verbose = cmd.quiet ? 1 : cmd.verbose;
 
     const spec = await loader.readOrError(file, options);

@@ -2,6 +2,10 @@
 
 'use strict'
 
+process.env["NODE_CONFIG_DIR"] = "./.speccy";
+process.env["SUPPRESS_NO_CONFIG_WARNING"] = true;
+
+const config = require('config');
 const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
 const validator = require('./lib/validator.js');
@@ -51,6 +55,8 @@ function readableJsonSchemaMessages(err) {
     });
 }
 
+// function cliConfigDefault() {}
+
 const truncateLongMessages = message => {
     let lines = message.split('\n');
     if (lines.length > 6) {
@@ -82,6 +88,20 @@ const command = async (file, cmd) => {
     const verbose = cmd.quiet ? 1 : cmd.verbose;
 
     linter.initialize();
+
+    if (cmd.rules.length < 1 && config.has('lint.rules')) {
+        cmd.rules = cmd.rules.concat(config.get('lint.rules'));
+    }
+
+    if (cmd.skip.length < 1 && config.has('lint.skip')) {
+        cmd.skip = cmd.skip.concat(config.get('lint.skip'));
+    }
+
+    if (config.has('global.jsonSchema')) {
+        options.jsonSchema = config.get('global.jsonSchema');
+    } else if (config.has('lint.jsonSchema')) {
+        cmd.jsonSchema = config.get('lint.jsonSchema');
+    }
 
     await loader.loadRuleFiles(cmd.rules, { verbose });
 

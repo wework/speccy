@@ -57,7 +57,39 @@ describe('linter.js', () => {
                     });
                 });
             });
-        })
+        });
+
+        context('when config file is loaded', () => {
+            process.env["NODE_CONFIG_DIR"] = "./test/samples/config";
+
+            const config = require('config');
+
+            it('accepts jsonSchema option when set', () => {
+                if (config.has("lint.jsonSchema")) {
+                    return true;
+                }
+            });
+
+            it('accepts when total rule options are greater than zero', () => {
+                let rules;
+                if (config.has("lint.rules")) {
+                    rules = config.get("lint.rules");
+                }
+                if (rules.length > 0) {
+                    return true;
+                }
+            });
+
+            it('accepts skip options when total is greater than zero', () => {
+                let skip;
+                if (config.has("lint.skip")) {
+                    skip = config.get("lint.skip");
+                }
+                if (skip.length > 0) {
+                    return true;
+                }
+            });
+        });
 
         context('when rules are manually passed', () => {
             const lintAndExpectErrors = (rule, input, expectedErrors) => {

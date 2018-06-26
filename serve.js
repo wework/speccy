@@ -2,6 +2,10 @@
 
 'use strict';
 
+process.env["NODE_CONFIG_DIR"] = "./.speccy";
+process.env["SUPPRESS_NO_CONFIG_WARNING"] = true;
+
+const config = require('config');
 const express = require('express');
 const path = require('path');
 const server = require('./lib/server.js');
@@ -28,8 +32,10 @@ const launchServer = (app, port, specFile) => {
 }
 
 const command = async (specFile, cmd) => {
+    if (cmd.jsonSchema == 5000 && config.has('global.jsonSchema')) {
+        cmd.jsonSchema = config.get('global.jsonSchema');
+    }
     const app = express();
-    const port = cmd.port;
     const verbose = cmd.quiet ? 1 : cmd.verbose;
     const bundleDir = path.dirname(require.resolve('redoc'));
 
@@ -39,6 +45,12 @@ const command = async (specFile, cmd) => {
         resolve: true,
         verbose
     });
+
+    let port = cmd.port;
+
+    if (config.has('serve.port')) {
+      port = config.get('serve.port');
+    }
 
     app.use('/assets/redoc', express.static(bundleDir));
     app.get('/spec.json', (req, res) => {

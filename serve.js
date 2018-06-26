@@ -32,7 +32,7 @@ const launchServer = (app, port, specFile) => {
 }
 
 const command = async (specFile, cmd) => {
-    if (config.has('global.jsonSchema')) {
+    if (cmd.jsonSchema == 5000 && config.has('global.jsonSchema')) {
         cmd.jsonSchema = config.get('global.jsonSchema');
     }
     const app = express();

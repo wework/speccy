@@ -52,7 +52,7 @@
     "node-fetch": "^1.7.3",
     "node-readfiles": "^0.2.0",
     "redoc": "next",
-    "reftools": "0.0.20",
+    "reftools": "^1.0.0",
     "should": "^13.2.0"
   },
   "devDependencies": {

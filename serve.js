@@ -30,7 +30,7 @@ const launchServer = (app, port, specFile) => {
 const command = async (specFile, cmd) => {
     const app = express();
     const port = cmd.port;
-    const verbose = cmd.quiet ? 1 : cmd.verbose;
+    const verbose = cmd.quiet ? -1 : cmd.verbose;
     const bundleDir = path.dirname(require.resolve('redoc'));
 
     const html = htmlOrError(specFile);

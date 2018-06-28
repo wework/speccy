@@ -6,6 +6,7 @@ const express = require('express');
 const path = require('path');
 const server = require('./lib/server.js');
 const loader = require('./lib/loader.js');
+const fromJsonSchema = require('json-schema-to-openapi-schema');
 
 const htmlOrError = specFile => {
     try {
@@ -34,9 +35,13 @@ const command = async (specFile, cmd) => {
     const bundleDir = path.dirname(require.resolve('redoc'));
 
     const html = htmlOrError(specFile);
+    let filters = [];
+    if (cmd.jsonSchema) {
+        filters.push(fromJsonSchema);
+    }
     const spec = await loader.readOrError(specFile, {
-        jsonSchema: cmd.jsonSchema === true,
         resolve: true,
+        filters,
         verbose
     });
 

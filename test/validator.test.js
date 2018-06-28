@@ -20,7 +20,7 @@ const fetchTestFiles = dir => {
 
 describe('validator.js', () => {
     describe('validate()', () => {
-        const options = { resolve: true, jsonSchema: true };
+        const options = { resolve: true };
 
         context('when provided valid specifications', () => {
             const samplesPath = path.join(__dirname, './validator/pass');

@@ -5,7 +5,8 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 const loader = require('./lib/loader.js');
-const resolver = require('./lib/resolver.js');
+const resolver = require('oas-resolver');
+const fromJsonSchema = require('json-schema-to-openapi-schema');
 
 const options = {
     resolve: true,

@@ -89,11 +89,11 @@ const command = async (file, cmd) => {
 
     linter.initialize();
 
-    if (cmd.rules.length < 1 && config.has('lint.rules')) {
+    if (config.has('lint.rules')) {
         cmd.rules = cmd.rules.concat(config.get('lint.rules'));
     }
 
-    if (cmd.skip.length < 1 && config.has('lint.skip')) {
+    if (config.has('lint.skip')) {
         cmd.skip = cmd.skip.concat(config.get('lint.skip'));
     }
 

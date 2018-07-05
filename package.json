@@ -2,6 +2,7 @@
   "name": "speccy",
   "version": "0.7.3",
   "description": "Your friendly OpenAPI v3.0 #WellActually CLI assistant.",
+  "homepage": "https://speccy.io/",
   "bin": {
     "speccy": "./speccy.js"
   },
@@ -10,18 +11,6 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "preferGlobal": true,
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "es2015"
-          ]
-        }
-      ]
-    ]
-  },
   "repository": {
     "url": "https://github.com/wework/speccy.git",
     "type": "git"
@@ -63,7 +52,6 @@
     "coveralls": "^3.0.0",
     "mocha": "^5.0.0",
     "nock": "^9.2.3",
-    "nyc": "^11.6.0",
-    "webpack": "^3.5.6"
+    "nyc": "^11.6.0"
   }
 }

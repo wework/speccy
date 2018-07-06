@@ -26,29 +26,13 @@ ${colors.yellow + pointer}
   if (err.name === 'AssertionError') {
       output += colors.reset + truncateLongMessages(err.message);
   }
-  else if (err instanceof validator.JSONSchemaError) {
-      output += colors.reset + readableJsonSchemaMessages(err).join('\n');
+  else if (err instanceof validator.CLIError) {
+      output += colors.reset + err.message;
   }
   else {
       output += colors.red + err.stack;
   }
   return output;
-}
-
-function readableJsonSchemaMessages(err) {
-    return err.errors.map(error => {
-        const { data, dataPath, params, message } = error;
-        if (params.missingProperty) {
-            return `${dataPath} is missing property: ${params.missingProperty}`;
-        }
-        if (params.additionalProperty) {
-            return `${dataPath} has an unexpected additional property: ${params.additionalProperty}`;
-        }
-        if (params.format) {
-            return `${dataPath} has an unexpected format. It should match ${params.format}. Value is: ${data}`;
-        }
-        return `${dataPath} ${message}`;
-    });
 }
 
 const truncateLongMessages = message => {
@@ -79,7 +63,7 @@ More information: https://speccy.io/rules/#${rule.name}
 }
 
 const command = async (file, cmd) => {
-    const verbose = cmd.quiet ? 1 : cmd.verbose;
+    const verbose = cmd.quiet ? -1 : cmd.verbose;
 
     linter.initialize();
 
@@ -91,7 +75,7 @@ const command = async (file, cmd) => {
         verbose,
     });
 
-    validator.validate(spec, { verbose, skip: cmd.skip }, (err, _options) => {
+    validator.validate(spec, { verbose, skip: cmd.skip, lint: true, linter: linter.lint, prettify: true }, (err, _options) => {
         const { context, lintResults } = _options;
 
         if (err) {

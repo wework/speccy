@@ -1,7 +1,0 @@
-openapi: '3.0.0'
-info:
-  version: 0.0.0
-  title: Simple API
-paths:
-  /test:
-    $ref: ./subdir1/test.yaml

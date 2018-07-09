@@ -9,8 +9,8 @@ describe('Config', () => {
             should.doesNotThrow(() => { config.init({ config: configFile }); });
         });
 
-        context('with a valid yaml file', () => {
-            const configFile = 'test/config/valid.yaml';
+        context('with a valid json file', () => {
+            const configFile = 'test/config/valid.json';
 
             it('can find expected values', () => {
                 config.init({ config: configFile });
@@ -20,14 +20,22 @@ describe('Config', () => {
             });
         });
 
-        context('with a valid json file', () => {
-            const configFile = 'test/config/valid.json';
+        context('with a valid yaml file', () => {
+            const configFile = 'test/config/valid.yaml';
 
             it('can find expected values', () => {
                 config.init({ config: configFile });
 
                 should(config.get('jsonSchema')).be.eql(true);
                 should(config.get('serve:port')).be.eql(8001);
+            });
+
+            it('will handle array config items', () => {
+                should(config.get('lint:rules')).be.eql([
+                    'strict',
+                    './some/local/rules.json',
+                    'https://example.org/my-rules.json',
+                ]);
             });
         });
     });

@@ -5,8 +5,8 @@ const path = require('path');
 const loader = require('../lib/loader.js');
 const linter = require('../lib/linter.js');
 
-const runLinter = (object, input, options = {}) => {
-    return linter.lint(object, input, options);
+const runLinter = (object, input, key, options = {}) => {
+    return linter.lint(object, input, key, options);
 }
 
 const getLinterErrors = linter => {
@@ -15,13 +15,13 @@ const getLinterErrors = linter => {
 
 const testFixture = (fixture, rules) => {
     fixture.tests.forEach(test => {
-        const { input, expectedRuleErrors, expectValid, skip = [] } = test;
+        const { input, expectedRuleErrors, expectValid, key, skip = [] } = test;
 
         // Reset rules
         linter.init();
 
         loader.loadRuleFiles(rules).then(() => {
-            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, { skip }));
+            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, key, { skip }));
             if (expectValid) {
                 var msg = JSON.stringify(input) + ' is valid';
                 var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');

@@ -18,7 +18,7 @@ const testFixture = (fixture, rules) => {
         const { input, expectedRuleErrors, expectValid, skip = [] } = test;
 
         // Reset rules
-        linter.initialize();
+        linter.init();
 
         loader.loadRuleFiles(rules).then(() => {
             const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, { skip }));
@@ -61,13 +61,13 @@ describe('Linter', () => {
 
         context('when rules are manually passed', () => {
             const lintAndExpectErrors = (rule, input, expectedErrors) => {
-                linter.initialize();
+                linter.init();
                 linter.createNewRule(rule);
                 getLinterErrors(runLinter('something', input)).should.be.deepEqual(expectedErrors);
             }
 
             const lintAndExpectValid = async (rule, input) => {
-                linter.initialize();
+                linter.init();
                 linter.createNewRule(rule);
                 getLinterErrors(runLinter('something', input)).should.be.empty();
             }

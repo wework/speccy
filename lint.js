@@ -71,6 +71,7 @@ const command = async (specFile, cmd) => {
     const rulesFiles = config.get('lint:rules');
     const skip = config.get('lint:skip');
 
+    linter.init();
     await loader.loadRuleFiles(rulesFiles, { verbose });
 
     const spec = await loader.readOrError(

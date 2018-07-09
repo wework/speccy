@@ -43,7 +43,7 @@ const testFixture = (fixture, rules) => {
     });
 }
 
-describe('linter.js', () => {
+describe('Linter', () => {
     describe('lint()', () => {
         const profilesDir = path.join(__dirname, './profiles/');
 

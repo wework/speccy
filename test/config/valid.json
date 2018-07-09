@@ -1,0 +1,21 @@
+{
+    "jsonSchema": true,
+    "quiet": true,
+    "verbose": true,
+    "lint": {
+      "rules": [
+        "strict",
+        "./some/local/rules.json",
+        "https://example.org/my-rules.json"
+      ],
+      "skip": [
+        "info-contact"
+      ]
+    },
+    "resolve": {
+      "output": "foo.yaml"
+    },
+    "serve": {
+      "port": 8001
+    }
+  }

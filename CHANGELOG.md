@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Config files can be passed with `-c` (defaults to `speccy.yaml`). See [README](./README.md) for more informaton
 ### Changed
 - Switched to using [oas-kit](https://github.com/Mermade/oas-kit/) for resolving and validating.
 

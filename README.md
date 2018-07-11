@@ -23,16 +23,19 @@ If you want to run speccy on OpenAPI (f.k.a Swagger) v2.0 specs, run it through 
 ```
 Usage: speccy <command>
 
+
 Options:
 
-  -V, --version  output the version number
-  -h, --help     output usage information
+-V, --version              output the version number
+-c, --config [configFile]  config file (containing JSON/YAML). See README for potential values.
+-h, --help                 output usage information
+
 
 Commands:
 
-  lint [options] <file-or-url>     ensure specs are not just valid OpenAPI, but lint against specified rules
-  resolve [options] <file-or-url>  pull in external $ref files to create one mega-file
-  serve [options] <file-or-url>    view specifications in beautiful human readable documentation
+lint [options] <file-or-url>     ensure specs are not just valid OpenAPI, but lint against specified rules
+resolve [options] <file-or-url>  pull in external $ref files to create one mega-file
+serve [options] <file-or-url>    view specifications in beautiful human readable documentation
 ```
 
 ### Lint Command
@@ -117,10 +120,40 @@ Options:
   -h, --help          output usage information
 ```
 
+### Config File
+
+To avoid needing to send command line options and switches every time, a config file can be used. Create
+a `speccy.yaml` in the root of your project.
+
+Example:
+```yaml
+# Convert JSON Schema-proper to OpenAPI-flavoured Schema Objects
+jsonSchema: true
+# Keep the noise down
+quiet: true
+# Output a lot of information about what is happening (wont work if you have quiet on)
+verbose: true
+# Rules specific to the lint command
+lint:
+  # rules files to load
+  rules:
+  - strict
+  - ./some/local/rules.json
+  - https://example.org/my-rules.json
+  # rules to skip
+  skip:
+  - info-contact
+# Rules specific to the resolve command
+resolve:
+  output: foo.yaml
+# Rules specific to the serve command
+serve:
+  port: 8001
+```
+
 ### Calling Speccy from Code
 
 Not just a command line tool, speccy can be used to normalize machine-readable specifications.
-
 
 The loader object will return a promise that resolves to an object containing
 the specification.  For example:

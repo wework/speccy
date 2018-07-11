@@ -5,8 +5,8 @@ const path = require('path');
 const loader = require('../lib/loader.js');
 const linter = require('../lib/linter.js');
 
-const runLinter = (object, input, options = {}) => {
-    return linter.lint(object, input, options);
+const runLinter = (object, input, key, options = {}) => {
+    return linter.lint(object, input, key, options);
 }
 
 const getLinterErrors = linter => {
@@ -15,13 +15,13 @@ const getLinterErrors = linter => {
 
 const testFixture = (fixture, rules) => {
     fixture.tests.forEach(test => {
-        const { input, expectedRuleErrors, expectValid, skip = [] } = test;
+        const { input, expectedRuleErrors, expectValid, key, skip = [] } = test;
 
         // Reset rules
-        linter.initialize();
+        linter.init();
 
         loader.loadRuleFiles(rules).then(() => {
-            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, { skip }));
+            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, key, { skip }));
             if (expectValid) {
                 var msg = JSON.stringify(input) + ' is valid';
                 var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');
@@ -43,7 +43,7 @@ const testFixture = (fixture, rules) => {
     });
 }
 
-describe('linter.js', () => {
+describe('Linter', () => {
     describe('lint()', () => {
         const profilesDir = path.join(__dirname, './profiles/');
 
@@ -61,13 +61,13 @@ describe('linter.js', () => {
 
         context('when rules are manually passed', () => {
             const lintAndExpectErrors = (rule, input, expectedErrors) => {
-                linter.initialize();
+                linter.init();
                 linter.createNewRule(rule);
                 getLinterErrors(runLinter('something', input)).should.be.deepEqual(expectedErrors);
             }
 
             const lintAndExpectValid = async (rule, input) => {
-                linter.initialize();
+                linter.init();
                 linter.createNewRule(rule);
                 getLinterErrors(runLinter('something', input)).should.be.empty();
             }

@@ -4,9 +4,12 @@
 
 const express = require('express');
 const path = require('path');
-const server = require('./lib/server.js');
+const config = require('./lib/config.js');
 const loader = require('./lib/loader.js');
+const server = require('./lib/server.js');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
+
+const DEFAULT_PORT = 5000;
 
 const htmlOrError = specFile => {
     try {
@@ -29,21 +32,19 @@ const launchServer = (app, port, specFile) => {
 }
 
 const command = async (specFile, cmd) => {
-    const app = express();
-    const port = cmd.port;
-    const verbose = cmd.quiet ? -1 : cmd.verbose;
-    const bundleDir = path.dirname(require.resolve('redoc'));
+    config.init(cmd);
+    const jsonSchema = config.get('jsonSchema');
+    const verbose = config.get('quiet') ? -1 : config.get('verbose');
+    const port = config.get('serve:port', DEFAULT_PORT);
 
+    const app = express();
+    const bundleDir = path.dirname(require.resolve('redoc'));
     const html = htmlOrError(specFile);
-    let filters = [];
-    if (cmd.jsonSchema) {
-        filters.push(fromJsonSchema);
-    }
-    const spec = await loader.readOrError(specFile, {
-        resolve: true,
-        filters,
-        verbose
-    });
+
+    const spec = await loader.readOrError(
+        specFile,
+        buildLoaderOptions(jsonSchema, verbose)
+    );
 
     app.use('/assets/redoc', express.static(bundleDir));
     app.get('/spec.json', (req, res) => {
@@ -54,6 +55,16 @@ const command = async (specFile, cmd) => {
     });
 
     launchServer(app, port, specFile);
+}
+
+const buildLoaderOptions = (jsonSchema, verbose) => {
+    const options = {
+        resolve: true,
+        verbose,
+        filters: [],
+    };
+    if (jsonSchema) options.filters.push(fromJsonSchema);
+    return options;
 }
 
 module.exports = { command };

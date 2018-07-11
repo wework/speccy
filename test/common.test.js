@@ -2,7 +2,7 @@
 
 const common = require('../lib/common.js');
 
-describe('common.js', () => {
+describe('Common', () => {
     describe('hasDuplicates()', () => {
         it('considers [a, b, c] to not contain duplicates', () => {
             should(common.hasDuplicates(['a', 'b', 'c'])).be.eql(false);

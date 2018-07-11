@@ -7,7 +7,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
 
-describe('loader.js', () => {
+describe('Loader', () => {
     describe('loadRuleFiles()', () => {
         it('load default rules', () => {
             loader.loadRuleFiles(['default']).should.be.fulfilledWith(['default']);

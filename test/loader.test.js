@@ -5,6 +5,7 @@ const loader = require('../lib/loader.js');
 const nock = require('nock');
 const path = require('path');
 const yaml = require('js-yaml');
+const fromJsonSchema = require('json-schema-to-openapi-schema');
 
 describe('loader.js', () => {
     describe('loadRuleFiles()', () => {
@@ -87,9 +88,11 @@ describe('loader.js', () => {
             should(spec.paths['/a'].post.description).equal('Some operation object');
         });
 
-        it('resolves JSON Schema $refs when passed { jsonSchema: true }', async () => {
+        it('resolves JSON Schema $refs when passed { filters: [ jsonSchema ] }', async () => {
+            //const filters = [ function(data,options) { console.log(data); return data; } ];
+            const filters = [ fromJsonSchema ];
             const spec = await loader.loadSpec(samplesDir + 'json-schema/openapi.yaml', {
-                jsonSchema: true,
+                filters: filters,
                 resolve: true
             });
 

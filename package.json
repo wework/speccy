@@ -44,7 +44,7 @@
     "node-readfiles": "^0.2.0",
     "oas-resolver": "^1.0.7",
     "oas-schema-walker": "^1.0.3",
-    "oas-validator": "^1.1.1",
+    "oas-validator": "^1.1.7",
     "redoc": "next",
     "reftools": "^1.0.0",
     "should": "^13.2.0"

@@ -57,19 +57,19 @@ describe('Linter', () => {
                     });
                 });
             });
-        })
+        });
 
         context('when rules are manually passed', () => {
-            const lintAndExpectErrors = (rule, input, expectedErrors) => {
+            const lintAndExpectErrors = (rule, input, expectedErrors, args = {}) => {
                 linter.init();
                 linter.createNewRule(rule);
-                getLinterErrors(runLinter('something', input)).should.be.deepEqual(expectedErrors);
+                getLinterErrors(runLinter('something', input, args.key)).should.be.deepEqual(expectedErrors);
             }
 
-            const lintAndExpectValid = async (rule, input) => {
+            const lintAndExpectValid = async (rule, input, args = {}) => {
                 linter.init();
                 linter.createNewRule(rule);
-                getLinterErrors(runLinter('something', input)).should.be.empty();
+                getLinterErrors(runLinter('something', input, args.key)).should.be.empty();
             }
 
             context('alphabetical', () => {
@@ -101,7 +101,7 @@ describe('Linter', () => {
                         ]
                     };
 
-                    lintAndExpectErrors(rule, input, ['alphabetical-name'])
+                    lintAndExpectErrors(rule, input, ['alphabetical-name']);
                 });
             });
 
@@ -110,7 +110,7 @@ describe('Linter', () => {
                     "name": "gotta-be-five",
                     "object": "*",
                     "enabled": true,
-                    "maxLength": { "property": "summary", "value": 5 }
+                    "maxLength": { "property": "summary", "value": 5 },
                 };
 
                 it('accepts values up to the max length', () => {
@@ -131,6 +131,49 @@ describe('Linter', () => {
                 it('errors when string is too long', () => {
                     const input = { summary: '123456' };
                     lintAndExpectErrors(rule, input, ['gotta-be-five']);
+                });
+            });
+
+            context('notEndWith', () => {
+                context('when property is $key', () => {
+                    const rule = {
+                        "name": "trail-stop-key",
+                        "object": "*",
+                        "enabled": true,
+                        "notEndWith": { "property": "$key", "value": "." }
+                    };
+
+                    it('accepts a key with no "." at the end', () => {
+                        lintAndExpectValid(rule, "value", { key: "foo" });
+                    });
+
+                    it('errors when key has "." at the end', () => {
+                        lintAndExpectErrors(rule, "value", ['trail-stop-key'], { key: "foo." });
+                    });
+                });
+
+                context('when property points to an actual key', () => {
+                    const rule = {
+                        "name": "trail-stop-value",
+                        "object": "*",
+                        "enabled": true,
+                        "notEndWith": { "property": "foo", "value": "." }
+                    };
+
+                    it('accepts value with no "." at the end', () => {
+                        const input = { "foo" : "bar" };
+                        lintAndExpectValid(rule, input);
+                    });
+
+                    it('accepts key with "." at the end', () => {
+                        const input = { "foo": 'bar' };
+                        lintAndExpectValid(rule, input, { key: "foo." });
+                    });
+
+                    it('errors when value has "." at the end', () => {
+                        const input = { "foo": 'bar.' };
+                        lintAndExpectErrors(rule, input, ['trail-stop-value']);
+                    });
                 });
             });
 

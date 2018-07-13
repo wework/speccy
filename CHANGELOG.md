@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Config files can be passed with `-c` (defaults to `speccy.yaml`). See [README](./README.md) for more informaton
 ### Changed
-- Switched to using [oas-kit](https://github.com/Mermade/oas-kit/) for resolving and validating.
-
+- Switched to using [oas-kit](https://github.com/Mermade/oas-kit/) for resolving and validating
+- Moved `short-summary` from `wework` to `strict` rules
+### Removed
+- Got rid of `wework` rules, as the last rule was moved to `strict`
 
 ## [0.7.3] - 2018-06-19
 ### Added

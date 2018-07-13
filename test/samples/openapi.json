@@ -3,7 +3,7 @@
     "info": {
         "version": "5.0",
         "title": "Rooms API",
-        "description": "Booking Rooms and Workspaces at WeWork. Not to be confused with WeOS Rooms - which is a separate service."
+        "description": "Bla bla bla."
     },
     "servers": [
         {
@@ -11,11 +11,11 @@
             "description": "Development server"
         },
         {
-            "url": "https://rooms-staging.wework.com",
+            "url": "https://foo-staging.example.com",
             "description": "Staging server"
         },
         {
-            "url": "https://rooms.wework.com",
+            "url": "https://foo.example.com",
             "description": "Production server"
         }
     ],

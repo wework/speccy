@@ -22,10 +22,6 @@ describe('loader.js', () => {
             loader.loadRuleFiles(['strict', 'default']).should.be.fulfilledWith(['strict', 'default']);
         });
 
-        it('load wework rules', () => {
-            loader.loadRuleFiles(['wework']).should.be.fulfilledWith(['wework', 'strict', 'default']);
-        });
-
         context('when loading from url', () => {
             const host = 'http://example.org';
             const url = host + '/';
@@ -76,6 +72,12 @@ describe('loader.js', () => {
             should(spec).have.key('openapi');
         });
 
+        it('errors when duplicate keys exist', async () => {
+            loader.loadSpec(samplesDir + 'duplicates.yaml').should.be.rejectedWith(loader.ReadError, {
+                message: /duplicated mapping key/
+            });
+        });
+
         it('does not resolve references by default', async () => {
             const spec = await loader.loadSpec(samplesDir + 'refs/openapi.yaml');
             should(spec.paths['/a']).have.key('$ref');
@@ -109,18 +111,15 @@ describe('loader.js', () => {
         });
 
         it('throws OpenError for non-existant file', async () => {
-            let thrownError;
-            try {
-                await loader.loadSpec(samplesDir + 'nope.yaml');
-            }
-            catch (error) {
-                thrownError = error;
-            }
-            should(thrownError.name).equal('OpenError');
+            loader.loadSpec(samplesDir + 'nope.yaml').should.be.rejectedWith(loader.OpenError, {
+                message: /no such file or directory/,
+            });
         });
 
         it('throws ReadError for invalid YAML/JSON', () => {
-            loader.loadSpec(samplesDir + 'not-openapi.txt').should.be.rejectedWith(loader.ReadError);
+            loader.loadSpec(samplesDir + 'not-openapi.txt').should.be.rejectedWith(loader.ReadError, {
+                message: /end of the stream or a document separator is expected/,
+            });
         });
     });
 });

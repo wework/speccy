@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Switched to using [oas-kit](https://github.com/Mermade/oas-kit/) for resolving and validating
 ### Fixed
 - Resolving to a file would silently fail when writing to a folder that did not exist
+### Removed
+- Got rid of `wework` rules, as the last rule was moved to `strict`
 
 ## [0.7.3] - 2018-06-19
 ### Added

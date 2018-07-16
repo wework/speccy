@@ -1,0 +1,7 @@
+---
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  version: 1.0.0
+  title: Duplicate versions should break things
+paths: {}

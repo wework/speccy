@@ -34,7 +34,7 @@ const launchServer = (app, port, specFile) => {
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
-    const verbose = config.get('quiet') ? -1 : config.get('verbose');
+    const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? 2 : 1);
     const port = config.get('serve:port', DEFAULT_PORT);
 
     const app = express();

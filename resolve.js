@@ -13,18 +13,22 @@ const command = async (file, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
     const output = config.get('resolve:output');
-    const verbose = config.get('quiet') ? -1 : config.get('verbose');
+    const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? 2 : 1);
 
     const spec = await loader.readOrError(file, buildLoaderOptions(jsonSchema, verbose));
     const content = yaml.safeDump(spec, { lineWidth: -1 });
 
     if (output) {
-        fs.writeFile(output, content, 'utf8', () => {
+        fs.writeFile(output, content, 'utf8', err => {
+            if (err && verbose) {
+                console.error('Failed to write file: ' + err.message);
+                process.exit(1);
+            }
+
             if (verbose) console.log('Resolved to ' + output);
         });
         return;
     }
-
     console.log(content);
 };
 
@@ -37,7 +41,7 @@ const buildLoaderOptions = (jsonSchema, verbose) => {
         rewriteRefs: true,
         status: 'undefined',
         filters: [],
-        verbose: verbose,
+        verbose,
     };
     if (jsonSchema) options.filters.push(fromJsonSchema);
     return options;

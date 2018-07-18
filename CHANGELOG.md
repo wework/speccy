@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Enabled `path-keys-no-trailing-slash` now oas-resolver can handle keys for lint rules
 ### Changed
 - Switched to using [oas-kit](https://github.com/Mermade/oas-kit/) for resolving and validating
+### Fixed
+- Resolving to a file would silently fail when writing to a folder that did not exist
 
 ## [0.7.3] - 2018-06-19
 ### Added

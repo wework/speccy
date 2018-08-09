@@ -4,16 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.8.0] - 2018-08-09
+### Changed
+- Switched to using [oas-kit] for resolving and validating
+- Moved `short-summary` from `wework` to `strict` rules ([#110])
+- YAML files were previously loaded in "JSON mode", which meant duplicate keys were allowed. They will now error ([#108])
 ### Added
 - Config files can be passed with `-c` (defaults to `speccy.yaml`). See [README](./README.md) for more information
 - Enabled `path-keys-no-trailing-slash` now oas-resolver can handle keys for lint rules
-### Changed
-- Switched to using [oas-kit](https://github.com/Mermade/oas-kit/) for resolving and validating
+- Enabled [better-ajv-errors][] for beautiful validation errors. Linter errors remain unchanged
 ### Fixed
 - Resolving to a file would silently fail when writing to a folder that did not exist
 ### Removed
-- Got rid of `wework` rules, as the last rule was moved to `strict`
+- Got rid of `wework` rules, as the last rule was moved to `strict` ([#110])
 
 ## [0.7.3] - 2018-06-19
 ### Added
@@ -21,6 +24,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 [#90]: https://github.com/wework/speccy/pull/90
+[#108]: https://github.com/wework/speccy/pull/108
+[#110]: https://github.com/wework/speccy/pull/110
+[better-ajv-errors]: https://github.com/atlassian/better-ajv-errors
+[oas-kit]: https://github.com/Mermade/oas-kit
+
 
 ## [0.7.2] - 2018-05-31
 ### Fixed

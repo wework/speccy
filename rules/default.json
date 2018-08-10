@@ -38,9 +38,9 @@
         },
         {
             "name": "path-keys-no-trailing-slash",
-            "object": "pathInfo<--This doesnt exist so this whole rule is broke",
-            "enabled": false,
-            "description": "path item keys should not end with a slash",
+            "object": "paths",
+            "enabled": true,
+            "description": "paths should not end with a slash",
             "notEndWith": { "property": "$key", "value": "/" }
         },
         {

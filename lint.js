@@ -2,6 +2,7 @@
 
 'use strict'
 
+const config = require('./lib/config.js');
 const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
 const validator = require('oas-validator');
@@ -63,38 +64,33 @@ More information: https://speccy.io/rules/#${rule.name}
     return output;
 }
 
-const command = async (file, cmd) => {
-    const verbose = cmd.quiet ? -1 : cmd.verbose;
+const command = async (specFile, cmd) => {
+    config.init(cmd);
+    const jsonSchema = config.get('jsonSchema');
+    const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? 2 : 1);
+    const rulesFiles = config.get('lint:rules');
+    const skip = config.get('lint:skip');
 
-    linter.initialize();
+    linter.init();
+    await loader.loadRuleFiles(rulesFiles, { verbose });
 
-    await loader.loadRuleFiles(cmd.rules, { verbose });
+    const spec = await loader.readOrError(
+        specFile,
+        buildLoaderOptions(jsonSchema, verbose),
+    );
 
-    let filters = [];
-    if (cmd.jsonSchema) {
-        filters.push(fromJsonSchema);
-    }
-
-    const spec = await loader.readOrError(file, {
-        resolve: true,
-        filters,
-        verbose
-    });
-
-    validator.validate(spec, { verbose, skip: cmd.skip, lint: true, linter: linter.lint, prettify: true }, (err, _options) => {
+    validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
         const { context, lintResults } = _options;
 
         if (err) {
             console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
-            const output = formatSchemaError(err, context);
-            console.error(output);
+            console.error(formatSchemaError(err, context));
             process.exit(1);
         }
 
         if (lintResults.length) {
             console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
-            const output = formatLintResults(lintResults);
-            console.warn(output)
+            console.warn(formatLintResults(lintResults))
             process.exit(1);
         }
 
@@ -105,4 +101,28 @@ const command = async (file, cmd) => {
     });
 };
 
-module.exports = { command }
+const buildLoaderOptions = (jsonSchema, verbose) => {
+    const options = {
+        filters: [],
+        resolve: true,
+        verbose,
+    };
+
+    if (jsonSchema) {
+        options.filters.push(fromJsonSchema);
+    }
+
+    return options;
+}
+
+const buildValidatorOptions = (skip, verbose) => {
+    return {
+        skip,
+        lint: true,
+        linter: linter.lint,
+        prettify: true,
+        verbose,
+    };
+}
+
+module.exports = { command };

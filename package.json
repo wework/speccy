@@ -40,7 +40,7 @@
     "json-schema-to-openapi-schema": "^0.2.0",
     "nconf": "^0.10.0",
     "nconf-yaml": "^1.0.2",
-    "node-fetch": "^1.7.3",
+    "node-fetch": "^2.2.0",
     "node-readfiles": "^0.2.0",
     "oas-resolver": "^1.0.7",
     "oas-schema-walker": "^1.0.3",

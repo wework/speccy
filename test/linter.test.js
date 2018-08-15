@@ -66,9 +66,11 @@ describe('Linter', () => {
                 getLinterErrors(runLinter('something', input, args.key)).should.be.deepEqual(expectedErrors);
             }
 
-            const lintAndExpectValid = async (rule, input, args = {}) => {
+            const lintAndExpectValid = (rule, input, args = {}) => {
                 linter.init();
                 linter.createNewRule(rule);
+
+
                 getLinterErrors(runLinter('something', input, args.key)).should.be.empty();
             }
 
@@ -137,42 +139,51 @@ describe('Linter', () => {
             context('notEndWith', () => {
                 context('when property is $key', () => {
                     const rule = {
-                        "name": "trail-stop-key",
+                        "name": "no-trailing-slash",
                         "object": "*",
                         "enabled": true,
-                        "notEndWith": { "property": "$key", "value": "." }
+                        "notEndWith": { "property": "$key", "value": "/" },
                     };
 
-                    it('accepts a key with no "." at the end', () => {
+                    it('accepts a key value with no / at the end', () => {
                         lintAndExpectValid(rule, "value", { key: "foo" });
                     });
 
-                    it('errors when key has "." at the end', () => {
-                        lintAndExpectErrors(rule, "value", ['trail-stop-key'], { key: "foo." });
+                    it('accepts key value with only /', () => {
+                        lintAndExpectValid(rule, "value", { key: "/" });
+                    });
+
+                    it('errors for key value with / at the end', () => {
+                        lintAndExpectErrors(rule, "value", ['no-trailing-slash'], { key: "foo/" });
                     });
                 });
 
                 context('when property points to an actual key', () => {
                     const rule = {
-                        "name": "trail-stop-value",
+                        "name": "no-trailing-slash",
                         "object": "*",
                         "enabled": true,
-                        "notEndWith": { "property": "foo", "value": "." }
+                        "notEndWith": { "property": "foo", "value": "/" }
                     };
 
-                    it('accepts value with no "." at the end', () => {
+                    it('accepts value with no / at the end', () => {
                         const input = { "foo" : "bar" };
                         lintAndExpectValid(rule, input);
                     });
 
-                    it('accepts key with "." at the end', () => {
-                        const input = { "foo": 'bar' };
-                        lintAndExpectValid(rule, input, { key: "foo." });
+                    it('accepts value of only /', () => {
+                        const input = { "foo" : "/" };
+                        lintAndExpectValid(rule, input);
                     });
 
-                    it('errors when value has "." at the end', () => {
-                        const input = { "foo": 'bar.' };
-                        lintAndExpectErrors(rule, input, ['trail-stop-value']);
+                    it('accepts key with / at the end', () => {
+                        const input = { "foo": 'bar' };
+                        lintAndExpectValid(rule, input, { key: "foo/" });
+                    });
+
+                    it('errors when value has / at the end', () => {
+                        const input = { "foo": 'bar/' };
+                        lintAndExpectErrors(rule, input, ['no-trailing-slash']);
                     });
                 });
             });

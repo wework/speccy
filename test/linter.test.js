@@ -5,8 +5,8 @@ const path = require('path');
 const loader = require('../lib/loader.js');
 const linter = require('../lib/linter.js');
 
-const runLinter = (object, input, options = {}) => {
-    return linter.lint(object, input, options);
+const runLinter = (object, input, key, options = {}) => {
+    return linter.lint(object, input, key, options);
 }
 
 const getLinterErrors = linter => {
@@ -15,13 +15,13 @@ const getLinterErrors = linter => {
 
 const testFixture = (fixture, rules) => {
     fixture.tests.forEach(test => {
-        const { input, expectedRuleErrors, expectValid, skip = [] } = test;
+        const { input, expectedRuleErrors, expectValid, key, skip = [] } = test;
 
         // Reset rules
-        linter.initialize();
+        linter.init();
 
         loader.loadRuleFiles(rules).then(() => {
-            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, { skip }));
+            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, key, { skip }));
             if (expectValid) {
                 var msg = JSON.stringify(input) + ' is valid';
                 var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');
@@ -43,7 +43,7 @@ const testFixture = (fixture, rules) => {
     });
 }
 
-describe('linter.js', () => {
+describe('Linter', () => {
     describe('lint()', () => {
         const profilesDir = path.join(__dirname, './profiles/');
 
@@ -57,19 +57,21 @@ describe('linter.js', () => {
                     });
                 });
             });
-        })
+        });
 
         context('when rules are manually passed', () => {
-            const lintAndExpectErrors = (rule, input, expectedErrors) => {
-                linter.initialize();
+            const lintAndExpectErrors = (rule, input, expectedErrors, args = {}) => {
+                linter.init();
                 linter.createNewRule(rule);
-                getLinterErrors(runLinter('something', input)).should.be.deepEqual(expectedErrors);
+                getLinterErrors(runLinter('something', input, args.key)).should.be.deepEqual(expectedErrors);
             }
 
-            const lintAndExpectValid = async (rule, input) => {
-                linter.initialize();
+            const lintAndExpectValid = (rule, input, args = {}) => {
+                linter.init();
                 linter.createNewRule(rule);
-                getLinterErrors(runLinter('something', input)).should.be.empty();
+
+
+                getLinterErrors(runLinter('something', input, args.key)).should.be.empty();
             }
 
             context('alphabetical', () => {
@@ -101,7 +103,7 @@ describe('linter.js', () => {
                         ]
                     };
 
-                    lintAndExpectErrors(rule, input, ['alphabetical-name'])
+                    lintAndExpectErrors(rule, input, ['alphabetical-name']);
                 });
             });
 
@@ -110,7 +112,7 @@ describe('linter.js', () => {
                     "name": "gotta-be-five",
                     "object": "*",
                     "enabled": true,
-                    "maxLength": { "property": "summary", "value": 5 }
+                    "maxLength": { "property": "summary", "value": 5 },
                 };
 
                 it('accepts values up to the max length', () => {
@@ -131,6 +133,58 @@ describe('linter.js', () => {
                 it('errors when string is too long', () => {
                     const input = { summary: '123456' };
                     lintAndExpectErrors(rule, input, ['gotta-be-five']);
+                });
+            });
+
+            context('notEndWith', () => {
+                context('when property is $key', () => {
+                    const rule = {
+                        "name": "no-trailing-slash",
+                        "object": "*",
+                        "enabled": true,
+                        "notEndWith": { "property": "$key", "value": "/" },
+                    };
+
+                    it('accepts a key value with no / at the end', () => {
+                        lintAndExpectValid(rule, "value", { key: "foo" });
+                    });
+
+                    it('accepts key value with only /', () => {
+                        lintAndExpectValid(rule, "value", { key: "/" });
+                    });
+
+                    it('errors for key value with / at the end', () => {
+                        lintAndExpectErrors(rule, "value", ['no-trailing-slash'], { key: "foo/" });
+                    });
+                });
+
+                context('when property points to an actual key', () => {
+                    const rule = {
+                        "name": "no-trailing-slash",
+                        "object": "*",
+                        "enabled": true,
+                        "notEndWith": { "property": "foo", "value": "/" }
+                    };
+
+                    it('accepts value with no / at the end', () => {
+                        const input = { "foo" : "bar" };
+                        lintAndExpectValid(rule, input);
+                    });
+
+                    it('accepts value of only /', () => {
+                        const input = { "foo" : "/" };
+                        lintAndExpectValid(rule, input);
+                    });
+
+                    it('accepts key with / at the end', () => {
+                        const input = { "foo": 'bar' };
+                        lintAndExpectValid(rule, input, { key: "foo/" });
+                    });
+
+                    it('errors when value has / at the end', () => {
+                        const input = { "foo": 'bar/' };
+                        lintAndExpectErrors(rule, input, ['no-trailing-slash']);
+                    });
                 });
             });
 

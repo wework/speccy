@@ -28,6 +28,16 @@
             "enabled": true,
             "description": "tag object should have a description",
             "truthy": "description"
+        },
+        {
+            "name": "short-summary",
+            "object": "operation",
+            "enabled": true,
+            "description": "summary should be short (description can be long)",
+            "maxLength": {
+                "property": "summary",
+                "value": 20
+            }
         }
     ]
 }

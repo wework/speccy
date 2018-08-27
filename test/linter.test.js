@@ -273,6 +273,20 @@ describe('Linter', () => {
                     lintAndExpectErrors(rule, { "a": 1, "b": 2 }, ['one-or-tother']);
                 });
             });
+
+            context('not-equal', () => {
+                const rule = {
+                    "name": "not-equal",
+                    "object": "notEqual",
+                    "enabled": true,
+                    "properties": ["default"]
+                };
+
+                it('does not allow matching rules', () => {
+                    const compare = ["example"];
+                    lintAndExpectValid(rule, compare);
+                })
+            })
         });
     });
 });

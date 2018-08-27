@@ -90,6 +90,13 @@
             "xor": ["value", "externalValue"]
         },
         {
+            "name": "not-equal",
+            "object": "notEqual",
+            "enabled": true,
+            "description": "don't need to define an example if its exactly the same as your default",
+            "notEqual": ["default", "example"]
+        },
+        {
             "name": "reference-components-regex",
             "object": "reference",
             "enabled": false,

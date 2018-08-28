@@ -279,7 +279,7 @@ describe('Linter', () => {
                     "name": "not-equal",
                     "object": "notEqual",
                     "enabled": true,
-                    "properties": ["default", "example"]
+                    "notEqual": ["default", "example"]
                 };
 
                 it('if the fields don\'t exist, that\'s fine', () => {
@@ -292,7 +292,15 @@ describe('Linter', () => {
                         "default": "foo",
                         "example": "foo"
                     };
-                    lintAndExpectErrors;
+                    lintAndExpectErrors(rule, input, ['not-equal']);
+                });
+
+                it('passes when two properties are different', () => {
+                    const input = {
+                        "default": "foo",
+                        "example": "bar"
+                    };
+                    lintAndExpectValid(rule, input);
                 });
             });
         });

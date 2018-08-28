@@ -89,10 +89,9 @@ describe('Loader', () => {
         });
 
         it('resolves JSON Schema $refs when passed { filters: [ jsonSchema ] }', async () => {
-            //const filters = [ function(data,options) { console.log(data); return data; } ];
             const filters = [ fromJsonSchema ];
             const spec = await loader.loadSpec(samplesDir + 'json-schema/openapi.yaml', {
-                filters: filters,
+                filters,
                 resolve: true
             });
 

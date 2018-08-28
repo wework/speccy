@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2018-08-22
+### Fixed
+- Rules using action `notEndWith` (like `path-keys-no-trailing-slash`) should not cause validation errors when string length is 1 ([#137])
+
+[#137]: https://github.com/wework/speccy/pull/137
+
 ## [0.8.0] - 2018-08-09
 ### Changed
 - Switched to using [oas-kit] for resolving and validating
@@ -18,17 +24,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - Got rid of `wework` rules, as the last rule was moved to `strict` ([#110])
 
-## [0.7.3] - 2018-06-19
-### Added
-- Provide "More Info" links in linter errors, so users understand the reasoning behind various rules. ([#78])
-
-
 [#90]: https://github.com/wework/speccy/pull/90
 [#108]: https://github.com/wework/speccy/pull/108
 [#110]: https://github.com/wework/speccy/pull/110
 [better-ajv-errors]: https://github.com/atlassian/better-ajv-errors
 [oas-kit]: https://github.com/Mermade/oas-kit
 
+## [0.7.3] - 2018-06-19
+### Added
+- Provide "More Info" links in linter errors, so users understand the reasoning behind various rules. ([#90])
+
+[#90]: https://github.com/wework/speccy/pull/90
 
 ## [0.7.2] - 2018-05-31
 ### Fixed

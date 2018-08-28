@@ -279,14 +279,22 @@ describe('Linter', () => {
                     "name": "not-equal",
                     "object": "notEqual",
                     "enabled": true,
-                    "properties": ["default"]
+                    "properties": ["default", "example"]
                 };
 
-                it('does not allow matching rules', () => {
-                    const compare = ["example"];
-                    lintAndExpectValid(rule, compare);
-                })
-            })
+                it('if the fields don\'t exist, that\'s fine', () => {
+                    const input = {};
+                    lintAndExpectValid(rule, input);
+                });
+
+                it('fails when two properties are the same', () => {
+                    const input = {
+                        "default": "foo",
+                        "example": "foo"
+                    };
+                    lintAndExpectErrors;
+                });
+            });
         });
     });
 });

@@ -21,9 +21,9 @@
     "url": "https://github.com/wework/speccy/issues"
   },
   "keywords": [
-    "swagger",
     "openapi",
     "openapi3",
+    "swagger",
     "documentation",
     "validator",
     "validation",
@@ -32,7 +32,6 @@
     "linter"
   ],
   "dependencies": {
-    "ajv": "^5.0.1",
     "commander": "^2.14.1",
     "ejs": "^2.5.2",
     "express": "^4.14.0",

@@ -277,7 +277,7 @@ describe('Linter', () => {
             context('not-equal', () => {
                 const rule = {
                     "name": "not-equal",
-                    "object": "notEqual",
+                    "object": "*",
                     "enabled": true,
                     "notEqual": ["default", "example"]
                 };

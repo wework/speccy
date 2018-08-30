@@ -90,8 +90,8 @@
             "xor": ["value", "externalValue"]
         },
         {
-            "name": "not-equal",
-            "object": "notEqual",
+            "name": "default-and-example-are-redundant",
+            "object": "*",
             "enabled": true,
             "description": "don't need to define an example if its exactly the same as your default",
             "notEqual": ["default", "example"]

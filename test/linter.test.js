@@ -273,6 +273,36 @@ describe('Linter', () => {
                     lintAndExpectErrors(rule, { "a": 1, "b": 2 }, ['one-or-tother']);
                 });
             });
+
+            context('not-equal', () => {
+                const rule = {
+                    "name": "not-equal",
+                    "object": "*",
+                    "enabled": true,
+                    "notEqual": ["default", "example"]
+                };
+
+                it('if the fields don\'t exist, that\'s fine', () => {
+                    const input = {};
+                    lintAndExpectValid(rule, input);
+                });
+
+                it('fails when two properties are the same', () => {
+                    const input = {
+                        "default": "foo",
+                        "example": "foo"
+                    };
+                    lintAndExpectErrors(rule, input, ['not-equal']);
+                });
+
+                it('passes when two properties are different', () => {
+                    const input = {
+                        "default": "foo",
+                        "example": "bar"
+                    };
+                    lintAndExpectValid(rule, input);
+                });
+            });
         });
     });
 });

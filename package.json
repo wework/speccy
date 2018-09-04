@@ -1,6 +1,6 @@
 {
   "name": "speccy",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "An OpenAPI v3 development workflow assistant",
   "homepage": "https://speccy.io/",
   "bin": {
@@ -21,9 +21,9 @@
     "url": "https://github.com/wework/speccy/issues"
   },
   "keywords": [
-    "swagger",
     "openapi",
     "openapi3",
+    "swagger",
     "documentation",
     "validator",
     "validation",
@@ -32,7 +32,6 @@
     "linter"
   ],
   "dependencies": {
-    "ajv": "^5.0.1",
     "commander": "^2.14.1",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
@@ -51,7 +50,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
-    "babel-loader": "^7.1.0",
+    "babel-loader": "^8.0.2",
     "babel-preset-es2015": "^6.24.1",
     "coveralls": "^3.0.0",
     "mocha": "^5.0.0",

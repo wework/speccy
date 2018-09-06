@@ -173,6 +173,75 @@ loader
 
 If `options.resolve` is truthy, speccy will resolve _external_ references.
 
+### Adding Custom Rules
+
+You're able to create your own custom rules for Speccy. To accomplish this, follow these steps:
+
+1. Add new rule object to `rules/default.json`
+```json
+{
+    "name": "default-and-example-are-redundant",
+    "object": "*",
+    "enabled": true,
+    "description": "don't need to define an example if its exactly the same as your default",
+    "notEqual": ["default", "example"]
+}
+```
+
+2. Add rule logic code into `lib/linter.js`
+```javascript
+if (rule.notEqual) {
+    let propertyValues = rule.notEqual.reduce((result, property) => {
+        if (typeof object[property] !== 'undefined') {
+            result.push(object[property]);
+        }
+        return result;
+    }, []);
+
+    const equivalent = propertyValues.every( (val, i, arr) => val === arr[0] );
+
+    if (propertyValues.length > 1) {
+        ensure(rule, () => {
+            equivalent.should.be.exactly(false,rule.description);
+        });
+    }
+}
+```
+
+3. Add your test to `test/linter.js`
+```javascript
+context('not-equal', () => {
+    const rule = {
+        "name": "not-equal",
+        "object": "*",
+        "enabled": true,
+        "notEqual": ["default", "example"]
+    };
+
+    it('if the fields don\'t exist, that\'s fine', () => {
+        const input = {};
+        lintAndExpectValid(rule, input);
+    });
+
+    it('fails when two properties are the same', () => {
+        const input = {
+            "default": "foo",
+            "example": "foo"
+        };
+        lintAndExpectErrors(rule, input, ['not-equal']);
+    });
+
+    it('passes when two properties are different', () => {
+        const input = {
+            "default": "foo",
+            "example": "bar"
+        };
+        lintAndExpectValid(rule, input);
+    });
+});
+```
+
+
 ## Tests
 
 To run the test-suite:

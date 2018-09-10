@@ -168,7 +168,7 @@ const options = {
 
 loader
   .loadSpec('path/to/my/spec', options)            // Load the spec...
-  .then(spec => console.log(JSON.stringify(spec)); // ...and print it out.
+  .then(spec => console.log(JSON.stringify(spec))); // ...and print it out.
 ```
 
 If `options.resolve` is truthy, speccy will resolve _external_ references.

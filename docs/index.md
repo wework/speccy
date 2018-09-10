@@ -63,6 +63,13 @@ Rule actions from the [default rules][rules-default] will be used if no rules fi
 
 Contributions of rules and rule actions for the linter are very much appreciated.
 
+##### Adding Custom Rules Files
+
+You can add custom rules files by, for example, copying different rules objects from `strict.json` or `default.json` and saving it into a new file within the `~/.rules/` directory.
+
+Rule Action needs to be a [should.js](https://shouldjs.github.io/) assertion wrapped in an `ensure` function.
+
+When you run Speccy, pass in your new rules file.
 
 ### Resolve Command
 

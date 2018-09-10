@@ -78,6 +78,14 @@ Rule actions from the [default rules][rules-default] will be used if no rules fi
 
 Contributions of rules and rule actions for the linter are very much appreciated.
 
+##### Adding Custom Rules Files
+
+You can add custom rules files by, for example, copying different rules objects from `strict.json` or `default.json` and saving it into a new file within the `~/.rules/` directory.
+
+Rule Action needs to be a [should.js](https://shouldjs.github.io/) assertion wrapped in an `ensure` function.
+
+When you run Speccy, pass in your new rules file.
+
 ### Resolve Command
 
 Resolving `$ref` is the art of taking multiple files and squashing them all down into one big OpenAPI file. By default it will output to stdout, but you can pass `-o` with a file name to write the file locally.
@@ -172,75 +180,6 @@ loader
 ```
 
 If `options.resolve` is truthy, speccy will resolve _external_ references.
-
-### Adding Custom Rules
-
-You're able to create your own custom rules for Speccy. To accomplish this, follow these steps:
-
-1. Add new rule object to `rules/default.json`
-```json
-{
-    "name": "default-and-example-are-redundant",
-    "object": "*",
-    "enabled": true,
-    "description": "don't need to define an example if its exactly the same as your default",
-    "notEqual": ["default", "example"]
-}
-```
-
-2. Add rule logic code into `lib/linter.js`
-```javascript
-if (rule.notEqual) {
-    let propertyValues = rule.notEqual.reduce((result, property) => {
-        if (typeof object[property] !== 'undefined') {
-            result.push(object[property]);
-        }
-        return result;
-    }, []);
-
-    const equivalent = propertyValues.every( (val, i, arr) => val === arr[0] );
-
-    if (propertyValues.length > 1) {
-        ensure(rule, () => {
-            equivalent.should.be.exactly(false,rule.description);
-        });
-    }
-}
-```
-
-3. Add your test to `test/linter.js`
-```javascript
-context('not-equal', () => {
-    const rule = {
-        "name": "not-equal",
-        "object": "*",
-        "enabled": true,
-        "notEqual": ["default", "example"]
-    };
-
-    it('if the fields don\'t exist, that\'s fine', () => {
-        const input = {};
-        lintAndExpectValid(rule, input);
-    });
-
-    it('fails when two properties are the same', () => {
-        const input = {
-            "default": "foo",
-            "example": "foo"
-        };
-        lintAndExpectErrors(rule, input, ['not-equal']);
-    });
-
-    it('passes when two properties are different', () => {
-        const input = {
-            "default": "foo",
-            "example": "bar"
-        };
-        lintAndExpectValid(rule, input);
-    });
-});
-```
-
 
 ## Tests
 

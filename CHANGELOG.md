@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- New rule for when the default rules match the example rules provided.
+- New rule for when the default rules match the example rules provided
+### Fixed
+- `--skip` and `--rules` were being ignored in v0.8.0 - v0.8.1
 
 ## [0.8.1] - 2018-08-22
 ### Fixed

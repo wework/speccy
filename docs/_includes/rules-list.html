@@ -14,10 +14,8 @@
     <td>
         {% if rule.object == "*" %}
         <em>everything</em>
-        {% elsif rule.object == "openapi" %}
-        <a href="https://swagger.io/specification/#oasObject">{{ rule.object }}</a>
         {% else %}
-        <a href="https://swagger.io/specification/#{{ rule.object }}Object">{{ rule.object }}</a>
+        <a href="https://spec.openapis.org/oas/v3.0.1.html#{{ rule.object }}-object">{{ rule.object }}</a>
         {% endif %}
     </td>
     <td>{{ rule.description }}</td>

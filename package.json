@@ -1,6 +1,6 @@
 {
   "name": "speccy",
-  "version": "0.8.2-1",
+  "version": "0.8.2",
   "description": "An OpenAPI v3 development workflow assistant",
   "homepage": "https://speccy.io/",
   "bin": {
@@ -32,7 +32,7 @@
     "linter"
   ],
   "dependencies": {
-    "commander": "^2.14.1",
+    "commander": "^2.18.0",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",

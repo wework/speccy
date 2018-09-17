@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.8.2] - 2018-09-17
 ### Added
 - New rule for when the default rules match the example rules provided
 ### Fixed
 - `--skip` and `--rules` were being ignored in v0.8.0 - v0.8.1
+- Stopped `GET filename.yaml` showing up in normal output (should only show in verbose mode)
 
 ## [0.8.1] - 2018-08-22
 ### Fixed

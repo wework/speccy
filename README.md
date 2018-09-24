@@ -169,16 +169,10 @@ If `options.resolve` is truthy, speccy will resolve _external_ references.
 
 ### Using Docker
 
-Start by building the `Dockerfile` like:
+To use Speccy without installing any node/npm specific dependencies, you can run it via docker:
 
-```
-docker build -t speccy:latest .
-```
-
-Then, simply run the speccy command you want to run like:
-
-```
-docker run speccy lint https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/petstore.yaml
+``` shell
+docker run wework/speccy lint https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/petstore.yaml
 ```
 
 You can work with local files by mounting your spec and any config files to the `/project` directory when you run the container:
@@ -186,7 +180,7 @@ You can work with local files by mounting your spec and any config files to the 
 ```
 docker run \
   -v openapi.yaml:/project/openapi.yaml \
-  speccy lint openapi.yaml
+  wework/speccy lint openapi.yaml
 ```
 
 ### Using with lint-staged

@@ -203,6 +203,10 @@ To run the test-suite:
 npm test
 ```
 
+## Contributing
+
+Contributions are always welcome, no matter how large or small. Before contributing, please read the [code of conduct](CODE_OF_CONDUCT.md).
+
 ## Credits
 
 - [Mike Ralphson] for providing the initial linter/validator from [swagger2openapi]

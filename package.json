@@ -1,6 +1,6 @@
 {
   "name": "speccy",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "An OpenAPI v3 development workflow assistant",
   "homepage": "https://speccy.io/",
   "bin": {

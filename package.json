@@ -1,6 +1,6 @@
 {
   "name": "speccy",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "An OpenAPI v3 development workflow assistant",
   "homepage": "https://speccy.io/",
   "bin": {
@@ -41,9 +41,9 @@
     "nconf-yaml": "^1.0.2",
     "node-fetch": "^2.2.0",
     "node-readfiles": "^0.2.0",
-    "oas-resolver": "^1.0.7",
+    "oas-resolver": "^1.0.10",
     "oas-schema-walker": "^1.0.3",
-    "oas-validator": "^1.1.7",
+    "oas-validator": "^1.1.12",
     "redoc": "next",
     "reftools": "^1.0.0",
     "should": "^13.2.0"

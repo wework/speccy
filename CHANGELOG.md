@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.8.4] - 2018-10-16
+### Fixed
+- Referenced files containing spaces would fail to load on OS X and Linux ([#181])
+
+[#181]: https://github.com/wework/speccy/pull/181
+
+## [0.8.3] - 2018-10-16
+### Fixed
+- Callbacks and Security Requirements were failing due to bug in dependency ([#180])
+
+[#180]: https://github.com/wework/speccy/pull/180
+
+
 ## [0.8.2] - 2018-09-17
 ### Added
 - New rule for when the default rules match the example rules provided

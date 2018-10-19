@@ -1,0 +1,24 @@
+---
+layout: page
+title: Rulesets
+permalink: /rules/1-rulesets
+---
+
+<p>Speccy ships with two rulesets, <code>default</code> and <code>strict</code>. These rulesets can be invoked with `--rules=`, and of course `default` is used by default. You can also create your own custom rulesets.</p>
+
+<p>Remember, linting is more than validaiton, so these rules will do more than simply make sure your files
+    are valid. They'll make your specs better than valid, they'll make them useful.</p>
+
+<div class="panel panel-default">
+    <h3 id="set-default" class="panel-title">Default</h3>
+    <div class="well">$ speccy lint openapi.yaml --rules=default</div>
+    {% include rules-list.html rules=site.data.rules.default %}
+</div>
+
+<div class="panel panel-default">
+    <h3 id="set-strict" class="panel-title">Strict</h3>
+    <div class="well">$ speccy lint openapi.yaml --rules=strict</div>
+    {% include rules-list.html rules=site.data.rules.strict %}
+</div>
+
+<p>You can also create your own rulesets with a simple `.json` file.</p>

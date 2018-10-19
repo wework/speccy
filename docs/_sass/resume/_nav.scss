@@ -2,7 +2,10 @@
   .navbar-brand {}
   .navbar-nav .nav-item .nav-link {
     font-weight: 600;
-    text-transform: uppercase;
+
+  }
+  .nav-section * {
+    text-decoration: underline;
   }
 }
 

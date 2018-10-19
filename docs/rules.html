@@ -1,29 +1,21 @@
 ---
-layout: page
-title: Linter Rules
-permalink: /rules/
+layout: default
+permalink: /rules
 ---
 
-<section class="resume-section p-3 p-lg-5 d-flex flex-column">
-  <div class="container">
-    <h2 class="mb-5">Linter Rules</h2>
+<style type="text/css" media="screen">
+  .container {
+    margin: 10px auto;
+    max-width: 600px;
+    text-align: center;
+  }
+  h1 {
+    margin: 30px 0;
+    font-size: 4em;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+</style>
 
-    <p>Speccy ships with two rules files, which contain a bunch of rules for linting your specifications: `default` and `strict`. You can pass `--rules=default` or You can pass `--rules=strict` to enable these files, or you can make your own.</p>
-
-    <p>Remember, linting is more than validaiton, so these rules will do more than simply make sure your files
-      are valid. They'll make your specs better than valid, they'll make them useful.</p>
-
-    <div class="panel panel-default">
-      <h3 id="file-default" class="panel-title">Default</h3>
-      <div class="well">$ speccy lint openapi.yaml --rules=default</div>
-      {% include rules-list.html rules=site.data.rules.default %}
-    </div>
-
-    <div class="panel panel-default">
-      <h3 id="file-strict" class="panel-title">Strict</h3>
-      <div class="well">$ speccy lint openapi.yaml --rules=strict</div>
-      {% include rules-list.html rules=site.data.rules.strict %}
-    </div>
-
-  </div>
-</section>
+<script>window.location = "/rules/1-rulesets";</script>
+<a href="/rules/1-rulesets">This page has moved. Click here if you are not redirected.</a>

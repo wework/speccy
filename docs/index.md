@@ -57,13 +57,6 @@ There are going to be different things people are interested in, so the [default
 
 There are [strict rules][rules-strict] which demand more contact details, "real" domains, a license, and requires tags have a description!
 
-#### Rules
-
-Rule actions from the [default rules][rules-default] will be used if no rules file is specified. Right now there are only the three bundled options, but supporting custom rules files via local path and URL is on the roadmap.
-
-Contributions of rules and rule actions for the linter are very much appreciated.
-
-
 ### Resolve Command
 
 Resolving `$ref` is the art of taking multiple files and squashing them all down into one big OpenAPI file. By default it will output to stdout, but you can pass `-o` with a file name to write the file locally.
@@ -108,37 +101,6 @@ Options:
 
 Like everything in speccy, this only works for OpenAPI v3.
 
-### Calling Speccy from Code
-
-Not just a command line tool, speccy can be used to normalize machine-readable specifications.
-
-
-The loader object will return a promise that resolves to an object containing
-the specification.  For example:
-
-``` javascript
-const loader = require('speccy/lib/loader');
-
-const options = {
-  resolve: true,   // Resolve external references
-  jsonSchema: true // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
-};
-
-loader
-  .loadSpec('path/to/my/spec', options)            // Load the spec...
-  .then(spec => console.log(JSON.stringify(spec)); // ...and print it out.
-```
-
-If `options.resolve` is truthy, speccy will resolve _external_ references.
-
-## Tests
-
-To run the test-suite:
-
-```shell
-npm test
-```
-
 ## Credits
 
 - [Mike Ralphson] for providing the initial linter/validator from [swagger2openapi]
@@ -148,7 +110,7 @@ npm test
 
 ## License
 
-[BSD-3-Clause](LICENSE) except the `openapi-3.0.json` schema, which is taken from the [OpenAPI-Specification](https://github.com/OAI/OpenAPI-Specification/blob/49e784d7b7800da8732103aa3ac56bc7ccde5cfb/schemas/v3.0/schema.yaml) and the alternative `gnostic-3.0.json` schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json). Both of these are licensed under the [Apache-2](http://www.apache.org/licenses/LICENSE-2.0) license.
+[MIT](LICENSE) except the `openapi-3.0.json` schema, which is taken from the [OpenAPI-Specification](https://github.com/OAI/OpenAPI-Specification/blob/49e784d7b7800da8732103aa3ac56bc7ccde5cfb/schemas/v3.0/schema.yaml) and the alternative `gnostic-3.0.json` schema, which is originally from [Google Gnostic](https://github.com/googleapis/gnostic/blob/master/OpenAPIv3/openapi-3.0.json). Both of these are licensed under the [Apache-2](http://www.apache.org/licenses/LICENSE-2.0) license.
 
 [Kenta Mori]: https://github.com/zoncoen/
 [Mike Ralphson]: https://twitter.com/PermittedSoc/

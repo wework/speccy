@@ -72,12 +72,6 @@ There are going to be different things people are interested in, so the [default
 
 There are [strict rules][rules-strict] which demand more contact details, "real" domains, a license, and requires tags have a description!
 
-#### Rules
-
-Rule actions from the [default rules][rules-default] will be used if no rules file is specified. Right now there are only the three bundled options, but supporting custom rules files via local path and URL is on the roadmap.
-
-Contributions of rules and rule actions for the linter are very much appreciated.
-
 ### Resolve Command
 
 Resolving `$ref` is the art of taking multiple files and squashing them all down into one big OpenAPI file. By default it will output to stdout, but you can pass `-o` with a file name to write the file locally.
@@ -226,8 +220,7 @@ Contributions are always welcome, no matter how large or small. Before contribut
 [link-contributors]: https://github.com/wework/speccy/graphs/contributors
 [redocup]: https://github.com/zoncoen/redocup/
 [rubocop]: https://github.com/bbatsov/rubocop
-[rules-default]: https://github.com/wework/speccy/blob/master/rules/default.json
-[rules-strict]: https://github.com/wework/speccy/blob/master/rules/strict.json
-[rules-wework]: https://github.com/wework/speccy/blob/master/rules/wework.json
+[rules-default]: /rules/1-rulesets#file-default
+[rules-strict]: /rules/1-rulesets#file-strict
 [swagger2openapi]: https://github.com/Mermade/swagger2openapi/
 [wework/json-schema-to-openapi-schema]: https://github.com/wework/json-schema-to-openapi-schema

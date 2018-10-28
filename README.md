@@ -189,6 +189,22 @@ docker run \
   speccy lint openapi.yaml
 ```
 
+### Using with lint-staged
+
+To lint your specifications before committing them you can use [lint-staged](https://github.com/okonet/lint-staged) to run speccy before each commit. Just install lint-staged and husky as `devDependencies` and add the following to your `package.json`:
+
+```
+"husky": {
+  "hooks": {  
+    "pre-commit": "lint-staged"
+  }
+},
+"lint-staged": {
+  "*.{yml, yaml}": ["speccy lint openapi.yml", "git add"]
+}
+```
+You can of course adjust the file filter and the speccy command to fit your setup.
+
 ## Tests
 
 To run the test-suite:

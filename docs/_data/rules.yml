@@ -69,6 +69,28 @@ default:
         - url: https://example.org/api/
       ```
 
+  - name: "path-keys-no-trailing-slash"
+    object: "paths"
+    description: "paths should not end with a slash"
+    more: |
+      A keys in the `paths` objects should not have a trailing slash, because `/` is actually the first
+      character of the path. Having it in both places will confuse some vendor tooling and you might see `//`
+      showing up in the full URL.
+
+      **Good**
+
+      ```
+      paths:
+        /pokemons/{pokemon_id}
+      ```
+
+      **Bad**
+
+      ```
+      paths:
+        /pokemons/{pokemon_id}/
+      ```
+
   - name:  "openapi-tags"
     object: "openapi"
     description: "openapi object should have non-empty tags array"

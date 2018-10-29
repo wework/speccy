@@ -64,7 +64,7 @@ More information: https://speccy.io/rules/1-rulesets#${rule.name}
     return output;
 }
 
-const command = async (specFile, cmd) => {
+const command = async (filePattern, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
     const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? 2 : 1);
@@ -74,31 +74,33 @@ const command = async (specFile, cmd) => {
     linter.init();
     await loader.loadRuleFiles(rulesFiles, { verbose });
 
-    const spec = await loader.readOrError(
-        specFile,
+    const specs = await loader.readOrError(
+        filePattern,
         buildLoaderOptions(jsonSchema, verbose),
     );
 
-    validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
-        const { context, lintResults } = _options;
+    specs.forEach((spec) => {
+        validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
+            const { context, lintResults } = _options;
 
-        if (err) {
-            console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
-            console.error(formatSchemaError(err, context));
-            process.exit(1);
-        }
+            if (err) {
+                console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
+                console.error(formatSchemaError(err, context));
+                process.exit(1);
+            }
 
-        if (lintResults.length) {
-            console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
-            console.warn(formatLintResults(lintResults))
-            process.exit(1);
-        }
+            if (lintResults.length) {
+                console.error(colors.red + 'Specification contains lint errors: ' + lintResults.length + colors.reset);
+                console.warn(formatLintResults(lintResults))
+                process.exit(1);
+            }
 
-        if (!cmd.quiet) {
-          console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
-        }
-        process.exit(0);
-    });
+            if (!cmd.quiet) {
+            console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
+            }
+            process.exit(0);
+        });
+    })
 };
 
 const buildLoaderOptions = (jsonSchema, verbose) => {

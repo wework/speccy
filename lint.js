@@ -7,6 +7,7 @@ const loader = require('./lib/loader.js');
 const linter = require('./lib/linter.js');
 const validator = require('oas-validator');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
+const isGlob = require('is-glob');
 
 const colors = process.env.NODE_DISABLE_COLORS ? {} : {
   red: '\x1b[31m',
@@ -74,10 +75,14 @@ const command = async (filePattern, cmd) => {
     linter.init();
     await loader.loadRuleFiles(rulesFiles, { verbose });
 
-    const specs = await loader.readOrError(
-        filePattern,
-        buildLoaderOptions(jsonSchema, verbose),
-    );
+    const specs = isGlob(filePattern)
+        ? await loader.readGlob(filePattern, buildLoaderOptions(jsonSchema, verbose))
+        : [
+            await loader.readOrError(
+                filePattern,
+                buildLoaderOptions(jsonSchema, verbose),
+            )
+        ];
 
     specs.forEach((spec) => {
         validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
@@ -96,7 +101,7 @@ const command = async (filePattern, cmd) => {
             }
 
             if (!cmd.quiet) {
-            console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
+                console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
             }
             process.exit(0);
         });

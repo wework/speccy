@@ -116,7 +116,7 @@ const command = async (filePattern, cmd) => {
         return 0;
     }).reduce((aggregator, curr) => aggregator + curr, 0);
 
-    process.exit(exitCode);
+    process.exit(exitCode !== 1 ? 1 : 0);
 };
 
 const buildLoaderOptions = (jsonSchema, verbose) => {

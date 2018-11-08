@@ -21,11 +21,14 @@ const htmlOrError = specFile => {
     }
 }
 
-const launchServer = (app, port, specFile) => {
+const launchServer = (app, port, specFile, { verbose }) => {
     app.listen(port, () => {
-        console.log(`API docs server running on http://localhost:${port}!`);
-    })
-    .on('error', e => {
+        if (verbose > 0) {
+            console.log(`API specifications server running!`);
+            console.log(`HTML:          http://localhost:${port}`);
+            console.log(`JSON Specs:    http://localhost:${port}/spec.json`);
+        }
+    }).on('error', e => {
         console.error('Failed to start server: ' + e.message);
         process.exit(1);
     });
@@ -48,13 +51,14 @@ const command = async (specFile, cmd) => {
 
     app.use('/assets/redoc', express.static(bundleDir));
     app.get('/spec.json', (req, res) => {
+        res.header('content-type', 'application/vnd.oai.openapi+json');
         res.send(JSON.stringify(spec));
     });
     app.get('/', (req, res) => {
         res.send(html);
     });
 
-    launchServer(app, port, specFile);
+    launchServer(app, port, specFile, { verbose });
 }
 
 const buildLoaderOptions = (jsonSchema, verbose) => {

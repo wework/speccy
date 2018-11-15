@@ -64,7 +64,7 @@ There is a reserved `require` property (type `string`) at the top level, which c
 
 ### Using Custom Rulesets
 
-The `speccy lint` command supports `--rules`, and currently the value needs to be a URL to your custom ruleset file. Local file paths will not work. Pull requests welcome!
+The `speccy lint` command supports `--rules`, and the value can either be a URL to your custom ruleset file, or a path to a ruleset on your filesystem.
 
 <hr>
 

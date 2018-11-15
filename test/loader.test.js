@@ -17,10 +17,16 @@ describe('Loader', () => {
             loader.loadRuleFiles(['strict']).should.be.fulfilledWith(['strict', 'default']);
         });
 
-
         it('load default & strict rules', () => {
             loader.loadRuleFiles(['strict', 'default']).should.be.fulfilledWith(['strict', 'default']);
         });
+
+        context('when loading from a local file', () => {
+            it('retrieves rules from the file', () => {
+                const file = __dirname + '/../rules/strict.json'
+                loader.loadRuleFiles([file]).should.be.fulfilledWith([file, 'default']);
+            })
+        })
 
         context('when loading from url', () => {
             const host = 'http://example.org';

@@ -8,23 +8,37 @@ const yaml = require('js-yaml');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
 
 describe('Loader', () => {
-    describe('loadRuleFiles()', () => {
+    describe('loadRulesets()', () => {
         it('load default rules', () => {
-            loader.loadRuleFiles(['default']).should.be.fulfilledWith(['default']);
+            loader.loadRulesets(['default']).should.be.fulfilledWith(['default']);
         });
 
         it('load strict rules', () => {
-            loader.loadRuleFiles(['strict']).should.be.fulfilledWith(['strict', 'default']);
+            loader.loadRulesets(['strict']).should.be.fulfilledWith(['strict', 'default']);
         });
 
         it('load default & strict rules', () => {
-            loader.loadRuleFiles(['strict', 'default']).should.be.fulfilledWith(['strict', 'default']);
+            loader.loadRulesets(['strict', 'default']).should.be.fulfilledWith(['strict', 'default']);
+        });
+
+        context('when loading from local file', () => {
+            it('retrieves rules from valid file', () => {
+                const ruleset = path.resolve(__dirname, '../rules/strict.yaml');
+                loader.loadRulesets([ruleset]).should.be.fulfilledWith([ruleset, 'default']);
+            });
+
+            context('when the file is not found', () => {
+                it('rejects with an OpenError', () => {
+                    const ruleset = path.resolve(__dirname, '../rules/nonsense.yaml');
+                    loader.loadRulesets([ruleset]).should.be.rejectedWith(Error);
+                });
+            });
         });
 
         context('when loading from a local file', () => {
             it('retrieves rules from the file', () => {
-                const file = __dirname + '/../rules/strict.json'
-                loader.loadRuleFiles([file]).should.be.fulfilledWith([file, 'default']);
+                const file = __dirname + '/../rules/strict.yaml'
+                loader.loadRulesets([file]).should.be.fulfilledWith([file, 'default']);
             })
         })
 
@@ -33,24 +47,19 @@ describe('Loader', () => {
             const url = host + '/';
 
             it('retrieves rules from valid url', () => {
-                nock(host).get('/').replyWithFile(200, __dirname + '/../rules/strict.json', {
-                    'Content-Type': 'application/json'
+                nock(host).get('/').replyWithFile(200, __dirname + '/../rules/strict.yaml', {
+                    'Content-Type': 'application/yaml'
                 });
 
-                loader.loadRuleFiles([host + '/']).should.be.fulfilledWith([host + '/', 'default']);
+                loader.loadRulesets([host + '/']).should.be.fulfilledWith([host + '/', 'default']);
             });
 
             context('when the file being loaded is garbage', () => {
-                const setupMock = () => nock(host).get('/').reply(200, 'this is not json AT ALL');
+                const setupMock = () => nock(host).get('/').reply(200, "invalid:\n?SAD");
 
                 it('reject with a ReadError', () => {
                     setupMock();
-                    loader.loadRuleFiles([url]).should.be.rejectedWith(loader.ReadError);
-                });
-
-                it('error should be useful', () => {
-                    setupMock();
-                    loader.loadRuleFiles([url]).should.be.rejectedWith(/Invalid JSON: invalid json response body/);
+                    loader.loadRulesets([url]).should.be.rejectedWith(yaml.YAMLException);
                 });
             })
 
@@ -59,7 +68,7 @@ describe('Loader', () => {
 
                 it('rejects with an OpenError', () => {
                     setupMock();
-                    loader.loadRuleFiles([url]).should.be.rejectedWith(loader.OpenError);
+                    loader.loadRulesets([url]).should.be.rejectedWith(loader.OpenError);
                 });
             });
         });

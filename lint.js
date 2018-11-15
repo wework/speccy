@@ -68,18 +68,18 @@ const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
     const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? 2 : 1);
-    const rulesFiles = config.get('lint:rules');
+    const rulesets = config.get('lint:rules');
     const skip = config.get('lint:skip');
 
-    linter.init();
-    await loader.loadRuleFiles(rulesFiles, { verbose });
+    linter.init({ skip });
+    await loader.loadRulesets(rulesets, { verbose });
 
     const spec = await loader.readOrError(
         specFile,
         buildLoaderOptions(jsonSchema, verbose),
     );
 
-    validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
+    validator.validate(spec, buildValidatorOptions(verbose), (err, _options) => {
         const { context, lintResults } = _options;
 
         if (err) {

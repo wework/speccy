@@ -36,6 +36,10 @@ describe('Config', () => {
                     './some/local/rules.json',
                     'https://example.org/my-rules.json',
                 ]);
+
+                should(config.get('lint:skip')).be.eql([
+                    'info-contact',
+                ]);
             });
         });
     });

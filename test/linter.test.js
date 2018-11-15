@@ -18,10 +18,10 @@ const testFixture = (fixture, rules) => {
         const { input, expectedRuleErrors, expectValid, key, skip = [] } = test;
 
         // Reset rules
-        linter.init();
+        linter.init({ skip });
 
-        loader.loadRuleFiles(rules).then(() => {
-            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, key, { skip }));
+        loader.loadRulesets(rules).then(() => {
+            const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, key));
             if (expectValid) {
                 var msg = JSON.stringify(input) + ' is valid';
                 var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');
@@ -50,7 +50,7 @@ describe('Linter', () => {
         ['default', 'strict'].forEach(profileName => {
             const profile = JSON.parse(fs.readFileSync(profilesDir + profileName + '.json', 'utf8'))
 
-            context('when `' + profileName + '` profile is loaded', () => {
+            context(`when "${profileName}" profile is loaded`, () => {
                 profile.fixtures.forEach(fixture => {
                     describe(`linting the ${fixture.object} object`, () => {
                         testFixture(fixture, profile.rules);
@@ -70,7 +70,6 @@ describe('Linter', () => {
                 linter.init();
                 linter.createNewRule(rule);
 
-
                 getLinterErrors(runLinter('something', input, args.key)).should.be.empty();
             }
 
@@ -78,7 +77,6 @@ describe('Linter', () => {
                 const rule = {
                     "name": "alphabetical-name",
                     "object": "*",
-                    "enabled": true,
                     "alphabetical": {
                         "properties": ["tags"],
                         "keyedBy": "name"
@@ -111,7 +109,6 @@ describe('Linter', () => {
                 const rule = {
                     "name": "gotta-be-five",
                     "object": "*",
-                    "enabled": true,
                     "maxLength": { "property": "summary", "value": 5 },
                 };
 
@@ -141,7 +138,6 @@ describe('Linter', () => {
                     const rule = {
                         "name": "no-trailing-slash",
                         "object": "*",
-                        "enabled": true,
                         "notEndWith": { "property": "$key", "value": "/" },
                     };
 
@@ -162,7 +158,6 @@ describe('Linter', () => {
                     const rule = {
                         "name": "no-trailing-slash",
                         "object": "*",
-                        "enabled": true,
                         "notEndWith": { "property": "foo", "value": "/" }
                     };
 
@@ -192,7 +187,6 @@ describe('Linter', () => {
                 const rule = {
                     "name": "exactly-two-things",
                     "object": "*",
-                    "enabled": true,
                     "properties": 2
                 };
 
@@ -222,7 +216,6 @@ describe('Linter', () => {
                     const rule = {
                         "name": "alphadash",
                         "object": "*",
-                        "enabled": true,
                         "pattern": {
                             "property": "foo",
                             "omit": "#",
@@ -243,7 +236,6 @@ describe('Linter', () => {
                     const rule = {
                         "name": "alphadash",
                         "object": "*",
-                        "enabled": true,
                         "pattern": {
                             "property": "foo",
                             "value": "^[a-z0-9-]+$"
@@ -264,7 +256,6 @@ describe('Linter', () => {
                 const rule = {
                     "name": "one-or-tother",
                     "object": "*",
-                    "enabled": true,
                     "xor": ["a", "b"]
                 };
 
@@ -278,7 +269,6 @@ describe('Linter', () => {
                 const rule = {
                     "name": "not-equal",
                     "object": "*",
-                    "enabled": true,
                     "notEqual": ["default", "example"]
                 };
 

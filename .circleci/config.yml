@@ -48,6 +48,15 @@ jobs:
             - checkout
             - run: docker build -t speccy:$CIRCLE_SHA1 .
 
+    push-image:
+        machine: true
+        steps:
+            - checkout
+            - run: docker build -t speccy:$CIRCLE_SHA1 .
+            - run: docker login
+            - run: docker tag speccy:$CIRCLE_SHA1 wework/speccy:latest
+            - run: if [ "$CIRCLE_TAG" != "" ]; then docker tag speccy:$CIRCLE_SHA1 wework/speccy:$CIRCLE_TAG; fi;
+
 workflows:
     version: 2
     commit:
@@ -57,4 +66,13 @@ workflows:
             - node-9
             - node-8
             - build-image
+
+    deploy:
+        jobs:
+            - push-image:
+                filters:
+                    branches:
+                        only: master
+                    tags:
+                        only: /.*/
 

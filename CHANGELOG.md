@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.8.5] - 2018-11-15
+### Added
+- Custom rulesets can now be loaded from the local filesystem, thanks [@erunion]! ([#196])
+### Fixed
+- More resolving errors fixed upgrading oas-kit ([#185] & [#187])
+
+[@erunion]: https://github.com/erunion
+[#185]: https://github.com/wework/speccy/issues/185
+[#187]: https://github.com/wework/speccy/issues/187
+[#196]: https://github.com/wework/speccy/pull/196
+
 ## [0.8.4] - 2018-10-16
 ### Fixed
 - Referenced files containing spaces would fail to load on OS X and Linux ([#181])

@@ -230,7 +230,7 @@ Contributions are always welcome, no matter how large or small. Before contribut
 [link-contributors]: https://github.com/wework/speccy/graphs/contributors
 [redocup]: https://github.com/zoncoen/redocup/
 [rubocop]: https://github.com/bbatsov/rubocop
-[rules-default]: /rules/1-rulesets#file-default
-[rules-strict]: /rules/1-rulesets#file-strict
+[rules-default]: http://speccy.io/rules/1-rulesets#set-default
+[rules-strict]: http://speccy.io/rules/1-rulesets#set-strict
 [swagger2openapi]: https://github.com/Mermade/swagger2openapi/
 [wework/json-schema-to-openapi-schema]: https://github.com/wework/json-schema-to-openapi-schema

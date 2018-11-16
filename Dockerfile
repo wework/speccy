@@ -17,6 +17,7 @@ RUN ln -s /opt/speccy/speccy.js /usr/local/bin/speccy
 
 WORKDIR /project
 
+EXPOSE 5000
 ENTRYPOINT ["speccy"]
 CMD ["-h"]
 

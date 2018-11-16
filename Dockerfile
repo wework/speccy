@@ -6,6 +6,8 @@ COPY . /opt/speccy/
 
 ENV NODE_ENV=production
 
+# Ignore version locking to avoid undesired breaks due to changes in upstream
+# hadolint ignore=DL3018
 RUN apk add --no-cache git \
     && npm install
 

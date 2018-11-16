@@ -46,6 +46,7 @@ jobs:
         machine: true
         steps:
             - checkout
+            - run: docker run --rm -i hadolint/hadolint < Dockerfile
             - run: docker build -t speccy:$CIRCLE_SHA1 .
 
     push-image:

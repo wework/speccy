@@ -136,6 +136,61 @@ describe('Linter', () => {
                 });
             });
 
+            context("notContain", () => {
+                context('when linting with a string', () => {
+                    const rule = {
+                        "name": "doesnt-contain-foo",
+                        "object": "*",
+                        "enabled": true,
+                        "notContain": { "properties": ["description"], "value": "foo" }
+                    }
+
+                    it('accepts a value when foo is not present', () => {
+                        lintAndExpectValid(rule, {"description": "bar"});
+                    });
+
+                    it('errors when foo is present', () => {
+                        lintAndExpectErrors(rule, {"description": "foo"}, ['doesnt-contain-foo']);
+                        lintAndExpectErrors(rule, {"description": "foobar"}, ['doesnt-contain-foo']);
+                    });
+                });
+
+                context('when linting with regex', () => {
+                    let rule = {
+                        "name": "doesnt-contain-foo",
+                        "object": "*",
+                        "enabled": true,
+                        "notContain": {
+                            "properties": ["description"],
+                            "pattern": {
+                                "value": "[f|F]oo"
+                            }
+                        }
+                    }
+
+                    it('accepts a value when foo is not present', () => {
+                        lintAndExpectValid(rule, {"description": "bar"});
+                    });
+
+                    it('errors when foo is present', () => {
+                        lintAndExpectErrors(rule, {"description": "foobar"}, ['doesnt-contain-foo']);
+                    });
+
+                    context('when supplying additional regex flags', () => {
+                        rule.notContain.pattern.value = 'foo'
+                        rule.notContain.pattern.flags = 'gi'
+
+                        it('accepts a value when foo is not present', () => {
+                            lintAndExpectValid(rule, {"description": "bar"});
+                        });
+
+                        it('errors when foo is present', () => {
+                            lintAndExpectErrors(rule, {"description": "fOoBaR"}, ['doesnt-contain-foo']);
+                        });
+                    })
+                })
+            });
+
             context('notEndWith', () => {
                 context('when property is $key', () => {
                     const rule = {

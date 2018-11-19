@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- `notContain` rulesets can now support pattern matching. ([#208] via [@erunion])
+
+[@erunion]: https://github.com/erunion
+[#208]: https://github.com/wework/speccy/issues/208
+
 ## [0.8.5] - 2018-11-15
 ### Added
 - Custom rulesets can now be loaded from the local filesystem, thanks [@erunion]! ([#196])

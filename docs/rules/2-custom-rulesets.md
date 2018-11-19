@@ -52,7 +52,7 @@ There is a reserved `require` property (type `string`) at the top level, which c
 |alphabetical|object|reserved|Makes sure values are in alphabetical order. Structure: `{ properties: string, keyedBy: string }`|
 |or|array|no|An array of property names, one or more of which must be present|
 |maxLength|object|reserved|An object containing a `property` string name, and a `value` (integer). The length of the `property` value must not be longer than `value`|
-|notContain|object|no|An object containing a `properties` array and a `value`. None of the `properties` must contain the `value`. Used with strings|
+|notContain|object|no|An object containing a `properties` array and either a `value` (case-sensitive string matches) or `pattern` (full regex matching). If using `value`, none of the `properties` must contain the `value`. If using `pattern`, you should supply `pattern.value` which contains your regex. If you wish to also supply additional flags, you can do so on `pattern.flags`.|
 |notEndWith|object|no|An object containing a `property`, an optional `omit` prefix and a `value` string. The given `property` (once `omit` is removed) must not end with the given `value`. Used with strings|
 |notEquals|object|no|An array containing a list of property names, which must have different values if present|
 |pattern|object|no|An object containing a `property` name, an optional `split` string which is used to split the value being tested into individual components, an optional `omit` string (which is chopped off the front of each component being tested), and a `value` regex property which is used to test all components of the property value being tested|

@@ -12,6 +12,12 @@ Taking off from where [Mike Ralphson] started with linting in [swagger2openapi],
 
 - **NodeJS:** v8 - v10
 
+## Setup
+
+```sh
+$ npm install speccy -g
+```
+
 ## OpenAPI Specification
 
 Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)

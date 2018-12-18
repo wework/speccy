@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `notContain` rulesets can now support pattern matching. ([#208] via [@erunion])
 ### Fixed
 - Support options after the command name, and at the end of the command ([#229])
+### Improved
+- Bumped `json-schema-to-openapi-schema` to v0.3.0 to handle if/then/else, const, exclusiveMiniumum/exclusiveMaximum, and empty `items` in type: array. Thanks [@MikeRalphson]!
 
 [@erunion]: https://github.com/erunion
+[@MikeRalphson]: https://github.com/MikeRalphson
 [#208]: https://github.com/wework/speccy/issues/208
 [#229]: https://github.com/wework/speccy/pull/229
 

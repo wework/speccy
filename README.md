@@ -25,7 +25,7 @@ You can install this node module via NPM or Yarn.
 ```sh
 $ npm install speccy -g
 # or
-$ yarn add global speccy
+$ yarn global add speccy
 ```
 
 Alternatively, you can use it with Docker (see "Using Docker" below.)

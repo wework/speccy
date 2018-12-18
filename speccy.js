@@ -51,4 +51,6 @@ program
 
 program.parse(process.argv);
 
-if (!program.args.length) program.help();
+if (!process.argv.slice(2).length) {
+    program.help();
+}

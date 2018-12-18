@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - `notContain` rulesets can now support pattern matching. ([#208] via [@erunion])
+### Fixed
+- Support options after the command name, and at the end of the command ([#229])
 
 [@erunion]: https://github.com/erunion
 [#208]: https://github.com/wework/speccy/issues/208
+[#229]: https://github.com/wework/speccy/pull/229
 
 ## [0.8.5] - 2018-11-15
 ### Added

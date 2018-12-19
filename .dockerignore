@@ -1,0 +1,12 @@
+/.circleci
+/.git
+/.github
+/*.md
+/Dockerfile
+/docs
+/.dockerignore
+/.editorconfig
+/.eslintrc.json
+/.gitignore
+/test
+

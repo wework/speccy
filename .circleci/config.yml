@@ -42,6 +42,24 @@ jobs:
             - image: circleci/node:8
         <<: *shared
 
+    build-image:
+        machine: true
+        steps:
+            - checkout
+            - run: docker run --rm -i hadolint/hadolint < Dockerfile
+            - run: docker build -t speccy:$CIRCLE_SHA1 .
+
+    push-image:
+        machine: true
+        steps:
+            - checkout
+            - run: docker build -t speccy:$CIRCLE_SHA1 .
+            - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+            - run: docker tag speccy:$CIRCLE_SHA1 wework/speccy:nightly
+            - run: if [ "$CIRCLE_TAG" != "" ]; then docker tag speccy:$CIRCLE_SHA1 wework/speccy:latest; fi;
+            - run: if [ "$CIRCLE_TAG" != "" ]; then docker tag speccy:$CIRCLE_SHA1 wework/speccy:$CIRCLE_TAG; fi;
+            - run: docker push wework/speccy
+
 workflows:
     version: 2
     commit:
@@ -50,3 +68,14 @@ workflows:
             - node-10
             - node-9
             - node-8
+            - build-image
+
+    deploy:
+        jobs:
+            - push-image:
+                filters:
+                    branches:
+                        only: master
+                    tags:
+                        only: /.*/
+

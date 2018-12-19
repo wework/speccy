@@ -18,6 +18,18 @@ Currently tracking [v3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/ma
 
 If you want to run speccy on OpenAPI (f.k.a Swagger) v2.0 specs, run it through [swagger2openapi] first and speccy can give advice on the output.
 
+## Setup
+
+You can install this node module via NPM or Yarn.
+
+```sh
+$ npm install speccy -g
+# or
+$ yarn global add speccy
+```
+
+Alternatively, you can use it with Docker (see "Using Docker" below.)
+
 ## Usage
 
 ```
@@ -189,7 +201,7 @@ To lint your specifications before committing them you can use [lint-staged](htt
 
 ```
 "husky": {
-  "hooks": {  
+  "hooks": {
     "pre-commit": "lint-staged"
   }
 },
@@ -230,7 +242,7 @@ Contributions are always welcome, no matter how large or small. Before contribut
 [link-contributors]: https://github.com/wework/speccy/graphs/contributors
 [redocup]: https://github.com/zoncoen/redocup/
 [rubocop]: https://github.com/bbatsov/rubocop
-[rules-default]: /rules/1-rulesets#file-default
-[rules-strict]: /rules/1-rulesets#file-strict
+[rules-default]: http://speccy.io/rules/1-rulesets#set-default
+[rules-strict]: http://speccy.io/rules/1-rulesets#set-strict
 [swagger2openapi]: https://github.com/Mermade/swagger2openapi/
 [wework/json-schema-to-openapi-schema]: https://github.com/wework/json-schema-to-openapi-schema

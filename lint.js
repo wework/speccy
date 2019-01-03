@@ -79,8 +79,8 @@ const command = async (specFile, cmd) => {
         buildLoaderOptions(jsonSchema, verbose),
     );
 
-    validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
-        const { context, lintResults } = _options;
+    validator.validate(spec, buildValidatorOptions(skip, verbose), (err) => {
+        const { context, lintResults } = err.options;
 
         if (err) {
             console.error(colors.red + 'Specification schema is invalid.' + colors.reset);

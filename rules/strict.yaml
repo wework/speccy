@@ -1,0 +1,30 @@
+require: default
+rules:
+- name: contact-properties
+  object: contact
+  description: contact object should have name, url and email
+  truthy:
+  - name
+  - url
+  - email
+- name: license-url
+  object: license
+  description: license object should include url
+  truthy: url
+- name: server-not-example.com
+  object: server
+  description: server url should not point at example.com
+  notContain:
+    properties:
+    - url
+    value: example.com
+- name: tag-description
+  object: tag
+  description: tag object should have a description
+  truthy: description
+- name: short-summary
+  object: operation
+  description: summary should be short (description can be long)
+  maxLength:
+    property: summary
+    value: 20

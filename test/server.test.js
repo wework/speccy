@@ -4,9 +4,9 @@ const server = require('../lib/server.js');
 
 describe('Server', () => {
     describe('loadHTML()', () => {
-        it('is a string', () => {
+        test('is a string of HTML', () => {
             const html = server.loadHTML();
-            should(html).be.String();
+            expect(html).toContain('<html>');
         });
     });
 });

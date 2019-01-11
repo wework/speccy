@@ -4,34 +4,35 @@ const config = require('../lib/config.js');
 
 describe('Config', () => {
     describe('init()', () => {
-        it('does not throw for invalid file', () => {
+        test('does not throw for invalid file', () => {
             const configFile = 'test/config/doesnotexist.yaml';
-            should.doesNotThrow(() => { config.init({ config: configFile }); });
+            const f = () => { config.init({ config: configFile }); }
+            expect(f).not.toThrow;
         });
 
-        context('with a valid json file', () => {
+        describe('with a valid json file', () => {
             const configFile = 'test/config/valid.json';
 
-            it('can find expected values', () => {
+            test('can find expected values', () => {
                 config.init({ config: configFile });
 
-                should(config.get('jsonSchema')).be.eql(true);
-                should(config.get('serve:port')).be.eql(8001);
+                expect(config.get('jsonSchema')).toBe(true);
+                expect(config.get('serve:port')).toBe(8001);
             });
         });
 
-        context('with a valid yaml file', () => {
+        describe('with a valid yaml file', () => {
             const configFile = 'test/config/valid.yaml';
 
-            it('can find expected values', () => {
+            test('can find expected values', () => {
                 config.init({ config: configFile });
 
-                should(config.get('jsonSchema')).be.eql(true);
-                should(config.get('serve:port')).be.eql(8001);
+                expect(config.get('jsonSchema')).toBe(true);
+                expect(config.get('serve:port')).toBe(8001);
             });
 
-            it('will handle array config items', () => {
-                should(config.get('lint:rules')).be.eql([
+            test('will handle array config items', () => {
+                expect(config.get('lint:rules')).toEqual([
                     'strict',
                     './some/local/rules.json',
                     'https://example.org/my-rules.json',
@@ -41,20 +42,20 @@ describe('Config', () => {
     });
 
     describe('load()', () => {
-        context('when an empty file is loaded', () => {
+        describe('when an empty file is loaded', () => {
             const configFile = 'test/config/empty.yaml';
 
-            context('and no config options are supplied', () => {
-                it('it will have undefined values', () => {
+            describe('and no config options are supplied', () => {
+                test('it will have undefined values', () => {
                     config.load(configFile, {});
-                    should(config.get('foo:bar')).be.undefined;
+                    expect(config.get('foo:bar')).toBeUndefined;
                 });
             });
 
-            context('and config options are supplied', () => {
-                it('with an empty file', () => {
+            describe('and config options are supplied', () => {
+                test('with an empty file', () => {
                     config.load(configFile, { foo: { bar: 123 }});
-                    should(config.get('foo:bar')).be.eql(123);
+                    expect(config.get('foo:bar')).toBe(123);
                 });
             });
         });

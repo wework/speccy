@@ -44,9 +44,7 @@
     "oas-resolver": "^1.0.10",
     "oas-schema-walker": "^1.0.3",
     "oas-validator": "^2.0.0",
-    "redoc": "v2.0.0-rc.0",
-    "reftools": "^1.0.0",
-    "should": "^13.2.0"
+    "redoc": "v2.0.0-rc.0"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",

@@ -1,5 +1,6 @@
 rules:
 - name: parameter-description
+  disabled: true
   object: parameter
   description: parameter objects should have a description
   truthy: description
@@ -54,7 +55,7 @@ rules:
   properties: 1
 - name: pathItem-summary-or-description
   object: pathItem
-  disabled: false
+  disabled: true
   description: pathItem should have summary or description
   or:
   - summary
@@ -68,12 +69,17 @@ rules:
 - name: default-and-example-are-redundant
   object: "*"
   description: don't need to define an example if its exactly the same as your default
-  notEqual:
-  - default
-  - example
+  schema:
+    dependencies:
+      default:
+        properties:
+          example:
+            not:
+              const:
+                "$data": "1/default"
 - name: reference-components-regex
   object: reference
-  disabled: false
+  disabled: true
   description: reference components should all match regex ^[a-zA-Z0-9\.\-_]+
   pattern:
     property: "$ref"

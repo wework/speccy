@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const loader = require('../lib/loader.js');
-const linter = require('../lib/linter.js');
+const loader = require('../../lib/loader.js');
+const linter = require('../../lib/linter.js');
 
 const runLinter = (object, input, key, options = {}) => {
     return linter.lint(object, input, key, options);
@@ -45,7 +45,7 @@ const testFixture = (fixture, rules) => {
 
 describe('Linter', () => {
     describe('lint()', () => {
-        const profilesDir = path.join(__dirname, './profiles/');
+        const profilesDir = path.join(__dirname, '../fixtures/profiles/');
 
         ['default', 'strict'].forEach(profileName => {
             const profile = JSON.parse(fs.readFileSync(profilesDir + profileName + '.json', 'utf8'))

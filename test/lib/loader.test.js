@@ -1,7 +1,7 @@
 'use strict';
 
 const fetch = require('node-fetch');
-const loader = require('../lib/loader.js');
+const loader = require('../../lib/loader.js');
 const nock = require('nock');
 const path = require('path');
 const yaml = require('js-yaml');
@@ -23,7 +23,7 @@ describe('Loader', () => {
 
         describe('when loading from a local file', () => {
             test('retrieves rules from the file', () => {
-                const file = __dirname + '/../rules/strict.json';
+                const file = __dirname + '/../../rules/strict.json';
                 return expect(loader.loadRuleFiles([file])).resolves.toEqual([file, 'default']);
             })
         })
@@ -33,7 +33,7 @@ describe('Loader', () => {
             const url = host + '/';
 
             test('retrieves rules from valid url', () => {
-                nock(host).get('/').replyWithFile(200, __dirname + '/../rules/strict.json', {
+                nock(host).get('/').replyWithFile(200, __dirname + '/../../rules/strict.json', {
                     'Content-Type': 'application/json'
                 });
 
@@ -61,7 +61,7 @@ describe('Loader', () => {
     });
 
     describe('loadSpec()', () => {
-        const samplesDir = path.join(__dirname, './samples/');
+        const samplesDir = path.join(__dirname, '../fixtures/loader/');
 
         test('loads json specs', async () => {
             const spec = await loader.loadSpec(samplesDir + 'openapi.json');

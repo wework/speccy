@@ -1,17 +1,17 @@
 'use strict';
 
-const config = require('../lib/config.js');
+const config = require('../../lib/config.js');
 
 describe('Config', () => {
     describe('init()', () => {
         test('does not throw for invalid file', () => {
-            const configFile = 'test/config/doesnotexist.yaml';
+            const configFile = 'test/fixtures/config/doesnotexist.yaml';
             const f = () => { config.init({ config: configFile }); }
             expect(f).not.toThrow;
         });
 
         describe('with a valid json file', () => {
-            const configFile = 'test/config/valid.json';
+            const configFile = 'test/fixtures/config/valid.json';
 
             test('can find expected values', () => {
                 config.init({ config: configFile });
@@ -22,7 +22,7 @@ describe('Config', () => {
         });
 
         describe('with a valid yaml file', () => {
-            const configFile = 'test/config/valid.yaml';
+            const configFile = 'test/fixtures/config/valid.yaml';
 
             test('can find expected values', () => {
                 config.init({ config: configFile });
@@ -43,7 +43,7 @@ describe('Config', () => {
 
     describe('load()', () => {
         describe('when an empty file is loaded', () => {
-            const configFile = 'test/config/empty.yaml';
+            const configFile = 'test/fixtures/config/empty.yaml';
 
             describe('and no config options are supplied', () => {
                 test('it will have undefined values', () => {

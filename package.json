@@ -7,8 +7,7 @@
     "speccy": "./speccy.js"
   },
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov"
+    "test": "jest --coverage"
   },
   "preferGlobal": true,
   "repository": {
@@ -52,7 +51,6 @@
     "babel-preset-es2015": "^6.24.1",
     "coveralls": "^3.0.0",
     "jest": "^23.6.0",
-    "nock": "^10.0.0",
-    "nyc": "^13.0.0"
+    "nock": "^10.0.0"
   }
 }

@@ -53,13 +53,6 @@ rules:
   description: reference objects should only have a $ref property
   truthy: "$ref"
   properties: 1
-- name: pathItem-summary-or-description
-  object: pathItem
-  disabled: true
-  description: pathItem should have summary or description
-  or:
-  - summary
-  - description
 - name: example-value-or-externalValue
   object: example
   description: example should have either value or externalValue

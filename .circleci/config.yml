@@ -1,4 +1,5 @@
-version: 2
+version: 2.1
+
 commands:
     # Command based on instructions from CircleCI blog for avoiding fork secret leakage or failures
     # https://circleci.com/blog/managing-secrets-when-you-have-pull-requests-from-outside-contributors/
@@ -15,55 +16,59 @@ commands:
                         npm run coverage | coveralls
                     fi
 
-shared: &shared
-    steps:
-        - checkout
-        - restore_cache:
-            key: dependency-cache-{{ checksum "package.json" }}
-        - run:
-            name: Update npm
-            command: 'sudo npm install -g npm@latest'
-        - run:
-            name: Install npm dependencies
-            command: npm install
-        - save_cache:
-            key: dependency-cache-{{ checksum "package.json" }}
-            paths:
-              - node_modules
-        - run:
-            name: Tests
-            command: npm test
-        - coverage
+    install-and-test:
+        description: >-
+            Install everything required to run the test suite, then run it.
+        steps:
+            - checkout
+            - restore_cache:
+                key: dependency-cache-{{ checksum "package.json" }}
+            - run:
+                name: Update npm
+                command: 'sudo npm install -g npm@latest'
+            - run:
+                name: Install npm dependencies
+                command: npm install
+            - save_cache:
+                key: dependency-cache-{{ checksum "package.json" }}
+                paths:
+                    - node_modules
+            - run: npm test
+            - coverage
 
 jobs:
     node-latest:
         docker:
             - image: circleci/node:latest
-        <<: *shared
+        steps:
+            - install-and-test
 
     node-11:
         docker:
             - image: circleci/node:11
-        <<: *shared
+        steps:
+            - install-and-test
 
     node-10:
         docker:
             - image: circleci/node:10
-        <<: *shared
+        steps:
+            - install-and-test
 
     node-8:
         docker:
             - image: circleci/node:8
-        <<: *shared
+        steps:
+            - install-and-test
 
-    build-image:
+    build-docker:
         machine: true
         steps:
             - checkout
             - run: docker run --rm -i hadolint/hadolint < Dockerfile
             - run: docker build -t speccy:$CIRCLE_SHA1 .
 
-    push-image:
+    push-docker:
         machine: true
         steps:
             - checkout
@@ -82,11 +87,11 @@ workflows:
             - node-11
             - node-10
             - node-8
-            - build-image
+            - build-docker
 
     deploy:
         jobs:
-            - push-image:
+            - push-docker:
                 filters:
                     branches:
                         only: master

@@ -1,7 +1,21 @@
 version: 2
+commands:
+    # Command based on instructions from CircleCI blog for avoiding fork secret leakage or failures
+    # https://circleci.com/blog/managing-secrets-when-you-have-pull-requests-from-outside-contributors/
+    coverage:
+        description: >-
+            Report coverage, and send to Coveralls if its not a fork.
+        steps:
+            - run:
+                name: Coverage
+                command: |
+                    if [ -n "$CIRCLE_PR_NUMBER" ]; then
+                        npm run coverage
+                    else
+                        npm run coverage | coveralls
+                    fi
+
 shared: &shared
-    docker:
-        - image: circleci/node:latest
     steps:
         - checkout
         - restore_cache:
@@ -19,22 +33,22 @@ shared: &shared
         - run:
             name: Tests
             command: npm test
-        - run:
-           name: Report Coverage
-           command: npm run coverage
+        - coverage
 
 jobs:
     node-latest:
+        docker:
+            - image: circleci/node:latest
+        <<: *shared
+
+    node-11:
+        docker:
+            - image: circleci/node:11
         <<: *shared
 
     node-10:
         docker:
             - image: circleci/node:10
-        <<: *shared
-
-    node-9:
-        docker:
-            - image: circleci/node:9
         <<: *shared
 
     node-8:
@@ -65,8 +79,8 @@ workflows:
     commit:
         jobs:
             - node-latest
+            - node-11
             - node-10
-            - node-9
             - node-8
             - build-image
 

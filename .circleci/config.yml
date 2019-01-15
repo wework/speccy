@@ -1,55 +1,74 @@
-version: 2
-shared: &shared
-    docker:
-        - image: circleci/node:latest
-    steps:
-        - checkout
-        - restore_cache:
-            key: dependency-cache-{{ checksum "package.json" }}
-        - run:
-            name: Update npm
-            command: 'sudo npm install -g npm@latest'
-        - run:
-            name: Install npm dependencies
-            command: npm install
-        - save_cache:
-            key: dependency-cache-{{ checksum "package.json" }}
-            paths:
-              - node_modules
-        - run:
-            name: Tests
-            command: npm test
-        - run:
-           name: Report Coverage
-           command: npm run coverage
+version: 2.1
+
+commands:
+    # Command based on instructions from CircleCI blog for avoiding fork secret leakage or failures
+    # https://circleci.com/blog/managing-secrets-when-you-have-pull-requests-from-outside-contributors/
+    coverage:
+        description: >-
+            Report coverage, and send to Coveralls if its not a fork.
+        steps:
+            - run:
+                name: Coverage
+                command: |
+                    if [ -n "$CIRCLE_PR_NUMBER" ]; then
+                        npm run coverage
+                    else
+                        npm run coverage | coveralls
+                    fi
+
+    install-and-test:
+        description: >-
+            Install everything required to run the test suite, then run it.
+        steps:
+            - checkout
+            - restore_cache:
+                key: dependency-cache-{{ checksum "package.json" }}
+            - run:
+                name: Update npm
+                command: 'sudo npm install -g npm@latest'
+            - run:
+                name: Install npm dependencies
+                command: npm install
+            - save_cache:
+                key: dependency-cache-{{ checksum "package.json" }}
+                paths:
+                    - node_modules
+            - run: npm test
+            - coverage
 
 jobs:
     node-latest:
-        <<: *shared
+        docker:
+            - image: circleci/node:latest
+        steps:
+            - install-and-test
+
+    node-11:
+        docker:
+            - image: circleci/node:11
+        steps:
+            - install-and-test
 
     node-10:
         docker:
             - image: circleci/node:10
-        <<: *shared
-
-    node-9:
-        docker:
-            - image: circleci/node:9
-        <<: *shared
+        steps:
+            - install-and-test
 
     node-8:
         docker:
             - image: circleci/node:8
-        <<: *shared
+        steps:
+            - install-and-test
 
-    build-image:
+    build-docker:
         machine: true
         steps:
             - checkout
             - run: docker run --rm -i hadolint/hadolint < Dockerfile
             - run: docker build -t speccy:$CIRCLE_SHA1 .
 
-    push-image:
+    push-docker:
         machine: true
         steps:
             - checkout
@@ -65,14 +84,14 @@ workflows:
     commit:
         jobs:
             - node-latest
+            - node-11
             - node-10
-            - node-9
             - node-8
-            - build-image
+            - build-docker
 
     deploy:
         jobs:
-            - push-image:
+            - push-docker:
                 filters:
                     branches:
                         only: master

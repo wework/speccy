@@ -3,17 +3,17 @@ version: 2.1
 commands:
     # Command based on instructions from CircleCI blog for avoiding fork secret leakage or failures
     # https://circleci.com/blog/managing-secrets-when-you-have-pull-requests-from-outside-contributors/
-    coverage:
+    early-return-forks:
         description: >-
-            Report coverage, and send to Coveralls if its not a fork.
+          If this build is from a fork, stop executing the current job and return success.
+          This is useful to avoid steps that will fail due to missing credentials.
         steps:
             - run:
-                name: Coverage
+                name: Early return if this build is from a forked PR
                 command: |
                     if [ -n "$CIRCLE_PR_NUMBER" ]; then
-                        npm run coverage
-                    else
-                        npm run coverage | coveralls
+                        echo "Nothing to do for forked PRs, so marking this step successful"
+                        circleci step halt
                     fi
 
     install-and-test:
@@ -33,8 +33,13 @@ commands:
                 key: dependency-cache-{{ checksum "package.json" }}
                 paths:
                     - node_modules
-            - run: npm test
-            - coverage
+            - run: 
+                name: Tests
+                command: npx jest --ci --coverage
+            - early-return-forks
+            - run: 
+                name: Report Coverage
+                command: npx coveralls < coverage/lcov.info
 
 jobs:
     node-latest:

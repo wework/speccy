@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const loader = require('../lib/loader.js');
-const linter = require('../lib/linter.js');
+const loader = require('../../lib/loader.js');
+const linter = require('../../lib/linter.js');
 
 const runLinter = (object, input, key, options = {}) => {
     return linter.lint(object, input, key, options);
@@ -24,10 +24,10 @@ const testFixture = (fixture, rules) => {
             const actualRuleErrors = getLinterErrors(runLinter(fixture.object, input, key, { skip }));
             if (expectValid) {
                 var msg = JSON.stringify(input) + ' is valid';
-                var assertion = () => actualRuleErrors.should.be.empty('expected no linter errors, but got some');
+                var assertion = () => expect(actualRuleErrors).toEqual([]);
             } else {
                 var msg = JSON.stringify(input) + ' is not valid';
-                var assertion = () => actualRuleErrors.should.be.deepEqual(expectedRuleErrors, 'expected linter errors do not match those returned');
+                var assertion = () => expect(actualRuleErrors).toEqual(expectedRuleErrors);
             }
 
             it(msg, done => {
@@ -45,12 +45,12 @@ const testFixture = (fixture, rules) => {
 
 describe('Linter', () => {
     describe('lint()', () => {
-        const profilesDir = path.join(__dirname, './profiles/');
+        const profilesDir = path.join(__dirname, '../fixtures/profiles/');
 
         ['default', 'strict'].forEach(profileName => {
             const profile = JSON.parse(fs.readFileSync(profilesDir + profileName + '.json', 'utf8'))
 
-            context('when `' + profileName + '` profile is loaded', () => {
+            describe('when `' + profileName + '` profile is loaded', () => {
                 profile.fixtures.forEach(fixture => {
                     describe(`linting the ${fixture.object} object`, () => {
                         testFixture(fixture, profile.rules);
@@ -59,22 +59,24 @@ describe('Linter', () => {
             });
         });
 
-        context('when rules are manually passed', () => {
-            const lintAndExpectErrors = (rule, input, expectedErrors, args = {}) => {
+        describe('when rules are manually passed', () => {
+            const prepareLinter = (rule) => {
                 linter.init();
                 linter.createNewRule(rule);
-                getLinterErrors(runLinter('something', input, args.key)).should.be.deepEqual(expectedErrors);
+            }
+            const lintAndExpectErrors = (rule, input, expectedErrors, args = {}) => {
+                prepareLinter(rule);
+                const errors = getLinterErrors(runLinter('something', input, args.key));
+                expect(errors).toEqual(expectedErrors);
             }
 
             const lintAndExpectValid = (rule, input, args = {}) => {
-                linter.init();
-                linter.createNewRule(rule);
-
-
-                getLinterErrors(runLinter('something', input, args.key)).should.be.empty();
+                prepareLinter(rule);
+                const errors = getLinterErrors(runLinter('something', input, args.key));
+                expect(errors).toEqual(errors);
             }
 
-            context('alphabetical', () => {
+            describe('alphabetical', () => {
                 const rule = {
                     "name": "alphabetical-name",
                     "object": "*",
@@ -85,7 +87,7 @@ describe('Linter', () => {
                     }
                 };
 
-                it('accepts key values in order', () => {
+                test('accepts key values in order', () => {
                     const input = {
                         "tags": [
                             {"name": "bar"},
@@ -95,7 +97,7 @@ describe('Linter', () => {
                     lintAndExpectValid(rule, input);
                 });
 
-                it('fails key values out of order', () => {
+                test('fails key values out of order', () => {
                     const input = {
                         "tags": [
                             {"name": "foo"},
@@ -107,7 +109,7 @@ describe('Linter', () => {
                 });
             });
 
-            context('maxLength', () => {
+            describe('maxLength', () => {
                 const rule = {
                     "name": "gotta-be-five",
                     "object": "*",
@@ -115,29 +117,29 @@ describe('Linter', () => {
                     "maxLength": { "property": "summary", "value": 5 },
                 };
 
-                it('accepts values up to the max length', () => {
+                test('accepts values up to the max length', () => {
                     const input = { summary: '12345' };
                     lintAndExpectValid(rule, input);
                 });
 
-                it('accepts values below the max length', () => {
+                test('accepts values below the max length', () => {
                     const input = { summary: '1234' };
                     lintAndExpectValid(rule, input);
                 });
 
-                it('is fine if there is no summary', () => {
+                test('is fine if there is no summary', () => {
                     const input = { foo: '123'};
                     lintAndExpectValid(rule, input);
                 });
 
-                it('errors when string is too long', () => {
+                test('errors when string is too long', () => {
                     const input = { summary: '123456' };
                     lintAndExpectErrors(rule, input, ['gotta-be-five']);
                 });
             });
 
-            context("notContain", () => {
-                context('when linting with a string', () => {
+            describe("notContain", () => {
+                describe('when linting with a string', () => {
                     const rule = {
                         "name": "doesnt-contain-foo",
                         "object": "*",
@@ -145,17 +147,17 @@ describe('Linter', () => {
                         "notContain": { "properties": ["description"], "value": "foo" }
                     }
 
-                    it('accepts a value when foo is not present', () => {
+                    test('accepts a value when foo is not present', () => {
                         lintAndExpectValid(rule, {"description": "bar"});
                     });
 
-                    it('errors when foo is present', () => {
+                    test('errors when foo is present', () => {
                         lintAndExpectErrors(rule, {"description": "foo"}, ['doesnt-contain-foo']);
                         lintAndExpectErrors(rule, {"description": "foobar"}, ['doesnt-contain-foo']);
                     });
                 });
 
-                context('when linting with regex', () => {
+                describe('when linting with regex', () => {
                     let rule = {
                         "name": "doesnt-contain-foo",
                         "object": "*",
@@ -168,31 +170,31 @@ describe('Linter', () => {
                         }
                     }
 
-                    it('accepts a value when foo is not present', () => {
+                    test('accepts a value when foo is not present', () => {
                         lintAndExpectValid(rule, {"description": "bar"});
                     });
 
-                    it('errors when foo is present', () => {
+                    test('errors when foo is present', () => {
                         lintAndExpectErrors(rule, {"description": "foobar"}, ['doesnt-contain-foo']);
                     });
 
-                    context('when supplying additional regex flags', () => {
+                    describe('when supplying additional regex flags', () => {
                         rule.notContain.pattern.value = 'foo'
                         rule.notContain.pattern.flags = 'gi'
 
-                        it('accepts a value when foo is not present', () => {
+                        test('accepts a value when foo is not present', () => {
                             lintAndExpectValid(rule, {"description": "bar"});
                         });
 
-                        it('errors when foo is present', () => {
+                        test('errors when foo is present', () => {
                             lintAndExpectErrors(rule, {"description": "fOoBaR"}, ['doesnt-contain-foo']);
                         });
                     })
                 })
             });
 
-            context('notEndWith', () => {
-                context('when property is $key', () => {
+            describe('notEndWith', () => {
+                describe('when property is $key', () => {
                     const rule = {
                         "name": "no-trailing-slash",
                         "object": "*",
@@ -200,20 +202,20 @@ describe('Linter', () => {
                         "notEndWith": { "property": "$key", "value": "/" },
                     };
 
-                    it('accepts a key value with no / at the end', () => {
+                    test('accepts a key value with no / at the end', () => {
                         lintAndExpectValid(rule, "value", { key: "foo" });
                     });
 
-                    it('accepts key value with only /', () => {
+                    test('accepts key value with only /', () => {
                         lintAndExpectValid(rule, "value", { key: "/" });
                     });
 
-                    it('errors for key value with / at the end', () => {
+                    test('errors for key value with / at the end', () => {
                         lintAndExpectErrors(rule, "value", ['no-trailing-slash'], { key: "foo/" });
                     });
                 });
 
-                context('when property points to an actual key', () => {
+                describe('when property points to an actual key', () => {
                     const rule = {
                         "name": "no-trailing-slash",
                         "object": "*",
@@ -221,29 +223,29 @@ describe('Linter', () => {
                         "notEndWith": { "property": "foo", "value": "/" }
                     };
 
-                    it('accepts value with no / at the end', () => {
+                    test('accepts value with no / at the end', () => {
                         const input = { "foo" : "bar" };
                         lintAndExpectValid(rule, input);
                     });
 
-                    it('accepts value of only /', () => {
+                    test('accepts value of only /', () => {
                         const input = { "foo" : "/" };
                         lintAndExpectValid(rule, input);
                     });
 
-                    it('accepts key with / at the end', () => {
+                    test('accepts key with / at the end', () => {
                         const input = { "foo": 'bar' };
                         lintAndExpectValid(rule, input, { key: "foo/" });
                     });
 
-                    it('errors when value has / at the end', () => {
+                    test('errors when value has / at the end', () => {
                         const input = { "foo": 'bar/' };
                         lintAndExpectErrors(rule, input, ['no-trailing-slash']);
                     });
                 });
             });
 
-            context('properties', () => {
+            describe('properties', () => {
                 const rule = {
                     "name": "exactly-two-things",
                     "object": "*",
@@ -251,29 +253,29 @@ describe('Linter', () => {
                     "properties": 2
                 };
 
-                it('one is too few', () => {
+                test('one is too few', () => {
                     const input = { foo: 'a' };
                     lintAndExpectErrors(rule, input, ['exactly-two-things']);
                 });
 
-                it('three is too many', () => {
+                test('three is too many', () => {
                     const input = { foo: 'a', bar: 'b', 'baz': 'c' };
                     lintAndExpectErrors(rule, input, ['exactly-two-things']);
                 });
 
-                it('two is just right', () => {
+                test('two is just right', () => {
                     const input = { foo: 'a', bar: 'b' };
                     lintAndExpectValid(rule, input);
                 });
 
-                it('two things and an extension is two things', () => {
+                test('two things and an extension is two things', () => {
                     const input = { foo: 'a', bar: 'b', 'x-baz': 'c' };
                     lintAndExpectValid(rule, input);
                 });
             });
 
-            context('pattern', () => {
-                context('when split and omit arguments are used', () => {
+            describe('pattern', () => {
+                describe('when split and omit arguments are used', () => {
                     const rule = {
                         "name": "alphadash",
                         "object": "*",
@@ -286,15 +288,15 @@ describe('Linter', () => {
                         }
                     };
 
-                    it('will ignore the #, split the / and regex the rest', () => {
+                    test('will ignore the #, split the / and regex the rest', () => {
                         lintAndExpectValid(rule, { "foo": "#foo/bar-baz" });
                     });
-                    it('fails when it finds invalid character in the split segments', () => {
+                    test('fails when it finds invalid character in the split segments', () => {
                         lintAndExpectErrors(rule, { "foo" : "#foo/bar@#$/baz" }, ['alphadash']);
                     });
                 });
 
-                context('when no split or omit argument are used', () => {
+                describe('when no split or omit argument are used', () => {
                     const rule = {
                         "name": "alphadash",
                         "object": "*",
@@ -305,17 +307,17 @@ describe('Linter', () => {
                         }
                     };
 
-                    it('will allow the regex when its only alphadash', () => {
+                    test('will allow the regex when its only alphadash', () => {
                         lintAndExpectValid(rule, { "foo": "foo-bar" });
                     });
 
-                    it('errors when non alphadash characters show up', () => {
+                    test('errors when non alphadash characters show up', () => {
                         lintAndExpectErrors(rule, { "foo" : "foo/bar" }, ['alphadash']);
                     });
                 });
             });
 
-            context('xor', () => {
+            describe('xor', () => {
                 const rule = {
                     "name": "one-or-tother",
                     "object": "*",
@@ -323,13 +325,13 @@ describe('Linter', () => {
                     "xor": ["a", "b"]
                 };
 
-                it('only allows a or b not both', () => {
+                test('only allows a or b not both', () => {
                     lintAndExpectValid(rule, { "a": 1, "c": 2 });
                     lintAndExpectErrors(rule, { "a": 1, "b": 2 }, ['one-or-tother']);
                 });
             });
 
-            context('not-equal', () => {
+            describe('not-equal', () => {
                 const rule = {
                     "name": "not-equal",
                     "object": "*",
@@ -337,12 +339,12 @@ describe('Linter', () => {
                     "notEqual": ["default", "example"]
                 };
 
-                it('if the fields don\'t exist, that\'s fine', () => {
+                test('if the fields don\'t exist, that\'s fine', () => {
                     const input = {};
                     lintAndExpectValid(rule, input);
                 });
 
-                it('fails when two properties are the same', () => {
+                test('fails when two properties are the same', () => {
                     const input = {
                         "default": "foo",
                         "example": "foo"
@@ -350,7 +352,7 @@ describe('Linter', () => {
                     lintAndExpectErrors(rule, input, ['not-equal']);
                 });
 
-                it('passes when two properties are different', () => {
+                test('passes when two properties are different', () => {
                     const input = {
                         "default": "foo",
                         "example": "bar"

@@ -80,9 +80,9 @@ const command = async (specFile, cmd) => {
     );
 
     validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
-        const { context, lintResults } = _options;
+        const { context, lintResults, valid } = _options || err.options;
 
-        if (err) {
+        if (err && valid === false) {
             console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
             console.error(formatSchemaError(err, context));
             process.exit(1);

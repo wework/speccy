@@ -66,40 +66,64 @@ jobs:
         steps:
             - install-and-test
 
-    build-docker:
+    build:
         machine: true
         steps:
             - checkout
-            - run: docker run --rm -i hadolint/hadolint < Dockerfile
-            - run: docker build -t speccy:$CIRCLE_SHA1 .
+            - run: 
+                name: Lint Dockerfile
+                command: docker run --rm -i hadolint/hadolint < Dockerfile
+            - run: 
+                name: Attempt Docker Build
+                command: docker build .
 
     push-docker:
         machine: true
+        environment:
+            - DOCKER_REPOSITORY: wework/speccy
         steps:
             - checkout
-            - run: docker build -t speccy:$CIRCLE_SHA1 .
-            - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-            - run: docker tag speccy:$CIRCLE_SHA1 wework/speccy:nightly
-            - run: if [ "$CIRCLE_TAG" != "" ]; then docker tag speccy:$CIRCLE_SHA1 wework/speccy:latest; fi;
-            - run: if [ "$CIRCLE_TAG" != "" ]; then docker tag speccy:$CIRCLE_SHA1 wework/speccy:$CIRCLE_TAG; fi;
-            - run: docker push wework/speccy
+            - early-return-forks
+            - run: 
+                name: 
+                command: |
+                    docker_tag=$DOCKER_REPOSITORY:${CIRCLE_SHA1:0:7}
+                    
+                    docker build -t $docker_tag .
+                    docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+
+                    if [[ -n "$CIRCLE_TAG" ]]; then
+                        version_number=$(echo $CIRCLE_TAG | sed "s/^v//")
+                
+                        patch_tag=$DOCKER_REPOSITORY:$version_number
+                        docker tag $docker_tag $patch_tag
+                    
+                        major_tag=$DOCKER_REPOSITORY:$(echo $version_number | cut -d . -f 1)
+                        docker tag $docker_tag $major_tag
+                    
+                        minor_tag=$DOCKER_REPOSITORY:$(echo $version_number | cut -d . -f 1-2)
+                        docker tag $docker_tag $minor_tag
+                    else
+                        tag=$DOCKER_REPOSITORY:$(echo $CIRCLE_BRANCH | sed "s|/|-|g")
+                        docker tag $docker_tag $tag
+                    fi
+
+                    docker push $DOCKER_REPOSITORY
 
 workflows:
     version: 2
     commit:
         jobs:
+            - build
             - node-latest
             - node-11
             - node-10
             - node-8
-            - build-docker
 
     deploy:
         jobs:
             - push-docker:
                 filters:
-                    branches:
-                        only: master
                     tags:
-                        only: /.*/
+                        only: /^v.*/
 

@@ -103,6 +103,8 @@ jobs:
                     
                         minor_tag=$DOCKER_REPOSITORY:$(echo $version_number | cut -d . -f 1-2)
                         docker tag $docker_tag $minor_tag
+
+                        docker tag $docker_tag $DOCKER_REPOSITORY:latest
                     else
                         tag=$DOCKER_REPOSITORY:$(echo $CIRCLE_BRANCH | sed "s|/|-|g")
                         docker tag $docker_tag $tag

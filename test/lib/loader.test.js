@@ -8,23 +8,23 @@ const yaml = require('js-yaml');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
 
 describe('Loader', () => {
-    describe('loadRuleFiles()', () => {
+    describe('loadRulesets()', () => {
         test('load default rules', () => {
-            return expect(loader.loadRuleFiles(['default'])).resolves.toEqual(['default']);
+            return expect(loader.loadRulesets(['default'])).resolves.toEqual(['default']);
         });
 
         test('load strict rules', () => {
-            return expect(loader.loadRuleFiles(['strict'])).resolves.toEqual(['strict', 'default']);
+            return expect(loader.loadRulesets(['strict'])).resolves.toEqual(['strict', 'default']);
         });
 
         test('load default & strict rules', () => {
-            return expect(loader.loadRuleFiles(['strict', 'default'])).resolves.toEqual(['strict', 'default']);
+            return expect(loader.loadRulesets(['strict', 'default'])).resolves.toEqual(['strict', 'default']);
         });
 
         describe('when loading from a local file', () => {
             test('retrieves rules from the file', () => {
-                const file = __dirname + '/../../rules/strict.json';
-                return expect(loader.loadRuleFiles([file])).resolves.toEqual([file, 'default']);
+                const file = __dirname + '/../../rules/strict.yaml';
+                return expect(loader.loadRulesets([file])).resolves.toEqual([file, 'default']);
             })
         })
 
@@ -33,19 +33,23 @@ describe('Loader', () => {
             const url = host + '/';
 
             test('retrieves rules from valid url', () => {
-                nock(host).get('/').replyWithFile(200, __dirname + '/../../rules/strict.json', {
+                nock(host).get('/').replyWithFile(200, __dirname + '/../../rules/strict.yaml', {
                     'Content-Type': 'application/json'
                 });
 
-                return expect(loader.loadRuleFiles([host + '/'])).resolves.toEqual([host + '/', 'default']);
+                return expect(loader.loadRulesets([host + '/'])).resolves.toEqual([host + '/', 'default']);
             });
 
             describe('when the file being loaded is garbage', () => {
-                const setupMock = () => nock(host).get('/').reply(200, 'this is not json AT ALL');
+                const setupMock = () => nock(host).get('/').reply(200, ' \
+                    key: value \
+                    invalid simple key \
+                    next key: next value \
+                ');
 
                 test('reject with a ReadError', () => {
                     setupMock();
-                    return expect(loader.loadRuleFiles([url])).rejects.toBeInstanceOf(loader.ReadError);
+                    return expect(loader.loadRulesets([url])).rejects.toBeInstanceOf(loader.ReadError);
                 });
             })
 
@@ -54,7 +58,7 @@ describe('Loader', () => {
 
                 test('rejects with an OpenError', () => {
                     setupMock();
-                    return expect(loader.loadRuleFiles([url])).rejects.toBeInstanceOf(loader.OpenError);
+                    return expect(loader.loadRulesets([url])).rejects.toBeInstanceOf(loader.OpenError);
                 });
             });
         });

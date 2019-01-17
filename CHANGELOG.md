@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.8.7] - 2019-01-17
+### Added
+- Semantic versioning for docker tags, so you can use `docker run wework/speccy:0.8` lint to a major, minor or patch level ([#254])
+- The `pattern` rule action can now match on `"property": "$key"` ([#239])
 ### Fixed
 - Correct handling of displaying validation and linting errors ([#234])
+
+[#234]: https://github.com/wework/speccy/issues/234
+[#239]: https://github.com/wework/speccy/issues/239
+[#254]: https://github.com/wework/speccy/issues/254
 
 ## [0.8.6] - 2018-12-18
 ### Added

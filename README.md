@@ -195,6 +195,9 @@ docker run \
   wework/speccy lint openapi.yaml
 ```
 
+Also, if you want to use a specific version, you can reference tags, so `docker run wework/speccy` could be `docker run wework/speccy:0`, 
+`docker run wework/speccy:0.8` or `docker run wework/speccy:0.8.7`. These versions follow semantic versioning.
+
 ### Using with lint-staged
 
 To lint your specifications before committing them you can use [lint-staged](https://github.com/okonet/lint-staged) to run speccy before each commit. Just install lint-staged and husky as `devDependencies` and add the following to your `package.json`:

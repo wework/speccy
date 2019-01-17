@@ -83,25 +83,28 @@ const command = async (specFile, cmd) => {
         buildLoaderOptions(jsonSchema, verbose),
     );
 
-    validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
-        const { context, warnings, valid } = _options || err.options;
+    return new Promise((resolve, reject) => {
+            validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
+            const { context, warnings, valid } = _options || err.options;
 
-        if (err && valid === false) {
-            console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
-            console.error(formatSchemaError(err, context));
-            process.exit(1);
-        }
+            if (err && valid === false) {
+                console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
+                console.error(formatSchemaError(err, context));
+                return reject();
+            }
 
-        if (warnings.length) {
-            console.error(colors.red + 'Specification contains lint errors: ' + warnings.length + colors.reset);
-            console.warn(formatLintResults(warnings))
-            process.exit(1);
-        }
+            if (warnings.length) {
+                console.error(colors.red + 'Specification contains lint errors: ' + warnings.length + colors.reset);
+                console.warn(formatLintResults(warnings))
+                return reject();
+            }
 
-        if (!cmd.quiet) {
-            console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
-        }
-        process.exit(0);
+            if (!cmd.quiet) {
+                console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
+            }
+
+            return resolve();
+        });
     });
 };
 

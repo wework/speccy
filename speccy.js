@@ -28,7 +28,11 @@ program
     .option('-s, --skip [ruleName]', 'provide multiple rules to skip', collect, [])
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
     .option('-v, --verbose', 'increase verbosity')
-    .action(lint.command);
+    .action((specFile, cmd) => {
+        lint.command(specFile, cmd)
+        .then( () => { process.exit(0) } )
+        .catch( () => { process.exit(1) } );
+    });
 
 program
     .command('resolve <file-or-url>')
@@ -37,7 +41,11 @@ program
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
     .option('-v, --verbose', 'increase verbosity')
-    .action(resolve.command);
+    .action((file, cmd) => {
+        resolve.command(file, cmd)
+        .then( () => { process.exit(0) } )
+        .catch( () => { process.exit(1) } );
+    });
 
 program
     .command('serve <file-or-url>')

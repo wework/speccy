@@ -144,8 +144,8 @@ lint:
   # rules files to load
   rules:
   - strict
-  - ./some/local/rules.json
-  - https://example.org/my-rules.json
+  - ./some/local/rules.yaml
+  - https://example.org/my-rules.yaml
   # rules to skip
   skip:
   - info-contact

@@ -42,7 +42,7 @@
     "node-readfiles": "^0.2.0",
     "oas-linter": "^3.0.0",
     "oas-resolver": "^2.0.0",
-    "oas-validator": "^3.0.0",
+    "oas-validator": "^3.0.1",
     "redoc": "v2.0.0-rc.1"
   },
   "devDependencies": {

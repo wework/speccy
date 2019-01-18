@@ -1,12 +1,11 @@
 rules:
 - name: parameter-description
-  disabled: true
   object: parameter
   description: parameter objects should have a description
   truthy: description
 - name: parameter-name-regex
   object: parameter
-  disabled: false
+  disabled: true
   description: parameter names should match RFC6570
   pattern:
     property: name

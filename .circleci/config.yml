@@ -87,7 +87,8 @@ jobs:
             - run: 
                 name: 
                 command: |
-                    docker_tag=$DOCKER_REPOSITORY:${CIRCLE_SHA1:0:7}
+                
+                    docker_tag=$DOCKER_REPOSITORY:$(echo $CIRCLE_SHA1 | cut -c1-7)
                     
                     docker build -t $docker_tag .
                     docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD

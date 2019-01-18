@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2019-01-18
+### Breaking
+- The `lib/linter.js` module has been entirely removed, and oas-linter is now used directly ([#248])
+- Rulesets must now be YAML not JSON ([#248])
+### Fixed
+- Response mime types with a + (e.g: `application/vnd.api+json`) are now encoded correctly ([#248])
+- The lint option `--skip` and the matching config option are no longer being ignored
+
+[#248]: https://github.com/wework/speccy/pull/248
+
 ## [0.8.7] - 2019-01-17
 ### Added
 - Semantic versioning for docker tags, so you can use `docker run wework/speccy:0.8` lint to a major, minor or patch level ([#254])

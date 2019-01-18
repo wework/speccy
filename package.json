@@ -40,9 +40,9 @@
     "nconf-yaml": "^1.0.2",
     "node-fetch": "^2.3.0",
     "node-readfiles": "^0.2.0",
-    "oas-resolver": "^1.0.10",
-    "oas-schema-walker": "^1.0.3",
-    "oas-validator": "^2.0.0",
+    "oas-linter": "^3.0.0",
+    "oas-resolver": "^2.0.0",
+    "oas-validator": "^3.0.1",
     "redoc": "v2.0.0-rc.1"
   },
   "devDependencies": {

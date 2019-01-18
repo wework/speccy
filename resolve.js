@@ -18,18 +18,23 @@ const command = async (file, cmd) => {
     const spec = await loader.readOrError(file, buildLoaderOptions(jsonSchema, verbose));
     const content = yaml.safeDump(spec, { lineWidth: -1 });
 
-    if (output) {
-        fs.writeFile(output, content, 'utf8', err => {
-            if (err && verbose) {
-                console.error('Failed to write file: ' + err.message);
-                process.exit(1);
-            }
+    return new Promise((resolve, reject) => {
+        if (output) {
+            fs.writeFile(output, content, 'utf8', err => {
+                if (err && verbose) {
+                    console.error('Failed to write file: ' + err.message);
+                    return reject();
+                }
 
-            if (verbose) console.log('Resolved to ' + output);
-        });
-        return;
-    }
-    console.log(content);
+                if (verbose) console.log('Resolved to ' + output);
+            });
+
+            return resolve();
+        }
+
+        console.log(content);
+        return resolve();
+    });
 };
 
 const buildLoaderOptions = (jsonSchema, verbose) => {

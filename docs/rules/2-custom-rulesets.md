@@ -12,7 +12,7 @@ Let's define some terminology:
 
 ### Ruleset file format
 
-A rules file is a YAML formatted file (v0.8.x and earlier was a JSON file), containing an object with a `rules` property, which is an array of rule objects.
+A rules file is a YAML or JSON file containing an object with a `rules` property, which is an array of rule objects.
 
 There is a reserved `require` property (type `string`) at the top level, which can be used for ruleset chaining.
 

@@ -58,7 +58,7 @@ const formatLintResults = lintResults => {
 ${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${rule.description}
 ${colors.reset + truncateLongMessages(error.message)}
 
-More information: https://speccy.io/rules/1-rulesets#${rule.name}
+More information: ${rule.url}#${rule.name}
 `;
     });
 

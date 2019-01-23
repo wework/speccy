@@ -68,7 +68,7 @@ More information: https://speccy.io/rules/1-rulesets#${rule.name}
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
-    const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? 2 : 1);
+    const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? config.get('verbose') : 1);
     const rulesets = config.get('lint:rules');
     const skip = config.get('lint:skip');
 
@@ -84,7 +84,7 @@ const command = async (specFile, cmd) => {
     );
 
     return new Promise((resolve, reject) => {
-            validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
+        validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
             const { context, warnings, valid } = _options || err.options;
 
             if (err && valid === false) {

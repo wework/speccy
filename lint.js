@@ -84,7 +84,7 @@ const command = async (specFile, cmd) => {
     );
 
     return new Promise((resolve, reject) => {
-            validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
+        validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
             const { context, warnings, valid } = _options || err.options;
 
             if (err && valid === false) {

@@ -39,6 +39,16 @@ describe('Rules', () => {
                 expect(rules.getRules().rules[0].url).toBe('http://test');
             });
 
+            test('deletes a previously added rule if the overriding rule is disabled', () => {
+                rules.init();
+
+                rules.createNewRule(activeRule);
+                expect(rules.getRules().rules).toHaveLength(1);
+
+                // inheriting a rule with the same name but disabled
+                rules.createNewRule(Object.assign({}, activeRule, {disabled: true}));
+                expect(rules.getRules().rules).toHaveLength(0);
+            });
         });
 
         describe('when skipping rules', () => {

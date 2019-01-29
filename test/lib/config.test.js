@@ -38,6 +38,20 @@ describe('Config', () => {
                     'https://example.org/my-rules.json',
                 ]);
             });
+
+            test('meaningless empty arrays in default config must not override options of config file', () => {
+                config.init({parent: {config: configFile, rules: [], skip: []}});
+
+                expect(config.get('lint:rules')).toEqual([
+                    'strict',
+                    './some/local/rules.json',
+                    'https://example.org/my-rules.json',
+                ]);
+
+                expect(config.get('lint:skip')).toEqual([
+                    'info-contact',
+                ]);
+            });
         });
     });
 

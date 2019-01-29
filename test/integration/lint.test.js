@@ -6,6 +6,7 @@ const lint = require('../../lint.js');
 
 const commandConfig = {
     quiet: false,
+    verbose: false,
     rules: [],
     skip: []
 };

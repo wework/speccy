@@ -68,7 +68,7 @@ More information: https://speccy.io/rules/1-rulesets#${rule.name}
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
-    const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? config.get('verbose') : 1);
+    const verbose = config.get('quiet') ? 0 : config.get('verbose', 1); 
     const rulesets = config.get('lint:rules');
     const skip = config.get('lint:skip');
 

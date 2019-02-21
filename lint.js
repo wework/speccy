@@ -68,7 +68,7 @@ More information: ${rule.url}#${rule.name}
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
-    const verbose = config.get('quiet') ? 0 : config.get('verbose', 1); 
+    const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const rulesets = config.get('lint:rules');
     const skip = config.get('lint:skip');
 
@@ -80,7 +80,7 @@ const command = async (specFile, cmd) => {
 
     const spec = await loader.readOrError(
         specFile,
-        buildLoaderOptions(jsonSchema, verbose),
+        buildLoaderOptions(jsonSchema, verbose)
     );
 
     return new Promise((resolve, reject) => {

@@ -65,7 +65,7 @@ Options:
   -r, --rules [ruleFile]  provide multiple rules files
   -s, --skip [ruleName]   provide multiple rules to skip
   -j, --json-schema       treat $ref like JSON Schema and convert to OpenAPI Schema Objects
-  -v, --verbose           increase verbosity
+  -v, --verbose           set verbosity (use multiple times to increase level)
   -h, --help              output usage information
 ```
 
@@ -98,7 +98,7 @@ Options:
   -o, --output <file>  file to output to
   -q, --quiet          reduce verbosity
   -j, --json-schema    treat $ref like JSON Schema and convert to OpenAPI Schema Objects
-  -v, --verbose        increase verbosity
+  -v, --verbose        set verbosity (use multiple times to increase level)
   -h, --help           output usage information
 ```
 
@@ -122,7 +122,7 @@ Options:
   -p, --port [value]  port on which the server will listen (default: 5000)
   -q, --quiet         reduce verbosity
   -j, --json-schema   treat $ref like JSON Schema and convert to OpenAPI Schema Objects
-  -v, --verbose       increase verbosity
+  -v, --verbose       set verbosity (use multiple times to increase level)
   -h, --help          output usage information
 ```
 
@@ -138,7 +138,8 @@ jsonSchema: true
 # Keep the noise down
 quiet: true
 # Output a lot of information about what is happening (wont work if you have quiet on)
-verbose: true
+# Default stdout = 1
+verbose: 2
 # Rules specific to the lint command
 lint:
   # rules files to load

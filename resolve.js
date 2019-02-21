@@ -6,16 +6,18 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const config = require('./lib/config.js');
 const loader = require('./lib/loader.js');
-const resolver = require('oas-resolver');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
 
 const command = async (file, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
     const output = config.get('resolve:output');
-    const verbose = config.get('quiet') ? 0 : (config.get('verbose') ? 2 : 1);
+    const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
 
-    const spec = await loader.readOrError(file, buildLoaderOptions(jsonSchema, verbose));
+    const spec = await loader.readOrError(
+        file,
+        buildLoaderOptions(jsonSchema, verbose)
+    );
     const content = yaml.safeDump(spec, { lineWidth: -1 });
 
     return new Promise((resolve, reject) => {
@@ -53,4 +55,4 @@ const buildLoaderOptions = (jsonSchema, verbose) => {
     return options;
 }
 
-module.exports = { command }
+module.exports = { command };

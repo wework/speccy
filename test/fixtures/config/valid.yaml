@@ -3,7 +3,7 @@ jsonSchema: true
 # Keep the noise down
 quiet: true
 # Output a lot of information about what is happening (wont work if you have quiet on)
-verbose: true
+verbose: 2
 # Rules specific to the lint command
 lint:
   # rules files to load

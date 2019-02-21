@@ -6,15 +6,15 @@ describe('Config', () => {
     describe('init()', () => {
         test('does not throw for invalid file', () => {
             const configFile = 'test/fixtures/config/doesnotexist.yaml';
-            const f = () => { config.init({ config: configFile }); }
-            expect(f).not.toThrow;
+            const f = () => { config.init({ parent: { config: configFile } }); };
+            expect(f).not.toThrow();
         });
 
         describe('with a valid json file', () => {
             const configFile = 'test/fixtures/config/valid.json';
 
             test('can find expected values', () => {
-                config.init({ config: configFile });
+                config.init({ parent: { config: configFile } });
 
                 expect(config.get('jsonSchema')).toBe(true);
                 expect(config.get('serve:port')).toBe(8001);
@@ -25,7 +25,7 @@ describe('Config', () => {
             const configFile = 'test/fixtures/config/valid.yaml';
 
             test('can find expected values', () => {
-                config.init({ config: configFile });
+                config.init({ parent: { config: configFile } });
 
                 expect(config.get('jsonSchema')).toBe(true);
                 expect(config.get('serve:port')).toBe(8001);
@@ -48,7 +48,7 @@ describe('Config', () => {
             describe('and no config options are supplied', () => {
                 test('it will have undefined values', () => {
                     config.load(configFile, {});
-                    expect(config.get('foo:bar')).toBeUndefined;
+                    expect(config.get('foo:bar')).toBeUndefined();
                 });
             });
 
@@ -58,6 +58,31 @@ describe('Config', () => {
                     expect(config.get('foo:bar')).toBe(123);
                 });
             });
+        });
+    });
+
+    describe('arguments priority', () => {
+        describe('arguments have higher priority than config file', () => {
+            const configFile = 'test/fixtures/config/valid.yaml';
+
+            test('can override config values with arguments', () => {
+                config.init({
+                    jsonSchema: false,
+                    verbose: 3,
+                    rules: ['foo'],
+                    port: 5555,
+                    parent: {
+                        config: configFile
+                    }
+                });
+
+                expect(config.get('serve:port')).toBe(5555);
+                expect(config.get('jsonSchema')).toBe(false);
+                expect(config.get('verbose')).toBe(3);
+                expect(config.get('lint:rules')).toEqual(['foo']);
+                expect(config.get('lint:skip')).toEqual(['info-contact']);
+            });
+
         });
     });
 });

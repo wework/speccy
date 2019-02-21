@@ -19,7 +19,6 @@ function increaseVerbosity(v, total) {
     return total + 1;
 }
 
-
 program
     .version(version)
     .usage('<command>')
@@ -45,6 +44,7 @@ program
     .option('-o, --output <file>', 'file to output to')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
+    .option('-i, --internal-refs', 'resolve internal references (default: false)')
     .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 0)
     .action((file, cmd) => {
         resolve.command(file, cmd)

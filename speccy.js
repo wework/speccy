@@ -26,8 +26,8 @@ program
     .option('-c, --config [configFile]', 'config file (containing JSON/YAML). See README for potential values.');
 
 program
-    .command('lint <file-or-url>')
-    .description('ensure specs are not just valid OpenAPI, but lint against specified rules')
+    .command('lint [file-or-url]')
+    .description('ensure specs are not just valid OpenAPI, but lint against specified rules. If no argument is passed, then standard input will be used (please note that in this case the provided spec must be fully resolved)')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-r, --rules [ruleFile]', 'provide multiple rules files', collect, [])
     .option('-s, --skip [ruleName]', 'provide multiple rules to skip', collect, [])

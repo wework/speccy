@@ -11,9 +11,14 @@ const resolve = require('./resolve.js');
 const serve = require('./serve.js');
 
 function collect(val, item) {
-  item.push(val);
-  return item;
+    item.push(val);
+    return item;
 }
+
+function increaseVerbosity(v, total) {
+    return total + 1;
+}
+
 
 program
     .version(version)
@@ -21,17 +26,17 @@ program
     .option('-c, --config [configFile]', 'config file (containing JSON/YAML). See README for potential values.');
 
 program
-    .command('lint <file-or-url>')
-    .description('ensure specs are not just valid OpenAPI, but lint against specified rules')
+    .command('lint [file-or-url]')
+    .description('ensure specs are not just valid OpenAPI, but lint against specified rules. If no argument is passed, then standard input will be used (please note that in this case the provided spec must be fully resolved)')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-r, --rules [ruleFile]', 'provide multiple rules files', collect, [])
     .option('-s, --skip [ruleName]', 'provide multiple rules to skip', collect, [])
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
-    .option('-v, --verbose', 'increase verbosity')
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 0)
     .action((specFile, cmd) => {
         lint.command(specFile, cmd)
-        .then( () => { process.exit(0) } )
-        .catch( () => { process.exit(1) } );
+            .then(() => { process.exit(0) })
+            .catch(() => { process.exit(1) });
     });
 
 program
@@ -40,11 +45,11 @@ program
     .option('-o, --output <file>', 'file to output to')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
-    .option('-v, --verbose', 'increase verbosity')
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 0)
     .action((file, cmd) => {
         resolve.command(file, cmd)
-        .then( () => { process.exit(0) } )
-        .catch( () => { process.exit(1) } );
+            .then(() => { process.exit(0) })
+            .catch(() => { process.exit(1) });
     });
 
 program
@@ -53,7 +58,7 @@ program
     .option('-p, --port [value]', 'port on which the server will listen (default: 5000)')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
-    .option('-v, --verbose', 'increase verbosity')
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 0)
     // TODO .option('-w, --watch', 'reloading browser on spec file changes')
     .action(serve.command);
 

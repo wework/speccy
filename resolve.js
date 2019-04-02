@@ -22,19 +22,20 @@ const command = async (file, cmd) => {
     return new Promise((resolve, reject) => {
         if (output) {
             fs.writeFile(output, content, 'utf8', err => {
-                if (err && verbose) {
-                    console.error('Failed to write file: ' + err.message);
-                    return reject();
+                if (err) {
+                    if (verbose) console.error('Failed to write file: ' + err.message);
+                    reject();
+                } else {
+                    if (verbose) console.error('Resolved to ' + output);
+                    resolve();
                 }
-
-                if (verbose) console.log('Resolved to ' + output);
             });
-
-            return resolve();
+        } else {
+            process.stdout.write(content, () => {
+                // Do not exit until the output is flushed (e.g. pipes)
+                resolve();
+            });
         }
-
-        console.log(content);
-        return resolve();
     });
 };
 

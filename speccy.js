@@ -40,7 +40,7 @@ program
     });
 
 program
-    .command('resolve <file-or-url>')
+    .command('resolve [file-or-url]')
     .description('pull in external $ref files to create one mega-file')
     .option('-o, --output <file>', 'file to output to')
     .option('-q, --quiet', 'reduce verbosity')
@@ -53,7 +53,7 @@ program
     });
 
 program
-    .command('serve <file-or-url>')
+    .command('serve [file-or-url]')
     .description('view specifications in beautiful human readable documentation')
     .option('-p, --port [value]', 'port on which the server will listen (default: 5000)')
     .option('-q, --quiet', 'reduce verbosity')

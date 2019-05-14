@@ -1,10 +1,8 @@
 'use strict';
 
-const fetch = require('node-fetch');
 const loader = require('../../lib/loader.js');
 const nock = require('nock');
 const path = require('path');
-const yaml = require('js-yaml');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
 
 describe('Loader', () => {
@@ -93,7 +91,7 @@ describe('Loader', () => {
         });
 
         test('resolves JSON Schema $refs when passed { filters: [ jsonSchema ] }', async () => {
-            const filters = [ fromJsonSchema ];
+            const filters = [fromJsonSchema];
             const spec = await loader.loadSpec(samplesDir + 'json-schema/openapi.yaml', {
                 filters,
                 resolve: true

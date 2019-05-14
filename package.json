@@ -34,7 +34,6 @@
     "commander": "^2.18.0",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
-    "js-yaml": "^3.6.1",
     "json-schema-to-openapi-schema": "^0.3.0",
     "nconf": "^0.10.0",
     "nconf-yaml": "^1.0.2",
@@ -43,7 +42,8 @@
     "oas-linter": "^3.0.0",
     "oas-resolver": "^2.0.0",
     "oas-validator": "^3.0.1",
-    "redoc": "v2.0.0-rc.4"
+    "redoc": "v2.0.0-rc.4",
+    "yaml": "^1.2.0"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",

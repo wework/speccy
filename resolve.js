@@ -3,7 +3,7 @@
 'use strict';
 
 const fs = require('fs');
-const yaml = require('js-yaml');
+const yaml = require('yaml');
 const config = require('./lib/config.js');
 const loader = require('./lib/loader.js');
 const fromJsonSchema = require('json-schema-to-openapi-schema');

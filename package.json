@@ -40,7 +40,7 @@
     "node-fetch": "^2.3.0",
     "node-readfiles": "^0.2.0",
     "oas-linter": "^3.0.0",
-    "oas-resolver": "^2.0.0",
+    "oas-resolver": "^2.2.4",
     "oas-validator": "^3.0.1",
     "redoc": "v2.0.0-rc.8-1",
     "yaml": "^1.2.0"

@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2019-05-19
+### Changed
+- Switched to using [yaml] for validating and parsing YAML ([#243], [#267])
+
+### Added
+- Support for rule custom documentation URLs ([#228], [#266])
+- Support piping on all commands ([#270], [#320])
+
+### Fixed
+- An invalid property declaration in the `openapi-tags-alphabetical` rule [[#269]]
+- Loading of external configuration files ([#294])
+
+### Improved
+- Verbosity handling. All verbose messages are sent to `stderr` to ensure pipes work. Verbosity level `1` is normal output. ([#235], [#265], [#270], [#294])
+
+[yaml]: https://github.com/eemeli/yaml
+[#228]: https://github.com/wework/speccy/issues/228
+[#235]: https://github.com/wework/speccy/issues/235
+[#243]: https://github.com/wework/speccy/issues/243
+[#265]: https://github.com/wework/speccy/pull/265
+[#266]: https://github.com/wework/speccy/pull/266
+[#267]: https://github.com/wework/speccy/pull/267
+[#269]: https://github.com/wework/speccy/pull/269
+[#270]: https://github.com/wework/speccy/pull/270
+[#294]: https://github.com/wework/speccy/pull/294
+[#320]: https://github.com/wework/speccy/pull/320
+
 ## [0.9.0] - 2019-01-18
 ### Breaking
 - The `lib/linter.js` module has been entirely removed, and oas-linter is now used directly ([#248])

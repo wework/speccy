@@ -18,7 +18,7 @@ const command = async (file, cmd) => {
         file,
         buildLoaderOptions(jsonSchema, verbose)
     );
-    const content = yaml.safeDump(spec, { lineWidth: -1 });
+    const content = yaml.stringify(spec);
 
     return new Promise((resolve, reject) => {
         if (output) {

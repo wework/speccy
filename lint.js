@@ -58,7 +58,7 @@ const formatLintResults = lintResults => {
 ${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${rule.description}
 ${colors.reset + truncateLongMessages(error.message)}
 
-More information: https://speccy.io/rules/1-rulesets#${rule.name}
+More information: ${rule.url}#${rule.name}
 `;
     });
 
@@ -68,7 +68,7 @@ More information: https://speccy.io/rules/1-rulesets#${rule.name}
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
-    const verbose = config.get('quiet') ? 0 : config.get('verbose', 1); 
+    const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const rulesets = config.get('lint:rules');
     const skip = config.get('lint:skip');
 
@@ -80,7 +80,7 @@ const command = async (specFile, cmd) => {
 
     const spec = await loader.readOrError(
         specFile,
-        buildLoaderOptions(jsonSchema, verbose),
+        buildLoaderOptions(jsonSchema, verbose)
     );
 
     return new Promise((resolve, reject) => {

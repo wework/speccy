@@ -1,6 +1,6 @@
 {
   "name": "speccy",
-  "version": "0.9.0",
+  "version": "0.10.1",
   "description": "An OpenAPI v3.0 development workflow assistant",
   "homepage": "https://speccy.io/",
   "bin": {
@@ -34,16 +34,16 @@
     "commander": "^2.18.0",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
-    "js-yaml": "^3.6.1",
     "json-schema-to-openapi-schema": "^0.3.0",
     "nconf": "^0.10.0",
     "nconf-yaml": "^1.0.2",
     "node-fetch": "^2.3.0",
     "node-readfiles": "^0.2.0",
     "oas-linter": "^3.0.0",
-    "oas-resolver": "^2.1.0",
+    "oas-resolver": "^2.2.4",
     "oas-validator": "^3.0.1",
-    "redoc": "v2.0.0-rc.2"
+    "redoc": "v2.0.0-rc.8-1",
+    "yaml": "^1.2.0"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",

@@ -31,36 +31,54 @@ program
     .option('-r, --rules [ruleFile]', 'provide multiple rules files', collect, [])
     .option('-s, --skip [ruleName]', 'provide multiple rules to skip', collect, [])
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
-    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 0)
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 1)
     .action((specFile, cmd) => {
         lint.command(specFile, cmd)
             .then(() => { process.exit(0) })
-            .catch(() => { process.exit(1) });
+            .catch((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                process.exit(1);
+            });
     });
 
 program
-    .command('resolve <file-or-url>')
+    .command('resolve [file-or-url]')
     .description('pull in external $ref files to create one mega-file')
     .option('-o, --output <file>', 'file to output to')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
     .option('-i, --internal-refs', 'resolve internal references (default: false)')
-    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 0)
-    .action((file, cmd) => {
-        resolve.command(file, cmd)
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity,1)
+    .action((specFile, cmd) => {
+        resolve.command(specFile, cmd)
             .then(() => { process.exit(0) })
-            .catch(() => { process.exit(1) });
+            .catch((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                process.exit(1);
+            });
     });
 
 program
-    .command('serve <file-or-url>')
+    .command('serve [file-or-url]')
     .description('view specifications in beautiful human readable documentation')
     .option('-p, --port [value]', 'port on which the server will listen (default: 5000)')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
-    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 0)
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity,1)
     // TODO .option('-w, --watch', 'reloading browser on spec file changes')
-    .action(serve.command);
+    .action((specFile, cmd) => {
+        serve.command(specFile, cmd)
+            .catch((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                process.exit(1);
+            });
+    });
 
 program.parse(process.argv);
 

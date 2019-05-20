@@ -45,7 +45,8 @@ rules:
   object: openapi
   description: openapi object should have alphabetical tags
   alphabetical:
-    properties: tags
+    properties:
+      - tags
     keyedBy: name
 - name: reference-no-other-properties
   object: reference

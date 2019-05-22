@@ -25,8 +25,8 @@ const formatSchemaError = (err, context) => {
     let output = `
 ${colors.yellow + pointer}
 `;
-
-    if (err.name === 'AssertionError') {
+    
+    if (err.name === 'AssertionError' || err.error.name === 'AssertionError') {
         output += colors.reset + truncateLongMessages(err.message);
     }
     else if (err instanceof validator.CLIError) {
@@ -89,7 +89,13 @@ const command = async (specFile, cmd) => {
 
             if (err && valid === false) {
                 console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
-                console.error(formatSchemaError(err, context));
+                if (err.name === 'AssertionError') {
+                    console.error(formatSchemaError(err, context));
+                }
+
+                for (let linterResult of err.options.linterResults()) {
+                    console.error(formatSchemaError(linterResult, context));
+                }
                 return reject();
             }
 

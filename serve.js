@@ -39,6 +39,7 @@ const command = async (specFile, cmd) => {
     const jsonSchema = config.get('jsonSchema');
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const port = config.get('serve:port', DEFAULT_PORT);
+    const format = config.get('format');
 
     const app = express();
     const bundleDir = path.dirname(require.resolve('redoc'));
@@ -46,7 +47,7 @@ const command = async (specFile, cmd) => {
 
     const spec = await loader.readOrError(
         specFile,
-        buildLoaderOptions(jsonSchema, verbose)
+        buildLoaderOptions(jsonSchema, verbose, format)
     );
 
     app.use('/assets/redoc', express.static(bundleDir));
@@ -61,11 +62,12 @@ const command = async (specFile, cmd) => {
     launchServer(app, port, specFile, { verbose });
 }
 
-const buildLoaderOptions = (jsonSchema, verbose) => {
+const buildLoaderOptions = (jsonSchema, verbose, format) => {
     const options = {
         resolve: true,
         verbose,
         filters: [],
+        format,
     };
     if (jsonSchema) options.filters.push(fromJsonSchema);
     return options;

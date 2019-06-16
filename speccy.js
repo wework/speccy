@@ -19,7 +19,6 @@ function increaseVerbosity(v, total) {
     return total + 1;
 }
 
-
 program
     .version(version)
     .usage('<command>')
@@ -50,7 +49,8 @@ program
     .option('-o, --output <file>', 'file to output to')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
-    .option('-v, --verbose', 'increase verbosity', increaseVerbosity,1)
+    .option('-i, --internal-refs', 'resolve internal references (default: false)')
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 1)
     .action((specFile, cmd) => {
         resolve.command(specFile, cmd)
             .then(() => { process.exit(0) })
@@ -68,7 +68,7 @@ program
     .option('-p, --port [value]', 'port on which the server will listen (default: 5000)')
     .option('-q, --quiet', 'reduce verbosity')
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
-    .option('-v, --verbose', 'increase verbosity', increaseVerbosity,1)
+    .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 1)
     // TODO .option('-w, --watch', 'reloading browser on spec file changes')
     .action((specFile, cmd) => {
         serve.command(specFile, cmd)

@@ -13,6 +13,7 @@ const command = async (file, cmd) => {
     const jsonSchema = config.get('jsonSchema');
     const output = config.get('resolve:output');
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
+    const internalRefs = config.get('resolve:internalRefs');
 
     const spec = await loader.readOrError(
         file,
@@ -40,7 +41,7 @@ const command = async (file, cmd) => {
     });
 };
 
-const buildLoaderOptions = (jsonSchema, verbose) => {
+const buildLoaderOptions = (jsonSchema, verbose, internalRefs) => {
     const options = {
         resolve: true,
         cache: [],
@@ -52,6 +53,7 @@ const buildLoaderOptions = (jsonSchema, verbose) => {
         verbose,
     };
     if (jsonSchema) options.filters.push(fromJsonSchema);
+    if (internalRefs) options.resolveInternal = true;
     return options;
 }
 

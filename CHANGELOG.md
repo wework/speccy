@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.11] - 2019-06-16
+### Added
+- The resolve option `--internal-refs` to resolve internal references ([#295])
+- Line numbers to YAML parse errors ([#336], [#337])
+
+### Fixed
+- The `path-keys-no-trailing-slash` rule not detecting paths with a trailing slash ([#285], [#340])
+- Overriding an inherited rule with a disable one would have no effect ([#274])
+- `rules` and `skip` options specified in `speccy.yaml` may be ignored when omitting `--rules` or `--skip` arguments in the command line ([#278])
+- A regression where assertion errors would spit out a stacktrace ([#300], [#335], [#338])
+
+[#274]: https://github.com/wework/speccy/pull/274
+[#278]: https://github.com/wework/speccy/pull/278
+[#285]: https://github.com/wework/speccy/issues/285
+[#295]: https://github.com/wework/speccy/pull/295
+[#300]: https://github.com/wework/speccy/issues/300
+[#335]: https://github.com/wework/speccy/issues/335
+[#336]: https://github.com/wework/speccy/issues/336
+[#337]: https://github.com/wework/speccy/pull/337
+[#338]: https://github.com/wework/speccy/pull/338
+[#340]: https://github.com/wework/speccy/pull/340
+
 ## [0.10.1] - 2019-05-18
 ### Fixed
 - A regression where the `resolve` command would not serialize the resolved YAML

@@ -17,7 +17,7 @@ const command = async (file, cmd) => {
 
     const spec = await loader.readOrError(
         file,
-        buildLoaderOptions(jsonSchema, verbose)
+        buildLoaderOptions(jsonSchema, verbose, internalRefs)
     );
     const content = yaml.stringify(spec);
 
@@ -54,6 +54,7 @@ const buildLoaderOptions = (jsonSchema, verbose, internalRefs) => {
     };
     if (jsonSchema) options.filters.push(fromJsonSchema);
     if (internalRefs) options.resolveInternal = true;
+    
     return options;
 }
 

@@ -71,6 +71,7 @@ const command = async (specFile, cmd) => {
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const rulesets = config.get('lint:rules', []);
     const skip = config.get('lint:skip', []);
+    const format = config.get('format');
 
     rules.init({
         skip
@@ -80,7 +81,7 @@ const command = async (specFile, cmd) => {
 
     const spec = await loader.readOrError(
         specFile,
-        buildLoaderOptions(jsonSchema, verbose)
+        buildLoaderOptions(jsonSchema, verbose, format)
     );
 
     return new Promise((resolve, reject) => {
@@ -114,11 +115,12 @@ const command = async (specFile, cmd) => {
     });
 };
 
-const buildLoaderOptions = (jsonSchema, verbose) => {
+const buildLoaderOptions = (jsonSchema, verbose, format) => {
     const options = {
         filters: [],
         resolve: true,
         verbose,
+        format,
     };
 
     if (jsonSchema) {

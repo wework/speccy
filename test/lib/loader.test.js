@@ -70,6 +70,11 @@ describe('Loader', () => {
             expect(spec).toHaveProperty('openapi');
         });
 
+        test('loads js specs', async () => {
+            const spec = await loader.loadSpec(samplesDir + 'openapi.js');
+            expect(spec).toHaveProperty('openapi');
+        });
+
         test('loads yaml specs', async () => {
             const spec = await loader.loadSpec(samplesDir + 'openapi.yaml');
             expect(spec).toHaveProperty('openapi');

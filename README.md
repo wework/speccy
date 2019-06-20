@@ -64,6 +64,7 @@ Options:
   -q, --quiet             reduce verbosity
   -r, --rules [ruleFile]  provide multiple rules files
   -s, --skip [ruleName]   provide multiple rules to skip
+  -f, --format [format]   explicitly specify the input format for stdin
   -j, --json-schema       treat $ref like JSON Schema and convert to OpenAPI Schema Objects
   -v, --verbose           set verbosity (use multiple times to increase level)
   -h, --help              output usage information
@@ -97,6 +98,7 @@ Options:
 
   -o, --output <file>  file to output to
   -q, --quiet          reduce verbosity
+  -f, --format [format]   explicitly specify the input format for stdin
   -j, --json-schema    treat $ref like JSON Schema and convert to OpenAPI Schema Objects
   -v, --verbose        set verbosity (use multiple times to increase level)
   -h, --help           output usage information
@@ -121,6 +123,7 @@ Options:
 
   -p, --port [value]  port on which the server will listen (default: 5000)
   -q, --quiet         reduce verbosity
+  -f, --format [format]   explicitly specify the input format for stdin
   -j, --json-schema   treat $ref like JSON Schema and convert to OpenAPI Schema Objects
   -v, --verbose       set verbosity (use multiple times to increase level)
   -h, --help          output usage information

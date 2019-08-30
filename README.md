@@ -218,7 +218,7 @@ main()
 Run this command to watch for `yaml` file changes and report lint errors:
 
 ``` shell
-nodemon -ext yaml ./path/to/your/speccy-lint.js
+nodemon --ext yaml ./path/to/your/speccy-lint.js
 ```
 
 ### Using Docker

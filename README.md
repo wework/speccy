@@ -206,7 +206,7 @@ const options = {
 
 async function main () {
   try {
-    await lint(openApiPath, options)
+    await lint(openApiPath, options) // Lint your openapi.yaml file and report errors
   } catch (err) {
     console.error(err)
   }

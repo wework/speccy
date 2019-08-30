@@ -180,6 +180,47 @@ loader
 
 If `options.resolve` is truthy, speccy will resolve _external_ references.
 
+### Watching for File Changes
+
+To have a lint report run on every update you can use [nodemon](https://www.npmjs.com/package/nodemon) to watch for `yaml` file changes.
+
+Install nodemon:
+
+``` shell
+npm install -g nodemon
+```
+
+Create a `speccy-lint.js` file in the same directory as your `openapi.yaml` file:
+
+``` javascript
+// speccy-lint.js
+
+const path = require('path')
+const openApiPath = path.join(__dirname, 'openapi.yaml')
+const lint = require('speccy/lint').command
+
+const options = {
+  resolve: true, // Resolve external references
+  jsonSchema: true // Treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+}
+
+async function main () {
+  try {
+    await lint(openApiPath, options)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+main()
+```
+
+Run this command to watch for `yaml` file changes and report lint errors:
+
+``` shell
+nodemon -ext yaml ./path/to/your/speccy-lint.js
+```
+
 ### Using Docker
 
 To use Speccy without installing any node/npm specific dependencies, you can run it via docker:

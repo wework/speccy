@@ -10,10 +10,14 @@ const validator = require('oas-validator');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
 const consoleOutputRenderer = require('./lib/output/console.js');
 const checkStyleRenderer = require('./lib/output/checkstyle.js');
+const junitRenderer = require('./lib/output/junit.js');
 
 const getOutputRenderer = type => {
     if(type === 'checkstyle') {
         return checkStyleRenderer;
+    }
+    if(type == 'junit') {
+        return junitRenderer;
     }
 
     return consoleOutputRenderer;

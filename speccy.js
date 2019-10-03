@@ -32,6 +32,7 @@ program
     .option('-s, --skip [ruleName]', 'provide multiple rules to skip', collect, [])
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
     .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 1)
+    .option('-o, --output <format>', 'output [format], supports: console (default: console)', 'console')
     .action((specFile, cmd) => {
         lint.command(specFile, cmd)
             .then(() => { process.exit(0) })

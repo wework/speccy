@@ -241,7 +241,7 @@ Contributions are always welcome, no matter how large or small. Before contribut
 [Kenta Mori]: https://github.com/zoncoen/
 [Mike Ralphson]: https://twitter.com/PermittedSoc/
 [ReDoc]: https://github.com/Rebilly/ReDoc
-[Roman Gotsiy]: https://github.com/RomanGotsiy
+[Roman Hotsiy]: https://github.com/RomanHotsiy
 [eslint]: https://eslint.org/
 [link-contributors]: https://github.com/wework/speccy/graphs/contributors
 [redocup]: https://github.com/zoncoen/redocup/

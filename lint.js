@@ -68,6 +68,7 @@ More information: ${rule.url}#${rule.name}
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
+    const yamlVersion = config.get('yamlVersion');
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const rulesets = config.get('lint:rules', []);
     const skip = config.get('lint:skip', []);
@@ -75,12 +76,12 @@ const command = async (specFile, cmd) => {
     rules.init({
         skip
     });
-    await loader.loadRulesets(rulesets, { verbose });
+    await loader.loadRulesets(rulesets, { verbose, yamlVersion });
     linter.applyRules(rules.getRules());
 
     const spec = await loader.readOrError(
         specFile,
-        buildLoaderOptions(jsonSchema, verbose)
+        buildLoaderOptions(jsonSchema, verbose, yamlVersion)
     );
 
     return new Promise((resolve, reject) => {
@@ -114,7 +115,7 @@ const command = async (specFile, cmd) => {
     });
 };
 
-const buildLoaderOptions = (jsonSchema, verbose) => {
+const buildLoaderOptions = (jsonSchema, verbose, yamlVersion) => {
     const options = {
         filters: [],
         resolve: true,
@@ -124,6 +125,7 @@ const buildLoaderOptions = (jsonSchema, verbose) => {
     if (jsonSchema) {
         options.filters.push(fromJsonSchema);
     }
+    if (yamlVersion) options.yamlVersion = yamlVersion;
 
     return options;
 }

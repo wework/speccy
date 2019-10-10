@@ -14,12 +14,15 @@ const command = async (file, cmd) => {
     const output = config.get('resolve:output');
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const internalRefs = config.get('resolve:internalRefs');
+    const yamlVersion = config.get('yamlVersion');
+    const options = yamlVersion ? { version: yamlVersion } : undefined;
 
     const spec = await loader.readOrError(
         file,
-        buildLoaderOptions(jsonSchema, verbose, internalRefs)
+        buildLoaderOptions(jsonSchema, verbose, internalRefs, yamlVersion)
     );
-    const content = yaml.stringify(spec);
+
+    const content = yaml.stringify(spec, options);
 
     return new Promise((resolve, reject) => {
         if (output) {
@@ -41,7 +44,7 @@ const command = async (file, cmd) => {
     });
 };
 
-const buildLoaderOptions = (jsonSchema, verbose, internalRefs) => {
+const buildLoaderOptions = (jsonSchema, verbose, internalRefs, yamlVersion) => {
     const options = {
         resolve: true,
         cache: [],
@@ -53,6 +56,7 @@ const buildLoaderOptions = (jsonSchema, verbose, internalRefs) => {
         verbose,
     };
     if (jsonSchema) options.filters.push(fromJsonSchema);
+    if (yamlVersion) options.yamlVersion = yamlVersion;
     if (internalRefs) options.resolveInternal = true;
     
     return options;

@@ -37,6 +37,7 @@ const launchServer = (app, port, specFile, { verbose }) => {
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
+    const yamlVersion = config.get('yamlVersion');
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const port = config.get('serve:port', DEFAULT_PORT);
 
@@ -46,7 +47,7 @@ const command = async (specFile, cmd) => {
 
     const spec = await loader.readOrError(
         specFile,
-        buildLoaderOptions(jsonSchema, verbose)
+        buildLoaderOptions(jsonSchema, verbose, yamlVersion)
     );
 
     app.use('/assets/redoc', express.static(bundleDir));
@@ -61,13 +62,14 @@ const command = async (specFile, cmd) => {
     launchServer(app, port, specFile, { verbose });
 }
 
-const buildLoaderOptions = (jsonSchema, verbose) => {
+const buildLoaderOptions = (jsonSchema, verbose, yamlVersion) => {
     const options = {
         resolve: true,
         verbose,
         filters: [],
     };
     if (jsonSchema) options.filters.push(fromJsonSchema);
+    if (yamlVersion) options.yamlVersion = yamlVersion
     return options;
 }
 

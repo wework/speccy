@@ -11,13 +11,19 @@ const fromJsonSchema = require('json-schema-to-openapi-schema');
 const consoleOutputRenderer = require('./lib/output/console.js');
 const checkStyleRenderer = require('./lib/output/checkstyle.js');
 const junitRenderer = require('./lib/output/junit.js');
+const { outputToFileRenderer } = require('./lib/output/toFileRenderer.js');
 
-const getOutputRenderer = type => {
+const getOutputRenderer = (type, outputFile) => {
+    let renderer = consoleOutputRenderer;
+
     if(type === 'checkstyle') {
-        return checkStyleRenderer;
+        renderer = checkStyleRenderer;
+    } else if(type == 'junit') {
+        renderer =  junitRenderer;
     }
-    if(type == 'junit') {
-        return junitRenderer;
+
+    if(type !== 'console' && outputFile) {
+        return outputToFileRenderer(renderer, outputFile);
     }
 
     return consoleOutputRenderer;
@@ -29,7 +35,7 @@ const command = async (specFile, cmd) => {
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const rulesets = config.get('lint:rules', []);
     const skip = config.get('lint:skip', []);
-    const outputRenderer = getOutputRenderer(config.get('lint:output'));
+    const outputRenderer = getOutputRenderer(config.get('lint:output'), config.get('lint:outputFile'));
 
     rules.init({
         skip

@@ -66,7 +66,7 @@ Options:
   -s, --skip [ruleName]     provide multiple rules to skip
   -j, --json-schema         treat $ref like JSON Schema and convert to OpenAPI Schema Objects
   -o, --output [format]     output as [format], supports: console, checkstyle, junit (default: console)
-  -f, --output-file [file]  path to write the output to (optional)
+  -f, --output-file [file]  path to write the output to (optional). This option is only applicable to output type checkstyle or junit
   -v, --verbose             set verbosity (use multiple times to increase level)
   -h, --help                output usage information
 ```

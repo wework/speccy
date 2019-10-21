@@ -33,6 +33,7 @@ program
     .option('-j, --json-schema', 'treat $ref like JSON Schema and convert to OpenAPI Schema Objects (default: false)')
     .option('-v, --verbose', 'increase verbosity', increaseVerbosity, 1)
     .option('-o, --output <format>', 'output [format], supports: console, checkstyle, junit (default: console)', 'console')
+    .option('-f, --outputFile <outputFileName>', 'path to write the output to (optional). This option is only applicable to output type checkstyle or junit')
     .action((specFile, cmd) => {
         lint.command(specFile, cmd)
             .then(() => { process.exit(0) })

@@ -1,6 +1,6 @@
 {
-  "name": "speccy",
-  "version": "0.11.0",
+  "name": "@complion/speccy",
+  "version": "0.11.1",
   "description": "An OpenAPI v3.0 development workflow assistant",
   "homepage": "https://speccy.io/",
   "bin": {
@@ -11,13 +11,13 @@
   },
   "preferGlobal": true,
   "repository": {
-    "url": "https://github.com/wework/speccy.git",
+    "url": "https://github.com/Complion/speccy.git",
     "type": "git"
   },
-  "author": "Phil Sturgeon <phil.sturgeon@wework.com>",
+  "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wework/speccy/issues"
+    "url": "https://github.com/Complion/speccy/issues"
   },
   "keywords": [
     "openapi",

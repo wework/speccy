@@ -1,6 +1,6 @@
 {
   "name": "@complion/speccy",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "An OpenAPI v3.0 development workflow assistant",
   "homepage": "https://speccy.io/",
   "bin": {
@@ -42,7 +42,7 @@
     "oas-linter": "^3.0.0",
     "oas-resolver": "^2.2.4",
     "oas-validator": "^3.0.1",
-    "redoc": "v2.0.0-rc.12",
+    "redoc": "v2.0.0-rc.18",
     "yaml": "^1.5.0"
   },
   "devDependencies": {

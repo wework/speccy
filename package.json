@@ -42,7 +42,7 @@
     "oas-linter": "^3.0.0",
     "oas-resolver": "^2.2.4",
     "oas-validator": "^3.0.1",
-    "redoc": "^2.0.0-rc.18",
+    "redoc": "^2.0.0-rc.20",
     "yaml": "^1.5.0"
   },
   "devDependencies": {

@@ -98,6 +98,7 @@ Options:
   -o, --output <file>  file to output to
   -q, --quiet          reduce verbosity
   -j, --json-schema    treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  -i, --internal-refs  resolve internal references
   -v, --verbose        set verbosity (use multiple times to increase level)
   -h, --help           output usage information
 ```

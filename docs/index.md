@@ -120,7 +120,7 @@ Like everything in speccy, this only works for OpenAPI v3.
 [link-contributors]: https://github.com/wework/speccy/graphs/contributors
 [redocup]: https://github.com/zoncoen/redocup/
 [rubocop]: https://github.com/bbatsov/rubocop
-[rules-default]: https://github.com/wework/speccy/blob/master/rules/default.json
-[rules-strict]: https://github.com/wework/speccy/blob/master/rules/strict.json
+[rules-default]: https://github.com/wework/speccy/blob/master/rules/default.yaml
+[rules-strict]: https://github.com/wework/speccy/blob/master/rules/strict.yaml
 [rules-wework]: https://github.com/wework/speccy/blob/master/rules/wework.json
 [swagger2openapi]: https://github.com/Mermade/swagger2openapi/

@@ -3,7 +3,7 @@
 const loader = require('../../lib/loader.js');
 const nock = require('nock');
 const path = require('path');
-const fromJsonSchema = require('json-schema-to-openapi-schema');
+const fromJsonSchema = require('@openapi-contrib/json-schema-to-openapi-schema');
 
 describe('Loader', () => {
     describe('loadRulesets()', () => {

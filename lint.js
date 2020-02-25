@@ -7,7 +7,7 @@ const loader = require('./lib/loader.js');
 const linter = require('oas-linter');
 const rules = require('./lib/rules.js');
 const validator = require('oas-validator');
-const fromJsonSchema = require('json-schema-to-openapi-schema');
+const fromJsonSchema = require('@openapi-contrib/json-schema-to-openapi-schema');
 
 const colors = process.env.NODE_DISABLE_COLORS ? {} : {
     red: '\x1b[31m',

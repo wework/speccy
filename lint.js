@@ -41,18 +41,19 @@ const command = async (specFile, cmd) => {
         skip
     });
     await loader.loadRulesets(rulesets, { verbose });
-    linter.applyRules(rules.getRules());
+    const rulesToApply = rules.getRules();
+    linter.applyRules(rulesToApply);
 
     const spec = await loader.readOrError(
         specFile,
         buildLoaderOptions(jsonSchema, verbose)
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {        
         validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
             const { context, warnings, valid } = _options || err.options;
 
-            outputRenderer.render(err, warnings, valid, context, cmd.quiet);
+            outputRenderer.render(err, warnings, valid, context, cmd.quiet, linter.getRules().rules.length);
             
             if (err && valid === false) {
                 return reject();

@@ -61,12 +61,14 @@ ensure specs are not just valid OpenAPI, but lint against specified rules
 
 Options:
 
-  -q, --quiet             reduce verbosity
-  -r, --rules [ruleFile]  provide multiple rules files
-  -s, --skip [ruleName]   provide multiple rules to skip
-  -j, --json-schema       treat $ref like JSON Schema and convert to OpenAPI Schema Objects
-  -v, --verbose           set verbosity (use multiple times to increase level)
-  -h, --help              output usage information
+  -q, --quiet               reduce verbosity
+  -r, --rules [ruleFile]    provide multiple rules files
+  -s, --skip [ruleName]     provide multiple rules to skip
+  -j, --json-schema         treat $ref like JSON Schema and convert to OpenAPI Schema Objects
+  -o, --output [format]     output as [format], supports: console, checkstyle, junit (default: console)
+  -f, --output-file [file]  path to write the output to (optional). This option is only applicable to output type checkstyle or junit
+  -v, --verbose             set verbosity (use multiple times to increase level)
+  -h, --help                output usage information
 ```
 
 You'll see output such as:

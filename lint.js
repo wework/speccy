@@ -8,105 +8,59 @@ const linter = require('oas-linter');
 const rules = require('./lib/rules.js');
 const validator = require('oas-validator');
 const fromJsonSchema = require('json-schema-to-openapi-schema');
+const consoleOutputRenderer = require('./lib/output/console.js');
+const checkStyleRenderer = require('./lib/output/checkstyle.js');
+const junitRenderer = require('./lib/output/junit.js');
+const { outputToFileRenderer } = require('./lib/output/toFileRenderer.js');
 
-const colors = process.env.NODE_DISABLE_COLORS ? {} : {
-    red: '\x1b[31m',
-    green: '\x1b[32m',
-    yellow: '\x1b[33m',
-    blue: '\x1b[34m',
-    magenta: '\x1b[35m',
-    cyan: '\x1b[36m',
-    white: '\x1b[37m',
-    reset: '\x1b[0m'
-};
+const getOutputRenderer = (type, outputFile) => {
+    let renderer = consoleOutputRenderer;
 
-const formatSchemaError = (err, context) => {
-    const pointer = context.pop();
-    let output = `
-${colors.yellow + pointer}
-`;
-    
-    if (err.name === 'AssertionError' || err.error.name === 'AssertionError') {
-        output += colors.reset + truncateLongMessages(err.message);
+    if(type === 'checkstyle') {
+        renderer = checkStyleRenderer;
+    } else if(type == 'junit') {
+        renderer =  junitRenderer;
     }
-    else if (err instanceof validator.CLIError) {
-        output += colors.reset + err.message;
+
+    if(type !== 'console' && outputFile) {
+        return outputToFileRenderer(renderer, outputFile);
     }
-    else {
-        output += colors.red + err.stack;
-    }
-    return output;
-}
 
-const truncateLongMessages = message => {
-    let lines = message.split('\n');
-    if (lines.length > 6) {
-        lines = lines.slice(0, 5).concat(
-            ['  ... snip ...'],
-            lines.slice(-1)
-        );
-    }
-    return lines.join('\n');
-}
-
-const formatLintResults = lintResults => {
-    let output = '';
-    lintResults.forEach(result => {
-        const { rule, error, pointer } = result;
-
-        output += `
-${colors.yellow + pointer} ${colors.cyan} R: ${rule.name} ${colors.white} D: ${rule.description}
-${colors.reset + truncateLongMessages(error.message)}
-
-More information: ${rule.url}#${rule.name}
-`;
-    });
-
-    return output;
+    return consoleOutputRenderer;
 }
 
 const command = async (specFile, cmd) => {
-    config.init(cmd);
+    config.init(cmd);    
     const jsonSchema = config.get('jsonSchema');
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const rulesets = config.get('lint:rules', []);
     const skip = config.get('lint:skip', []);
+    const outputRenderer = getOutputRenderer(config.get('lint:output'), config.get('lint:outputFile'));
 
     rules.init({
         skip
     });
     await loader.loadRulesets(rulesets, { verbose });
-    linter.applyRules(rules.getRules());
+    const rulesToApply = rules.getRules();
+    linter.applyRules(rulesToApply);
 
     const spec = await loader.readOrError(
         specFile,
         buildLoaderOptions(jsonSchema, verbose)
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {        
         validator.validate(spec, buildValidatorOptions(skip, verbose), (err, _options) => {
             const { context, warnings, valid } = _options || err.options;
 
+            outputRenderer.render(err, warnings, valid, context, cmd.quiet, linter.getRules().rules.length);
+            
             if (err && valid === false) {
-                console.error(colors.red + 'Specification schema is invalid.' + colors.reset);
-                if (err.name === 'AssertionError') {
-                    console.error(formatSchemaError(err, context));
-                }
-
-                for (let linterResult of err.options.linterResults()) {
-                    console.error(formatSchemaError(linterResult, context));
-                }
                 return reject();
             }
 
             if (warnings.length) {
-                console.error(colors.red + 'Specification contains lint errors: ' + warnings.length + colors.reset);
-                console.warn(formatLintResults(warnings))
                 return reject();
-            }
-
-            if (!cmd.quiet) {
-                console.log(colors.green + 'Specification is valid, with 0 lint errors' + colors.reset)
             }
 
             return resolve();

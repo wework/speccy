@@ -41,7 +41,7 @@
     "node-readfiles": "^0.2.0",
     "oas-linter": "^3.0.0",
     "oas-resolver": "^2.2.4",
-    "oas-validator": "^3.0.1",
+    "oas-validator": "^4.0.0",
     "redoc": "v2.0.0-rc.12",
     "yaml": "^1.5.0"
   },

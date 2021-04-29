@@ -1,0 +1,20 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: monthly
+    time: "10:00"
+  ignore:
+  - dependency-name: oas-validator
+    versions:
+    - 5.0.4
+  - dependency-name: oas-resolver
+    versions:
+    - 2.5.3
+  - dependency-name: lodash
+    versions:
+    - 4.17.20
+  - dependency-name: handlebars
+    versions:
+    - 4.7.6

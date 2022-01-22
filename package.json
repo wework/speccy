@@ -37,7 +37,7 @@
     "json-schema-to-openapi-schema": "^0.3.0",
     "nconf": "^0.10.0",
     "nconf-yaml": "^1.0.2",
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^3.1.1",
     "node-readfiles": "^0.2.0",
     "oas-linter": "^3.0.0",
     "oas-resolver": "^2.2.4",

@@ -2,6 +2,9 @@
 
 'use strict'
 
+const fs = require('fs');
+const url = require('url');
+const path = require('path');
 const config = require('./lib/config.js');
 const loader = require('./lib/loader.js');
 const linter = require('oas-linter');
@@ -49,7 +52,7 @@ const truncateLongMessages = message => {
     return lines.join('\n');
 }
 
-const formatLintResults = lintResults => {
+const formatLintResultsAsDefault = lintResults => {
     let output = '';
     lintResults.forEach(result => {
         const { rule, error, pointer } = result;
@@ -65,12 +68,57 @@ More information: ${rule.url}#${rule.name}
     return output;
 }
 
+
+const formatLintResults = (lintResults, format, specFile) => {
+    if (format === 'sarif') {
+        return formatLintResultsAsSarif(lintResults, specFile);
+    }
+    else {
+        return formatLintResultsAsDefault(lintResults);
+    }
+}
+
+const formatLintResultsAsSarif = (lintResults, specFile) => {
+    const specFileDir = path.dirname(specFile)
+    const specFileName = path.basename(specFile)
+    const specFileDirFileUrl = url.pathToFileURL(specFileDir)
+    const specFileDirFileUrlString = specFileDirFileUrl.toString() + '/'
+    const templateFile = path.resolve(__dirname, 'templates/sarif_template.json');
+    const template = fs.readFileSync(templateFile);
+    let sarif = JSON.parse(template);
+    sarif['runs'][0]['originalUriBaseIds']['ROOTPATH']['uri'] = specFileDirFileUrlString;
+    sarif['runs'][0]['tool']['driver']['rules']  = [];
+    sarif['runs'][0]['results'] = [];
+
+    lintResults.forEach(result => {
+        const { rule, error, pointer } = result;
+        const ruleExists =  sarif['runs'][0]['tool']['driver']['rules'].some(it => it.id === rule.name);
+        if (!ruleExists){
+            var newRule = { 'id' : rule.name};
+            newRule['shortDescription'] = { 'text' :  rule.description };
+            newRule['helpUri'] = rule.url + "#" + rule.name;
+            sarif['runs'][0]['tool']['driver']['rules'].push(newRule);
+        }
+        const ruleIndex = sarif['runs'][0]['tool']['driver']['rules'].length - 1;
+        var result = {
+            'ruleId' : rule.name,
+            'ruleIndex' : ruleIndex,
+            'message' : { 'text' : result.dataPath + ': ' + result.message },
+            'locations' : [{ 'physicalLocation' : { 'artifactLocation' : { 'uri' : specFileName, 'uriBaseId' : 'ROOTPATH' } } }],
+        };
+        sarif['runs'][0]['results'].push(result);
+    });
+    
+    return JSON.stringify(sarif);
+}
+
 const command = async (specFile, cmd) => {
     config.init(cmd);
     const jsonSchema = config.get('jsonSchema');
     const verbose = config.get('quiet') ? 0 : config.get('verbose', 1);
     const rulesets = config.get('lint:rules', []);
     const skip = config.get('lint:skip', []);
+    const format = config.get('lint:format');
 
     rules.init({
         skip
@@ -101,7 +149,7 @@ const command = async (specFile, cmd) => {
 
             if (warnings.length) {
                 console.error(colors.red + 'Specification contains lint errors: ' + warnings.length + colors.reset);
-                console.warn(formatLintResults(warnings))
+                console.warn(formatLintResults(warnings, format, specFile))
                 return reject();
             }
 

@@ -11,6 +11,14 @@ const commandConfig = {
     skip: []
 };
 
+const commandConfigSarif = {
+    quiet: false,
+    verbose: false,
+    rules: [],
+    skip: [],
+    format: 'sarif'
+};
+
 beforeEach(() => {
     jest.restoreAllMocks();
 });
@@ -73,6 +81,25 @@ describe('Lint command', () => {
                 expect(errorSpy).toBeCalledTimes(1);
                 expect(errorSpy.mock.calls[0][0]).toEqual('\x1b[31mSpecification contains lint errors: 1\x1b[0m');
                 expect(warnSpy.mock.calls[0][0]).toContain('info-contact');
+            });
+        });
+    });
+
+    describe('properly handles linter warnings with format SARIF', () => {
+        test('displays a linting error on missing contact field with format SARIF', () => {
+            expect.assertions(7);
+            const logSpy = jest.spyOn(console, 'log');
+            const warnSpy = jest.spyOn(console, 'warn');
+            const errorSpy = jest.spyOn(console, 'error');
+
+            return lint.command('./test/fixtures/integration/missing-contact.yaml', commandConfigSarif).catch(() => {
+                expect(logSpy).toBeCalledTimes(0);
+                expect(warnSpy).toBeCalledTimes(1);
+                expect(errorSpy).toBeCalledTimes(1);
+                expect(errorSpy.mock.calls[0][0]).toEqual('\x1b[31mSpecification contains lint errors: 1\x1b[0m');
+                expect(warnSpy.mock.calls[0][0]).toContain('"tool":{"driver":{"name":"Speccy","informationUri":"http://speccy.io/"');
+                expect(warnSpy.mock.calls[0][0]).toContain('"results":[{"ruleId":"info-contact"');
+                expect(warnSpy.mock.calls[0][0]).toContain('"helpUri":"https://speccy.io/rules/1-rulesets#info-contact"');
             });
         });
     });

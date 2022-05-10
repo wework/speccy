@@ -66,6 +66,7 @@ Options:
   -s, --skip [ruleName]   provide multiple rules to skip
   -j, --json-schema       treat $ref like JSON Schema and convert to OpenAPI Schema Objects
   -v, --verbose           set verbosity (use multiple times to increase level)
+  -f, --format [format]   result format (sarif or default)
   -h, --help              output usage information
 ```
 

@@ -1,0 +1,49 @@
+{
+  "$schema":"https://www.schemastore.org/schemas/json/sarif-2.1.0-rtm.5.json",
+  "version":"2.1.0",
+  "runs":[
+    {
+      "tool":{
+        "driver":{
+          "name":"Speccy",
+          "informationUri":"http://speccy.io/",
+          "version":"0.11.0",
+          "rules":[
+            {
+              "id":"info-contact",
+              "shortDescription":{
+                "text":"info object should contain contact object"
+              },
+              "helpUri": "https://speccy.io/rules/1-rulesets"
+            }
+          ]
+        }
+      },
+      "results":[
+        {
+          "ruleId":"info-contact",
+          "ruleIndex":0,
+          "message":{
+            "text":"#/info: expected Object { version: '1.0.0', title: 'Swagger 2.0 Without Scheme' } to have property contact"
+          },
+          "locations":[
+            {
+              "physicalLocation":{
+                "artifactLocation":{
+                  "uri":"no-contact.yaml",
+                  "uriBaseId":"ROOTPATH"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "columnKind":"utf16CodeUnits",
+      "originalUriBaseIds":{
+        "ROOTPATH":{
+          "uri":"file:///home/user/testopenapidir/"
+        }
+      }
+    }
+  ]
+}

@@ -99,7 +99,7 @@ const formatLintResultsAsSarif = (lintResults, specFile) => {
             newRule['helpUri'] = rule.url + "#" + rule.name;
             sarif['runs'][0]['tool']['driver']['rules'].push(newRule);
         }
-        const ruleIndex = sarif['runs'][0]['tool']['driver']['rules'].length - 1;
+        const ruleIndex = sarif['runs'][0]['tool']['driver']['rules'].findIndex(it => it.id === rule.name);
         var result = {
             'ruleId' : rule.name,
             'ruleIndex' : ruleIndex,
